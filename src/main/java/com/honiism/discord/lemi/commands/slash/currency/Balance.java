@@ -29,7 +29,7 @@ public class Balance extends SlashCmd {
     public Balance() {
         this.name = "balance";
         this.desc = "Shows the balance of a user if provided.";
-        this.usage = "/currency balance [true/false] [user]";
+        this.usage = "/currency balance <user> [true/false]";
         this.category = CommandCategory.CURRENCY;
         this.userCategory = UserCategory.USERS;
         this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
