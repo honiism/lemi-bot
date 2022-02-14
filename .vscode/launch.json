@@ -10,12 +10,6 @@
                         "request": "launch",
                         "mainClass": "com.honiism.discord.lemi.Lemi",
                         "projectName": "lemidiscordbot"
-                },
-                {
-                        "type": "java",
-                        "name": "Launch Current File",
-                        "request": "launch",
-                        "mainClass": "${file}"
                 }
         ]
 }
