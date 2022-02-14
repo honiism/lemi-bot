@@ -44,7 +44,8 @@
 | Command | Description |
 | --- | --- |
 | /currency help | View the help guide for this command. |
-| /currency balance `<user> [true/false]` | Shows the balance of a user. |
+| /currency balance `<user>` `[true/false]` | Shows the balance of a user. |
 | /currency bankrob `[true/false]` | Attempt to bankrob (You can win double but at the same time you can also go in debt). |
 | /currency beg `[true/false]` | Try out your chances! You can get small, maybe rare items. |
 | /currency cook `[true/false]` | Let's see if your cooking skills can handle this! |
+| /currency inventory `<user>` `[true/false]` | Shows the inventory of a user. |
