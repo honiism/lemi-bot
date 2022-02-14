@@ -12,7 +12,7 @@
 </p>
 
 # 🌷 Lemi-Bot <3
-<img align="right" src="https://github.com/honiism/lemi-bot/blob/assets/assets/Lemi.png?raw=true" height="250" width="250">
+<img align="right" src="https://github.com/honiism/lemi-bot/blob/assets/assets/Lemi.png?raw=true" height="200" width="200">
 
 [ ![discord-shield][] ][discord-invite]
 [ ![license-shield][] ][license]
