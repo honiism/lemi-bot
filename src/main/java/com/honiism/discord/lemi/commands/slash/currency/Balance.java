@@ -28,7 +28,7 @@ public class Balance extends SlashCmd {
 
     public Balance() {
         this.name = "balance";
-        this.desc = "Shows the balance of a user if provided.";
+        this.desc = "Shows the balance of a user.";
         this.usage = "/currency balance <user> [true/false]";
         this.category = CommandCategory.CURRENCY;
         this.userCategory = UserCategory.USERS;
