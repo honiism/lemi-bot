@@ -12,9 +12,13 @@
 </p>
 
 # 🌷 Lemi-Bot <3
-<img align="right" src="https://github.com/honiism/lemi-bot/blob/assets/assets/Lemi.png?raw=true" height="200" width="200">
+<img align="right" src="https://github.com/honiism/lemi-bot/blob/assets/assets/Lemi.png?raw=true" height="auto" width="200">
 
 [ ![discord-shield][] ][discord-invite]
 [ ![license-shield][] ][license]
 
-🎀🌼 A discord bot named Lemi who is able to handle currency, fun and game commands made **specifically for Honey's Sweets** server!
+> - 🎀 A discord bot named Lemi who is able to handle currency, fun and game commands made **specifically for Honey's Sweets** server!
+> - 🌼 Made by honiism#8022 on discord.
+
+# 🥥 Commands
+<img align="right" src="https://i.pinimg.com/originals/0e/bf/2d/0ebf2d51966d4b872c2d700167267143.gif" height="auto" width="200">
