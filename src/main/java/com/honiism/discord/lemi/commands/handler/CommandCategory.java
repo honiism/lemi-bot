@@ -17,11 +17,15 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.handler;
+package com.honiism.discord.lemi.commands.handler;
 
-public enum UserCategory {
-    DEV,
-    ADMINS,
+public enum CommandCategory {
+    MAIN, // no slash category
+    CURRENCY,
+    FUN,
+    GAMES,
+
     MODS,
-    USERS
+    ADMINS,
+    DEV
 }

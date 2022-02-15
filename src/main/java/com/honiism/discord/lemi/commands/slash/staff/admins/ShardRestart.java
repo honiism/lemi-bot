@@ -24,9 +24,9 @@ import java.util.HashMap;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.commands.slash.handler.CommandCategory;
+import com.honiism.discord.lemi.commands.handler.CommandCategory;
+import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.commands.slash.handler.UserCategory;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import org.slf4j.Logger;
