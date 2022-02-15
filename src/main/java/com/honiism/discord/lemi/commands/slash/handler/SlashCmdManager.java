@@ -30,6 +30,7 @@ import com.google.common.collect.Multimap;
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.commands.slash.staff.admins.Embed;
 import com.honiism.discord.lemi.commands.slash.staff.admins.ResetCurrData;
+import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.slash.currency.Balance;
 import com.honiism.discord.lemi.commands.slash.currency.Bankrob;
 import com.honiism.discord.lemi.commands.slash.currency.Beg;
@@ -64,7 +65,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
@@ -260,14 +260,11 @@ public class SlashCmdManager {
     }
 
     public void handle(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
         String executedCmdName = event.getName();
         ISlashCmd slashCmd = commandsMap.get(executedCmdName);
 
         if (slashCmd != null) {
             slashCmd.executeAction(event);
-        } else {
-            hook.sendMessage("That command doesn't exist smarta- smart.").queue();
         }
     }
 }
