@@ -56,6 +56,7 @@ import com.honiism.discord.lemi.commands.slash.staff.mods.ModifyItem;
 import com.honiism.discord.lemi.commands.slash.staff.mods.ModsTopLevel;
 import com.honiism.discord.lemi.commands.slash.staff.mods.ShardStatus;
 import com.honiism.discord.lemi.commands.slash.staff.mods.Test;
+import com.honiism.discord.lemi.commands.slash.staff.mods.ViewItems;
 import com.honiism.discord.lemi.listeners.BaseListener;
 
 import org.slf4j.Logger;
@@ -99,11 +100,12 @@ public class SlashCmdManager {
         Beg begCmd = new Beg();
         Cook cookCmd = new Cook();
         ManageItems manageItemsCmd = new ManageItems();
+        ViewItems viewItemsCmd = new ViewItems();
 
         DevTopLevel devTopLevelCmd = new DevTopLevel(modifyAdminsCmd, modifyModsCmd, shutdownCmd, compileCmd, manageItemsCmd);
         AdminsTopLevel adminsTopLevelCmd = new AdminsTopLevel(userBanCmd, shardRestartCmd, embedCmd, resetCurrDataCmd);
         ModsTopLevel modsTopLevelCmd = new ModsTopLevel(testCmd, guildListCmd, shardStatusCmd,
-                addCurrProfileCmd, modifyBalCmd, modifyItemCmd);
+                addCurrProfileCmd, modifyBalCmd, modifyItemCmd, viewItemsCmd);
         CurrencyTopLevel currencyTopLevelCmd = new CurrencyTopLevel(balanceCmd, inventoryCmd, bankrobCmd, begCmd,
                 cookCmd);
 

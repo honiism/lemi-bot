@@ -45,18 +45,20 @@ public class ModsTopLevel extends SlashCmd {
     private AddCurrProfile addCurrProfileCmd;
     private ModifyBal modifyBalGroup;
     private ModifyItem modifyItemGroup;
+    private ViewItems viewItemsCmd;
 
     private long timeDelayed;
 
     public ModsTopLevel(Test testSubCmd, GuildList guildListCmd, ShardStatus shardStatusCmd,
                         AddCurrProfile addCurrProfileCmd, ModifyBal modifyBalGroup,
-                        ModifyItem modifyItemGroup) {
+                        ModifyItem modifyItemGroup, ViewItems viewItemsCmd) {
         this.shardStatusCmd = shardStatusCmd;
         this.testSubCmd = testSubCmd;
         this.guildListCmd = guildListCmd;
         this.addCurrProfileCmd = addCurrProfileCmd;
         this.modifyBalGroup = modifyBalGroup;
         this.modifyItemGroup = modifyItemGroup;
+        this.viewItemsCmd = viewItemsCmd;
 
         this.name = "mods";
         this.desc = "Commands for the moderators of Lemi the discord bot.";
@@ -77,7 +79,10 @@ public class ModsTopLevel extends SlashCmd {
                                          .addOptions(this.shardStatusCmd.getOptions()),
 
                                      new SubcommandData(this.addCurrProfileCmd.getName(), this.addCurrProfileCmd.getDesc())
-                                         .addOptions(this.addCurrProfileCmd.getOptions())
+                                         .addOptions(this.addCurrProfileCmd.getOptions()),
+
+                                     new SubcommandData(this.viewItemsCmd.getName(), this.viewItemsCmd.getDesc())
+                                         .addOptions(this.viewItemsCmd.getOptions())
                                     );
         this.subCmdGroups = Arrays.asList(new SubcommandGroupData(this.modifyBalGroup.getName(), this.modifyBalGroup.getDesc())
                                               .addSubcommands(this.modifyBalGroup.getSubCmds()),
@@ -148,6 +153,10 @@ public class ModsTopLevel extends SlashCmd {
 
                 case "addcurrprofile":
                     this.addCurrProfileCmd.action(event);
+                    break;
+
+                case "viewitems":
+                    this.viewItemsCmd.action(event);
             }
         }
     }    
