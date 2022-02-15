@@ -6,7 +6,7 @@
 
   <groupId>com.honiism.discord</groupId>
   <artifactId>lemidiscordbot</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0-alpha.1</version>
 
   <name>lemidiscordbot</name>
   <url></url>
