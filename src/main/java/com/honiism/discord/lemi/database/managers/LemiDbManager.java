@@ -43,13 +43,13 @@ public interface LemiDbManager {
     // modifyadmins
     List<String> getAdminIds(SlashCommandInteractionEvent event);
     List<String> getAdminKeys(SlashCommandInteractionEvent event);
-    void removeAdminId(Guild guild, User user, SlashCommandInteractionEvent event);
+    void removeAdminId(Guild guild, Member member, SlashCommandInteractionEvent event);
     void addAdminId(Guild guild, Member member, String key, SlashCommandInteractionEvent event);
 
     // modifymods
     List<String> getModIds(SlashCommandInteractionEvent event);
     List<String> getModKeys(SlashCommandInteractionEvent event);
-    void removeModId(Guild guild, User user, SlashCommandInteractionEvent event);
+    void removeModId(Guild guild, Member member, SlashCommandInteractionEvent event);
     void addModId(Guild guild, Member member, String key, SlashCommandInteractionEvent event);
 
     // guildlistener

@@ -44,27 +44,23 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 public class ShardRestart extends SlashCmd {
 
     private static final Logger log = LoggerFactory.getLogger(ShardRestart.class);
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public ShardRestart() {
         this.name = "shardrestart";
         this.desc = "Restart a shard if it gets stuck.";
-        this.usage = "/admins shardrestart [true/false] [shard id]";
+        this.usage = "/admins shardrestart [shard id]";
         this.category = CommandCategory.ADMINS;
         this.userCategory = UserCategory.ADMINS;
         this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
         this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.options = Arrays.asList(new OptionData(OptionType.BOOLEAN,
-                                             "help",
-                                             "Want a help guide for this command? (True = yes, false = no).")
-                                         .setRequired(false),
-
-                                     new OptionData(OptionType.INTEGER,
-                                             "id",
-                                             "The shard id to restart (Skip this option to reset all the shards).")
-                                        .setRequired(false)
-                                    );
+        this.options = Arrays.asList(
+                new OptionData(OptionType.INTEGER,
+                            "shard_id",
+                            "The shard id to restart (Skip this option to reset all the shards).",
+                            false)
+        );
     }
 
     @Override
@@ -85,16 +81,11 @@ public class ShardRestart extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            OptionMapping helpOption = event.getOption("help");
-            OptionMapping shardIdOption = event.getOption("id");
-
-            if (helpOption != null && helpOption.getAsBoolean()) {
-                hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                return;
-            }
+            OptionMapping shardIdOption = event.getOption("shard_id");
 
             if (shardIdOption == null) {
                 log.info(author.getIdLong() + " is restarting all the shards.");
+
                 hook.sendMessage(":tulip: Restarting all the shards, see you in a bit :).").queue();
 
                 Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
@@ -108,6 +99,7 @@ public class ShardRestart extends SlashCmd {
                         
             } else if (shardIdOption != null && shardIdOption.getAsLong() < Lemi.getInstance().getShardManager().getShardsTotal()) {
                 log.info(author.getIdLong() + " is restarting the shard(" + shardIdOption.getAsLong() +").");
+                
                 hook.sendMessage(":tulip: Restarting the shard(" + shardIdOption.getAsLong() + "), see you in a bit :).").queue();
 
                 Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))

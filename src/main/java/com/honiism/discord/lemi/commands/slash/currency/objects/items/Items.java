@@ -624,7 +624,7 @@ public abstract class Items implements ItemInterface {
         public LargeFossil() {
             this.name = "large fossil";
             this.desc = "BIG FOSSIL WOWIE";
-            this.emoji = ":shell:";
+            this.emoji = ":diamond_shape_with_a_dot_inside: :shell:";
             this.isSellable = true;
             this.isBuyable = false;
             this.isGiftable = true;
@@ -649,7 +649,7 @@ public abstract class Items implements ItemInterface {
         public GiganticFish() {
             this.name = "gigantic fossil";
             this.desc = "WHAT HOW?? UH OK?";
-            this.emoji = ":shell:";
+            this.emoji = ":trident: :shell:";
             this.isSellable = true;
             this.isBuyable = false;
             this.isGiftable = true;
@@ -882,10 +882,7 @@ public abstract class Items implements ItemInterface {
 
         if (disappearAfterUsage()) {
             useAction(hook);
-            CurrencyTools.removeItemFromUser(String.valueOf(hook.getInteraction().getUser().getIdLong()),
-                getName(),
-                CurrencyTools.getItemFromUserInv(String.valueOf(hook.getInteraction().getUser().getIdLong()), getName()),
-                1);
+            CurrencyTools.removeItemFromUser(String.valueOf(hook.getInteraction().getUser().getIdLong()), getName(), 1);
             return;
         }
 

@@ -28,8 +28,10 @@ import java.util.concurrent.TimeUnit;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
+import com.honiism.discord.lemi.commands.slash.handler.ISlashCmd;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmdManager;
+import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.honiism.discord.lemi.utils.paginator.EmbedPaginator;
@@ -39,12 +41,13 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Help extends SlashCmd {
 
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public Help() {
@@ -56,7 +59,15 @@ public class Help extends SlashCmd {
         this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
         this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
         this.options = Arrays.asList(
-                new OptionData(OptionType.INTEGER, "page", "Page of the help menu.").setRequired(false)
+                new OptionData(OptionType.INTEGER,
+                            "page",
+                            "Page of the help menu.",
+                            false),
+
+                new OptionData(OptionType.STRING,
+                            "command_name",
+                            "The name of command/category to display its help menu.",
+                            false)
         );
     }
     
@@ -78,6 +89,40 @@ public class Help extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
+            OptionMapping cmdNameOption = event.getOption("command_name");
+
+            if (cmdNameOption != null) {
+                String cmdName = cmdNameOption.getAsString();
+
+                if (SlashCmdManager.getIns().getCmdByName(cmdName) == null) {
+                    hook.sendMessage(":tulip: That command doesn't exist.\r\n"
+                            + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
+                            + ":sunflower: Don't include the category names when you're trying to " 
+                            + "*search for a command* and don't put the slashes!\r\n"
+                            + CustomEmojis.PINK_CHECK_MARK + " `balance`\r\n"
+                            + CustomEmojis.PINK_CROSS_MARK + " `/currency balance`\r\n"
+                            + "-\r\n"
+                            + ":seedling: You can also get a category help menu!\r\n"
+                            + CustomEmojis.PINK_CHECK_MARK + " `fun`\r\n"
+                            + CustomEmojis.PINK_CROSS_MARK + " `/fun`")
+                        .queue();
+                    return;
+                }
+
+                if ((cmdName.equalsIgnoreCase("dev")
+                        || cmdName.equalsIgnoreCase("admins")
+                        || cmdName.equalsIgnoreCase("mods"))
+                        && !Tools.isAuthorMod(event.getMember(), event)) {
+                    hook.sendMessage(":tulip: Oops.. too bad! Can't open that menu.").queue();
+                    return;
+                }
+
+                ISlashCmd cmd = SlashCmdManager.getIns().getCmdByName(cmdName);
+
+                hook.sendMessageEmbeds(cmd.getHelp(event)).queue();
+                return;
+            }
+
             List<EmbedBuilder> items = new ArrayList<>();
 
             for (CommandCategory category : CommandCategory.values()) {
@@ -89,12 +134,14 @@ public class Help extends SlashCmd {
                     continue;
                 }
                 
+                SlashCmdManager slashCmdManagerIns = SlashCmdManager.getIns();
+                
                 items.add(new EmbedBuilder()
                     .setTitle("‧₊੭ :cherries: Lemi commands!")
-                    .setDescription("- You can run `/command help` to see a guide for that specific command.\r\n"
+                    .setDescription("- You can run `/help command_name` to see a guide for that specific command.\r\n"
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
                     .appendDescription(":sunflower: Category : " + category.toString() + "\r\n \r\n" 
-                        + String.join(", ", SlashCmdManager.getCmdNames(SlashCmdManager.getCmdByCategory(category))))
+                        + String.join(", ", slashCmdManagerIns.getCmdNamesByCategory(slashCmdManagerIns.getCmdByCategory(category))))
                     .setThumbnail(hook.getJDA().getSelfUser().getAvatarUrl())
                     .setColor(0xffd1dc)
                 );

@@ -195,14 +195,18 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
     
     @Override
-    public void addBalToUser(String userId, long userBal, long balanceToAdd) {
+    public void addBalToUser(String userId, long balanceToAdd) {
+        long userBal = getUserBal(userId);
         long balAfterAdd = userBal + balanceToAdd;
+
         updateUserBal(userId, balAfterAdd);
     }
 
     @Override
-    public void removeBalFromUser(String userId, long userBal, long balanceToRemove) {
+    public void removeBalFromUser(String userId, long balanceToRemove) {
+        long userBal = getUserBal(userId);
         long balAfterRemove = userBal - balanceToRemove;
+
         updateUserBal(userId, balAfterRemove);
     }
     
@@ -288,8 +292,10 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void addItemToUser(String userId, String itemName, long userItemAmount, long amountToAdd) {
+    public void addItemToUser(String userId, String itemName, long amountToAdd) {
+        long userItemAmount = getItemFromUserInv(userId, itemName);
         long itemAfterAdd = userItemAmount + amountToAdd;
+
         updateItemUser(userId, itemName, itemAfterAdd);
     }
 
@@ -309,8 +315,10 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void removeItemFromUser(String userId, String itemName, long userItemAmount, long amountToRemove) {
+    public void removeItemFromUser(String userId, String itemName, long amountToRemove) {
+        long userItemAmount = getItemFromUserInv(userId, itemName);
         long itemAfterRemove = userItemAmount - amountToRemove;
+        
         updateItemUser(userId, itemName, itemAfterRemove);
     }
 

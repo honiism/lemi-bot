@@ -46,32 +46,31 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class ModifyAdmins extends SlashCmd {
 
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public ModifyAdmins() {
         this.name = "modifyadmins";
         this.desc = "Add/remove/view user(s) to/from the administrator database.";
-        this.usage = "/dev modifyadmins ((subcommand))";
+        this.usage = "/dev modifyadmins ((subcommands))";
         this.category = CommandCategory.DEV;
         this.userCategory = UserCategory.DEV;
         this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
         this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(new SubcommandData("help", "View the help guide for this command."),
-                                      
-                                     new SubcommandData("add", "Add a user's key in the official administrator list.")
-                                         .addOption(OptionType.USER, "user", "The @user/id you want to add.", true)
-                                         .addOption(OptionType.STRING, "key",
-                                                 "The key that will be assigned for this user.",
-                                                 true),
+        this.subCmds = Arrays.asList(
+                new SubcommandData("add", "Add a user's key in the official administrator list.")
+                        .addOption(OptionType.USER, "user", "The user you want to add.", true)
+                        .addOption(OptionType.STRING, "key",
+                                "The key that will be assigned for this user.",
+                                true),
   
-                                     new SubcommandData("remove", "Remove a user from the official administrator list.")
-                                         .addOption(OptionType.USER, "user",
-                                                 "The @user/id you want to remove.",
-                                                 true),
+                new SubcommandData("remove", "Remove a user from the official administrator list.")
+                        .addOption(OptionType.USER, "user",
+                                "The user you want to remove.",
+                                true),
 
-                                     new SubcommandData("view", "View all details from the official administrator list.")
-                                    );
+                new SubcommandData("view", "View all details from the official administrator list.")
+        );
     }
 
     @Override
@@ -96,10 +95,6 @@ public class ModifyAdmins extends SlashCmd {
             String subCmdName = event.getSubcommandName();
 
             switch (subCmdName) {
-                case "help":
-                    hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                    break;
-
                 case "add":
                     Member memberToAdd = event.getOption("user").getAsMember();
                     String keyToAdd = event.getOption("key").getAsString();
@@ -113,8 +108,14 @@ public class ModifyAdmins extends SlashCmd {
                     break;
 
                 case "remove":
-                    User userToRemove = event.getOption("user").getAsUser();
-                    LemiDbManager.INS.removeAdminId(guild, userToRemove, event);
+                    Member memberToRemove = event.getOption("user").getAsMember();
+
+                    if (memberToRemove == null) {
+                        hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
+                        return;
+                    }
+
+                    LemiDbManager.INS.removeAdminId(guild, memberToRemove, event);
                     break;
 
                 case "view":
@@ -165,8 +166,8 @@ public class ModifyAdmins extends SlashCmd {
 
         int page = 1;
 
-        event.getUser().openPrivateChannel().queue((msg) -> {
-            msg.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":seedling: Loading..."))
+        event.getUser().openPrivateChannel().queue((privChannel) -> {
+            privChannel.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":seedling: Loading..."))
                 .queue(message -> builder.build().paginate(message, page));
         });
 

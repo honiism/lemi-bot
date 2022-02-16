@@ -38,25 +38,24 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class ManageItems extends SlashCmd {
 
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public ManageItems() {
         this.name = "manageitems";
         this.desc = "Add/remove items to/from the database.";
-        this.usage = "/manageitems ((subcommand))";
+        this.usage = "/manageitems ((subcommands))";
         this.category = CommandCategory.DEV;
         this.userCategory = UserCategory.DEV;
         this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
         this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(new SubcommandData("help", "View the help guide for this command."),
+        this.subCmds = Arrays.asList(
+                new SubcommandData("add", "Add a new item to the database.")
+                        .addOption(OptionType.STRING, "item_name", "The name of the item to add.", true),
 
-                                     new SubcommandData("add", "Add a new item to the database.")
-                                         .addOption(OptionType.STRING, "name", "The name of the item to add.", true),
-
-                                     new SubcommandData("remove", "Remove an existing item from the database.")
-                                         .addOption(OptionType.STRING, "name", "The name of the item to remove.", true)
-                                    );
+                new SubcommandData("remove", "Remove an existing item from the database.")
+                        .addOption(OptionType.STRING, "item_name", "The name of the item to remove.", true)
+        );
     }
 
     @Override
@@ -78,13 +77,9 @@ public class ManageItems extends SlashCmd {
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
             String subCmdName = event.getSubcommandName();
-            String itemName = event.getOption("name").getAsString();
+            String itemName = event.getOption("item_name").getAsString();
 
             switch (subCmdName) {
-                case "help":
-                    hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                    break;
-
                 case "add":
                     if (CurrencyTools.checkIfItemExists(itemName)) {
                         hook.sendMessage(":cherries: This item already exists in the database.").queue();

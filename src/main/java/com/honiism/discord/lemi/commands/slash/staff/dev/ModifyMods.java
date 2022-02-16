@@ -46,28 +46,27 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class ModifyMods extends SlashCmd {
 
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public ModifyMods() {
         this.name = "modifymods";
         this.desc = "Add/remove/view user(s) to/from the moderator database.";
-        this.usage = "/modifymods ((subcommand))";
+        this.usage = "/modifymods ((subcommands))";
         this.category = CommandCategory.DEV;
         this.userCategory = UserCategory.DEV;
         this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
         this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(new SubcommandData("help", "View the help guide for this command."),
+        this.subCmds = Arrays.asList(
+                new SubcommandData("add", "Add a user to the official moderator list.")
+                        .addOption(OptionType.USER, "user", "The user you want to add.", true)
+                        .addOption(OptionType.STRING, "key", "The key that will be assigned for this user.", true),
 
-                                     new SubcommandData("add", "Add a user to the official moderator list.")
-                                         .addOption(OptionType.USER, "user", "The @user/id you want to add.", true)
-                                         .addOption(OptionType.STRING, "key", "The key that will be assigned for this user.", true),
+                new SubcommandData("remove", "Remove a user from the official moderator list.")
+                        .addOption(OptionType.USER, "user", "The user you want to remove.", true),
 
-                                     new SubcommandData("remove", "Remove a user from the official moderator list.")
-                                         .addOption(OptionType.USER, "user", "The @user/id you want to remove.", true),
-
-                                     new SubcommandData("view", "View all details from the official moderator list.")
-                                    );
+                new SubcommandData("view", "View all details from the official moderator list.")
+        );
     }
     
     @Override
@@ -92,10 +91,6 @@ public class ModifyMods extends SlashCmd {
             String subCmdName = event.getSubcommandName();
 
             switch (subCmdName) {
-                case "help":
-                    hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                    break;
-
                 case "add":
                     Member memberToAdd = event.getOption("user").getAsMember();
                     String keyToAdd = event.getOption("key").getAsString();
@@ -109,8 +104,14 @@ public class ModifyMods extends SlashCmd {
                     break;
 
                 case "remove":
-                    User userToRemove = event.getOption("user").getAsUser();
-                    LemiDbManager.INS.removeModId(guild, userToRemove, event);
+                    Member memberToRemove = event.getOption("user").getAsMember();
+
+                    if (memberToRemove == null) {
+                        hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
+                        return;
+                    }
+
+                    LemiDbManager.INS.removeModId(guild, memberToRemove, event);
                     break;
 
                 case "view":

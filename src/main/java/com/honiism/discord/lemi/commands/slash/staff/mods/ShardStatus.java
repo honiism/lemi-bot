@@ -51,63 +51,50 @@ public class ShardStatus extends SlashCmd {
     public ShardStatus() {
         this.name = "shardstatus";
         this.desc = "View the status of all shards.";
-        this.usage = "/mods shardstatus [true/false] [page number]";
+        this.usage = "/mods shardstatus [page number]";
         this.category = CommandCategory.MODS;
         this.userCategory = UserCategory.MODS;
         this.userPermissions = new Permission[] {Permission.MESSAGE_MANAGE};
         this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(new OptionData(OptionType.BOOLEAN,
-                                             "help",
-                                             "Want a help guide for this command? (True = yes, false = no).")
-                                         .setRequired(false),
-
-                                     new OptionData(OptionType.INTEGER,
-                                             "page",
-                                             "The page number for the shard status you want to see.")
-                                         .setRequired(false)
-                                    );
+        this.options = Arrays.asList(
+                new OptionData(OptionType.INTEGER,
+                            "page",
+                            "The page number for the shard status you want to see.",
+                            false)
+        );
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User user = event.getUser();
+        User author = event.getUser();
         
-        if (delay.containsKey(user.getIdLong())) {
-            timeDelayed = System.currentTimeMillis() - delay.get(user.getIdLong());
+        if (delay.containsKey(author.getIdLong())) {
+            timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
         } else {
             timeDelayed = (10 * 1000);
         }
             
         if (timeDelayed >= (10 * 1000)) {
-            if (delay.containsKey(user.getIdLong())) {
-                delay.remove(user.getIdLong());
+            if (delay.containsKey(author.getIdLong())) {
+                delay.remove(author.getIdLong());
             }
         
-            delay.put(user.getIdLong(), System.currentTimeMillis());
-
-            if (event.getOption("help") != null && event.getOption("help").getAsBoolean()) {
-                hook.sendMessageEmbeds(getHelp(event)).queue();
-                return;
-            }
+            delay.put(author.getIdLong(), System.currentTimeMillis());
 
             List<JDA> shards = new ArrayList<>(Lemi.getInstance().getShardManager().getShardCache().asList());
             Collections.reverse(shards);
 
-            List<String> shardDetails = new ArrayList<>();
-            StringBuilder shardDetailsBuilder = new StringBuilder();
+            List<String> shardDetailsItems = new ArrayList<>();
 
             for (JDA shard : shards) {
-                int shardId = shard.getShardInfo().getShardId();
+                String shardDetails = "Shard id : " + shard.getShardInfo().getShardId()
+                        + " | status : " + shard.getStatus()
+                        + " | cached guilds : " + shard.getGuildCache().size()
+                        + " | cached members : " + shard.getUserCache().size()
+                        + " | gateway ping : " + shard.getGatewayPing() + " ms";
 
-                shardDetailsBuilder.append("Shard id : " + shardId
-                        + " | status : " + Lemi.getInstance().getShardManager().getShardById(shardId).getStatus()
-                        + " | cached guilds : " + Lemi.getInstance().getShardManager().getShardById(shardId).getGuildCache().size()
-                        + " | cached members : " + Lemi.getInstance().getShardManager().getShardById(shardId).getUserCache().size()
-                        + " | gateway ping : " + Lemi.getInstance().getShardManager().getShardById(shardId).getGatewayPing() + " ms");
-
-                shardDetails.add(shardDetailsBuilder.toString());
-                shardDetailsBuilder.setLength(0);
+                shardDetailsItems.add(shardDetails);
             }
 
             Paginator.Builder builder = new Paginator.Builder(event.getJDA())
@@ -117,7 +104,7 @@ public class ShardStatus extends SlashCmd {
                         + ":snowflake: Cached users : " + Lemi.getInstance().getShardManager().getUserCache().size() + "\r\n")
                 .setEventWaiter(Lemi.getInstance().getEventWaiter())
                 .setItemsPerPage(10)
-                .setItems(shardDetails)
+                .setItems(shardDetailsItems)
                 .useNumberedItems(true)
                 .useTimestamp(true)
                 .addAllowedUsers(event.getUser().getIdLong())
@@ -141,7 +128,7 @@ public class ShardStatus extends SlashCmd {
             EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
                 .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + user.getAsMention() 
+                        + author.getAsMention() 
                         + ", you can use this command again in `" + time + "`.")
                 .setColor(0xffd1dc);
                 

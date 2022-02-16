@@ -27,10 +27,8 @@ import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.honiism.discord.lemi.Config;
@@ -38,9 +36,7 @@ import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
-import com.honiism.discord.lemi.utils.paginator.EmbedPaginator;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 
 import org.json.JSONObject;
@@ -61,104 +57,62 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 public class Compile extends SlashCmd {
 
     private static final Logger log = LoggerFactory.getLogger(Compile.class);
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public Compile() {
         this.name = "compile";
         this.desc = "Compile code using Lemi's core system.";
-        this.usage = "/dev compile [input] [true/false] [page number]";
+        this.usage = "/dev compile [input] [page number]";
         this.category = CommandCategory.DEV;
         this.userCategory = UserCategory.DEV;
         this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
         this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.options = Arrays.asList(new OptionData(OptionType.STRING,
-                                             "language",
-                                             "Language you want to use to code.")
-                                        .setRequired(true),
+        this.options = Arrays.asList(
+                new OptionData(OptionType.STRING,
+                            "language",
+                            "Language you want to use to code.",
+                            true),
 
-                                     new OptionData(OptionType.STRING,
-                                             "version-index",
-                                             "The version index of the language to use.")
-                                        .setRequired(true),
+                new OptionData(OptionType.STRING,
+                            "version_index",
+                            "The version index of the language to use.",
+                            true),
 
-                                     new OptionData(OptionType.STRING,
-                                             "input",
-                                             "Input for the code if needed for execution.")
-                                         .setRequired(false),
-                
-                                     new OptionData(OptionType.BOOLEAN,
-                                             "help",
-                                             "Want a help guide for this command? (True = yes, false = no).")
-                                         .setRequired(false),
+                new OptionData(OptionType.STRING,
+                            "input",
+                            "Input for the code if needed for execution.",
+                            false),
 
-                                     new OptionData(OptionType.INTEGER,
-                                             "page",
-                                             "The page number for the compile menu you want to see.")
-                                         .setRequired(false)
-                                    );
+                new OptionData(OptionType.INTEGER,
+                            "page",
+                            "The page number for the compile menu you want to see.",
+                            false)
+        );
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User user = event.getUser();
+        User author = event.getUser();
 
-        if (delay.containsKey(user.getIdLong())) {
-            timeDelayed = System.currentTimeMillis() - delay.get(user.getIdLong());
+        if (delay.containsKey(author.getIdLong())) {
+            timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
         } else {
             timeDelayed = (10 * 1000);
         }
             
         if (timeDelayed >= (10 * 1000)) {
-            if (delay.containsKey(user.getIdLong())) {
-                delay.remove(user.getIdLong());
+            if (delay.containsKey(author.getIdLong())) {
+                delay.remove(author.getIdLong());
             }
         
-            delay.put(user.getIdLong(), System.currentTimeMillis());
-
-            OptionMapping helpOption = event.getOption("help");
-
-            if (helpOption != null && helpOption.getAsBoolean()) {
-                EmbedBuilder supportedLangsEmbed = new EmbedBuilder()
-                    .setTitle("**Languages Guide** ༊·˚”♡ᵎ꒱ˀˀ↷⋯ 》 :tulip:\r\n"
-                            + "๑‧˚₊꒷꒦︶︶︶︶︶꒷꒦︶︶︶︶︶✦‧₊˚⊹")
-                    .setDescription(":blossom: [Here]" 
-                            + "(https://docs.jdoodle.com/compiler-api/compiler-api#what-languages-and-versions-are-supported) " 
-                            + "is the full list of usable languages.")
-                    .setThumbnail(event.getGuild().getSelfMember().getUser().getAvatarUrl())
-                    .setFooter("Have fun ! ꒱ੈ♡˳")
-                    .setColor(0xffd1dc);
-    
-                List<EmbedBuilder> items = new ArrayList<>();
-    
-                items.add(this.getHelpBuilder(event));
-                items.add(supportedLangsEmbed);
-    
-                EmbedPaginator.Builder builder = new EmbedPaginator.Builder(event.getJDA())
-                    .setEventWaiter(Lemi.getInstance().getEventWaiter())
-                    .setTimeout(1, TimeUnit.MINUTES)
-                    .setItems(items)
-                    .addAllowedUsers(event.getUser().getIdLong());
-    
-                int page = 1;
-    
-                if (event.getOption("page") != null) {
-                    page = (int) event.getOption("page").getAsLong();
-                }
-    
-                int finalPage = page;
-
-                hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":cherry_blossom: Loading..."))
-                    .queue(message -> builder.build().paginate(message, finalPage));
-
-                return;
-            }
+            delay.put(author.getIdLong(), System.currentTimeMillis());
 
             hook.sendMessage(":coconut: Please type in your code in 1 minute!").queue();
 
             OptionMapping inputOption = event.getOption("input");
-            String versionIndex = event.getOption("version-index").getAsString();
+            String versionIndex = event.getOption("version_index").getAsString();
             String language = event.getOption("language").getAsString();
 
             waitAndCompile(Lemi.getInstance().getEventWaiter(), hook,
@@ -171,7 +125,7 @@ public class Compile extends SlashCmd {
             EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
                 .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + user.getAsMention() 
+                        + author.getAsMention() 
                         + ", you can use this command again in `" + time + "`.")
                 .setColor(0xffd1dc);
                 
@@ -220,8 +174,8 @@ public class Compile extends SlashCmd {
 
                     try {
                         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
                         JSONObject jsonRespose = new JSONObject(response.body());
+
                         String output = jsonRespose.getString("output");
                         int statusCode = jsonRespose.getInt("statusCode");
                         long memory = jsonRespose.getLong("memory");

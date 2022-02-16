@@ -19,7 +19,6 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.mods;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.honiism.discord.lemi.Config;
@@ -37,9 +36,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Test extends SlashCmd {
 
@@ -50,48 +46,38 @@ public class Test extends SlashCmd {
     public Test() {
         this.name = "test";
         this.desc = "Test if Lemi is responding to commands correctly.";
-        this.usage = "/mods test [true/false]";
+        this.usage = "/mods test";
         this.category = CommandCategory.MODS;
         this.userCategory = UserCategory.MODS;
         this.userPermissions = new Permission[] {Permission.MESSAGE_MANAGE};
         this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(
-                new OptionData(OptionType.BOOLEAN, "help", "Want a help guide for this command? (True = yes, false = no).").setRequired(false)
-        );
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User user = event.getUser();
+        User author = event.getUser();
         
-        if (delay.containsKey(user.getIdLong())) {
-            timeDelayed = System.currentTimeMillis() - delay.get(user.getIdLong());
+        if (delay.containsKey(author.getIdLong())) {
+            timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
         } else {
             timeDelayed = (5 * 1000);
         }
             
         if (timeDelayed >= (5 * 1000)) {
-            if (delay.containsKey(user.getIdLong())) {
-                delay.remove(user.getIdLong());
+            if (delay.containsKey(author.getIdLong())) {
+                delay.remove(author.getIdLong());
             }
         
-            delay.put(user.getIdLong(), System.currentTimeMillis());
+            delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            OptionMapping helpOption = event.getOption("help");
-
-            if (helpOption != null && helpOption.getAsBoolean()) {
-                hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                return;
-            }
-            
             hook.sendMessage(":dango: Hello there, command run correctly! :)").queue();
             
-            log.info(user.getAsTag() + " tested me and I'm working fine (slash).");
+            log.info(author.getAsTag() + " tested me and I'm working fine (slash).");
 
             Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
                 .getTextChannelById(Config.get("logs_channel_id"))
-                .sendMessage(user.getAsTag() + "(" + user.getIdLong() + ") tested me and I'm working fine (slash).")
+                .sendMessage(author.getAsTag() + "(" + author.getIdLong() + ") tested me and I'm working fine (slash).")
                 .queue();
                 
         } else {
@@ -100,7 +86,7 @@ public class Test extends SlashCmd {
             EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
                 .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + user.getAsMention() 
+                        + author.getAsMention() 
                         + ", you can use this command again in `" + time + "`.")
                 .setColor(0xffd1dc);
                 

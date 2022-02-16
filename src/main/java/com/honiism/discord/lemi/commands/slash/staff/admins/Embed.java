@@ -40,29 +40,28 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class Embed extends SlashCmd {
 
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public Embed() {
         this.name = "embed";
-        this.desc = "Add, remove or edit a certain field of an embed.";
-        this.usage = "/mods managecounter ((subcommand))";
+        this.desc = "Add, remove or show an embed you created.";
+        this.usage = "/mods embed ((subcommands))";
         this.category = CommandCategory.MODS;
         this.userCategory = UserCategory.MODS;
         this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
         this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(new SubcommandData("help", "View the help guide for this command."),
-                                      
-                                     new SubcommandData("create", "Create a custom embed."),
+        this.subCmds = Arrays.asList(
+                new SubcommandData("create", "Create a custom embed."),
   
-                                     new SubcommandData("remove", "Remove an existing embed.")
-                                         .addOption(OptionType.STRING, "embed-id", "The id of an embed you want to remove.", true),
+                new SubcommandData("remove", "Remove an existing embed.")
+                        .addOption(OptionType.STRING, "embed_id", "The id of an embed you want to remove.", true),
 
-                                     new SubcommandData("list", "Show all the existing embeds."),
+                new SubcommandData("list", "Show all the existing embeds."),
 
-                                     new SubcommandData("show", "Show an existing embed.")
-                                         .addOption(OptionType.STRING, "embed-id", "The embed you want to show.", true)
-                                    );
+                new SubcommandData("show", "Show an existing embed.")
+                        .addOption(OptionType.STRING, "embed_id", "The embed you want to show.", true)
+        );
     }
 
     @Override
@@ -87,16 +86,12 @@ public class Embed extends SlashCmd {
             EmbedTools embedTools = new EmbedTools();
 
             switch (subCmdName) {
-                case "help":
-                    hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                    break;
-
                 case "create":
                     embedTools.askForId(hook);
                     break;
 
                 case "remove":
-                    String embedIdToDelete = event.getOption("embed-id").getAsString();
+                    String embedIdToDelete = event.getOption("embed_id").getAsString();
                     LemiDbEmbedManager.INS.deleteCustomEmbed(hook, embedIdToDelete);
                     break;
 
@@ -105,7 +100,7 @@ public class Embed extends SlashCmd {
                     break;
 
                 case "show":
-                    String embedIdToShow = event.getOption("embed-id").getAsString();
+                    String embedIdToShow = event.getOption("embed_id").getAsString();
                     LemiDbEmbedManager.INS.showSavedEmbed(hook, embedIdToShow);
             }
         } else {

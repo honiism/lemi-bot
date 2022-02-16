@@ -45,28 +45,27 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class UserBan extends SlashCmd {
 
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public UserBan() {
         this.name = "userban";
         this.desc = "Bans a user from using Lemi bot.";
-        this.usage = "/userban ((subcommand))";
+        this.usage = "/userban ((subcommands))";
         this.category = CommandCategory.ADMINS;
         this.userCategory = UserCategory.ADMINS;
         this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
         this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(new SubcommandData("help", "View the help guide for this command."),
+        this.subCmds = Arrays.asList(
+                new SubcommandData("add", "Ban a user from using Lemi.")
+                        .addOption(OptionType.USER, "user", "The user you want to ban.", true)
+                        .addOption(OptionType.STRING, "reason", "The reason why they're getting banned.", true),
 
-                                     new SubcommandData("add", "Ban a user from using Lemi.")
-                                         .addOption(OptionType.USER, "user", "The @user/id you want to ban.", true)
-                                         .addOption(OptionType.STRING, "reason", "The reason why they're getting banned.", true),
+                new SubcommandData("remove", "Unban a previously banned user.")
+                        .addOption(OptionType.USER, "user", "The user you want to unban.", true),
 
-                                     new SubcommandData("remove", "Unban a previously banned user.")
-                                         .addOption(OptionType.USER, "user", "The @user/id you want to unban.", true),
-
-                                     new SubcommandData("view", "View all details from the ban list.")
-                                    );
+                new SubcommandData("view", "View all details from the ban list.")
+        );
     }
 
     @Override
@@ -90,10 +89,6 @@ public class UserBan extends SlashCmd {
             String subCmdName = event.getSubcommandName();
 
             switch (subCmdName) {
-                case "help":
-                    hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                    break;
-
                 case "add":
                     Member memberToAdd = event.getOption("user").getAsMember();
                     String reason = event.getOption("reason").getAsString();

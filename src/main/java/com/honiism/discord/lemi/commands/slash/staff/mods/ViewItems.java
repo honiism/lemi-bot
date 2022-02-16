@@ -40,7 +40,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -51,17 +50,17 @@ public class ViewItems extends SlashCmd {
 
     public ViewItems() {
         this.name = "viewitems";
-        this.desc = "View the currently available items in the internal list";
-        this.usage = "/mods viewitems [true/false]";
+        this.desc = "View the currently available items in the internal list.";
+        this.usage = "/mods viewitems";
         this.category = CommandCategory.MODS;
         this.userCategory = UserCategory.MODS;
         this.userPermissions = new Permission[] {Permission.MESSAGE_MANAGE};
         this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
         this.options = Arrays.asList(
-                new OptionData(OptionType.BOOLEAN,
-                        "help",
-                        "Want a help guide for this command? (True = yes, false = no).")
-                    .setRequired(false)
+                new OptionData(OptionType.INTEGER,
+                            "page",
+                            "The page number for the guild list you want to see.",
+                            false)
         );
     }
 
@@ -82,22 +81,15 @@ public class ViewItems extends SlashCmd {
             }
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
-
-            OptionMapping helpOption = event.getOption("help");
-
-            if (helpOption != null && helpOption.getAsBoolean()) {
-                hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                return;
-            }
             
             List<String> items = new ArrayList<String>();
 
             for (Items item : CurrencyTools.getItems()) {
-                if (!CurrencyTools.checkIfItemExists(item.getName())) {
-                   items.add(item.getEmoji() + " " + item.getName() + " | " + item.getId() + " | **NOT IN DATABASE**");
-                   continue;
+                if (CurrencyTools.checkIfItemExists(item.getName())) {
+                   items.add(item.getEmoji() + " " + item.getName() + " | " + item.getId()); 
+                } else {
+                    items.add(item.getEmoji() + " " + item.getName() + " | " + item.getId() + " | **NOT IN DATABASE**");
                 }
-                items.add(item.getEmoji() + " " + item.getName() + " | " + item.getId()); 
             }
 
             Paginator.Builder builder = new Paginator.Builder(event.getJDA())
@@ -113,8 +105,14 @@ public class ViewItems extends SlashCmd {
 
             int page = 1;
 
+            if (event.getOption("page") != null) {
+                page = (int) event.getOption("page").getAsLong();
+            }
+
+            int finalPage = page;
+
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":seedling: Loading..."))
-                .queue(message -> builder.build().paginate(message, page));
+                .queue(message -> builder.build().paginate(message, finalPage));
                 
         } else {
             String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);

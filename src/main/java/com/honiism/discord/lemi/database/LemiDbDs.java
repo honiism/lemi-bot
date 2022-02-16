@@ -563,14 +563,14 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public void removeAdminId(Guild guild, User user, SlashCommandInteractionEvent event) {
+    public void removeAdminId(Guild guild, Member member, SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT admin_ids FROM admin_mod_ids WHERE admin_ids = ?")) {
             
-            selectStatement.setLong(1, user.getIdLong());
+            selectStatement.setLong(1, member.getIdLong());
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (!rs.next()) {
@@ -581,50 +581,42 @@ public class LemiDbDs implements LemiDbManager {
 
             try (PreparedStatement deleteStatement =
     		    conn.prepareStatement("DELETE FROM admin_mod_ids WHERE admin_ids = ?")) {
-    		deleteStatement.setLong(1, user.getIdLong());
+    		deleteStatement.setLong(1, member.getIdLong());
 
         	long result = deleteStatement.executeUpdate();
 
                 if (result != 0) {
                     hook.sendMessage(":honey_pot: Successfully removed id.").queue();
                     
-                    log.info(event.getUser().getAsMention() + " removed an admin id. (" + user.getIdLong() + ")");
+                    log.info(event.getUser().getAsMention() + " removed an admin id. (" + member.getIdLong() + ")");
 
                     Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
         	        .getTextChannelById(Config.get("logs_channel_id"))
-        	        .sendMessage(event.getUser().getAsMention() + " removed an admin id. (" + user.getIdLong() + ")").queue();
+        	        .sendMessage(event.getUser().getAsMention() + " removed an admin id. (" + member.getIdLong() + ")").queue();
 
-                    guild.retrieveMember(user, true)
-                        .queue(
-                            (member) -> {
-                                if (member.getRoles().contains(guild.getRoleById(Config.get("admin_role_id")))) {
-                                    guild.removeRoleFromMember(member, guild.getRoleById(Config.get("admin_role_id")))
-                                        .queue(
-                                            (success) -> {
-                                                hook.editOriginal(":cherry_blossom: Successfully removed admin role from them.").queue();
-                                            },
-                                            (error) -> {
-                                                hook.editOriginal(":grapes: Something went wrong while removing the role from them.").queue();
-                                            }
-                                        );
+                    if (member.getRoles().contains(guild.getRoleById(Config.get("admin_role_id")))) {
+                        guild.removeRoleFromMember(member, guild.getRoleById(Config.get("admin_role_id")))
+                            .queue(
+                                (success) -> {
+                                    hook.editOriginal(":cherry_blossom: Successfully removed admin role from them.").queue();
+                                },
+                                (error) -> {
+                                    hook.editOriginal(":grapes: Something went wrong while removing the role from them.").queue();
                                 }
+                            );
+                    }
 
-                                if (member.getRoles().contains(guild.getRoleById(Config.get("staff_role_id")))) {
-                                    guild.removeRoleFromMember(member, guild.getRoleById(Config.get("staff_role_id")))
-                                        .queue(
-                                            (success) -> {
-                                                hook.editOriginal(":cherry_blossom: Successfully removed staff role from them.").queue();
-                                            },
-                                            (error) -> {
-                                                hook.editOriginal(":grapes: Something went wrong while removing the role from them.").queue();
-                                            }
-                                        );
+                    if (member.getRoles().contains(guild.getRoleById(Config.get("staff_role_id")))) {
+                        guild.removeRoleFromMember(member, guild.getRoleById(Config.get("staff_role_id")))
+                            .queue(
+                                (success) -> {
+                                    hook.editOriginal(":cherry_blossom: Successfully removed staff role from them.").queue();
+                                },
+                                (error) -> {
+                                    hook.editOriginal(":grapes: Something went wrong while removing the role from them.").queue();
                                 }
-                            },
-                            (empty) -> {
-                                hook.sendMessage(":butterfly: The member that was removed from the database is no longer in the guild.").queue();
-                            }
-                        );
+                            );
+                    }
 
                 } else {
                     hook.sendMessage(":leaves: Something went wrong while removing the id.").queue();
@@ -896,14 +888,14 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public void removeModId(Guild guild, User user, SlashCommandInteractionEvent event) {
+    public void removeModId(Guild guild, Member member, SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT mod_ids FROM admin_mod_ids WHERE mod_ids = ?")) {
             
-            selectStatement.setLong(1, user.getIdLong());
+            selectStatement.setLong(1, member.getIdLong());
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (!rs.next()) {
@@ -914,51 +906,42 @@ public class LemiDbDs implements LemiDbManager {
 
             try (PreparedStatement deleteStatement =
     	            conn.prepareStatement("DELETE FROM admin_mod_ids WHERE mod_ids = ?")) {
-    	        deleteStatement.setLong(1, user.getIdLong());
+    	        deleteStatement.setLong(1, member.getIdLong());
 
                 long result = deleteStatement.executeUpdate();
 
                 if (result != 0) {
                     hook.sendMessage(":cherry_blossom: Successfully removed id.").queue();
                     
-                    log.info(event.getUser().getAsMention() + " removed a mod id. (" + user.getIdLong() + ")");
+                    log.info(event.getUser().getAsMention() + " removed a mod id. (" + member.getIdLong() + ")");
 
                     Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
                         .getTextChannelById(Config.get("logs_channel_id"))
-                        .sendMessage(event.getUser().getAsMention() + " removed a mod id. (" + user.getIdLong() + ")").queue();
+                        .sendMessage(event.getUser().getAsMention() + " removed a mod id. (" + member.getIdLong() + ")").queue();
 
-                    guild.retrieveMember(user, true)
-                        .queue(
-                            (member) -> {
-                                if (member.getRoles().contains(guild.getRoleById(Config.get("mod_role_id")))) {
-                                    guild.removeRoleFromMember(member, guild.getRoleById(Config.get("mod_role_id")))
-                                        .queue(
-                                            (success) -> {
-                                                hook.editOriginal(":cherry_blossom: Successfully removed mod role from them.").queue();
-                                            },
-                                            (error) -> {
-                                                hook.editOriginal(":grapes: Something went wrong while removing the role from them.").queue();
-                                            }
-                                        );
+                    if (member.getRoles().contains(guild.getRoleById(Config.get("mod_role_id")))) {
+                        guild.removeRoleFromMember(member, guild.getRoleById(Config.get("mod_role_id")))
+                            .queue(
+                                (success) -> {
+                                    hook.editOriginal(":cherry_blossom: Successfully removed mod role from them.").queue();
+                                },
+                                (error) -> {
+                                    hook.editOriginal(":grapes: Something went wrong while removing the role from them.").queue();
                                 }
+                            );
+                    }
 
-                                if (member.getRoles().contains(guild.getRoleById(Config.get("staff_role_id")))) {
-                                    guild.removeRoleFromMember(member, guild.getRoleById(Config.get("staff_role_id")))
-                                        .queue(
-                                            (success) -> {
-                                                hook.editOriginal(":cherry_blossom: Successfully removed staff role from them.").queue();
-                                            },
-                                            (error) -> {
-                                                hook.editOriginal(":grapes: Something went wrong while removing the role from them.").queue();
-                                            }
-                                        );
+                    if (member.getRoles().contains(guild.getRoleById(Config.get("staff_role_id")))) {
+                        guild.removeRoleFromMember(member, guild.getRoleById(Config.get("staff_role_id")))
+                            .queue(
+                                (success) -> {
+                                    hook.editOriginal(":cherry_blossom: Successfully removed staff role from them.").queue();
+                                },
+                                (error) -> {
+                                    hook.editOriginal(":grapes: Something went wrong while removing the role from them.").queue();
                                 }
-                            },
-                            (empty) -> {
-                                hook.sendMessage(":butterfly: The member that was removed from the database is no longer in the guild.").queue();
-                            }
-                        );
-                        
+                            );
+                    }
                 } else {
                     hook.sendMessage(":grapes: Something went wrong while removing the id.").queue();
                 }

@@ -32,11 +32,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -48,21 +46,17 @@ public class Balance extends SlashCmd {
     public Balance() {
         this.name = "balance";
         this.desc = "Shows the balance of a user.";
-        this.usage = "/currency balance <user> [true/false]";
+        this.usage = "/currency balance <user>";
         this.category = CommandCategory.CURRENCY;
         this.userCategory = UserCategory.USERS;
         this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
         this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(new OptionData(OptionType.USER,
-                                             "user",
-                                             "The user you want to see the balance of.")
-                                        .setRequired(true),
-                
-                                    new OptionData(OptionType.BOOLEAN,
-                                             "help",
-                                             "Want a help guide for this command? (True = yes, false = no).")
-                                         .setRequired(false)
-                                    );
+        this.options = Arrays.asList(
+                new OptionData(OptionType.USER,
+                            "user",
+                            "The user you want to see the balance of.",
+                            true)
+        );
     }
 
     @Override
@@ -83,13 +77,6 @@ public class Balance extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            OptionMapping helpOption = event.getOption("help");
-
-            if (helpOption != null && helpOption.getAsBoolean()) {
-                hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                return;
-            }
-
             Member member = event.getOption("user").getAsMember();
 
             if (member == null) {
@@ -98,19 +85,16 @@ public class Balance extends SlashCmd {
             }
 
             EmbedBuilder userBal = new EmbedBuilder();
+
             Guild guild = event.getGuild();
-            TextChannel channel = hook.getInteraction().getTextChannel();
             long bal = CurrencyTools.getUserbal(String.valueOf(member.getIdLong()));
 
-            userBal.setDescription(Tools.processPlaceholders(
-                    "‧₊੭ :cherry_blossom: %user%'s balance ♡ ⋆｡˚\r\n"
+            userBal.setDescription("‧₊੭ :cherry_blossom: " + member.getAsMention() + "'s balance ♡ ⋆｡˚\r\n"
                     + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                    + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + " " + bal,
-                    member, guild, channel))
+                    + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + " " + bal)
                 .setColor(0xffd1dc)
-                .setThumbnail(Tools.processPlaceholders("%user_avatar%", member, guild, channel))
-                .setAuthor(Tools.processPlaceholders("%user_tag%", member, guild, channel),
-                        null, Tools.processPlaceholders("%user_avatar%", member, guild, channel));
+                .setThumbnail(member.getUser().getAvatarUrl())
+                .setAuthor(member.getUser().getAsTag(), null, member.getUser().getAvatarUrl());
 
             hook.sendMessageEmbeds(userBal.build()).queue();
         } else {

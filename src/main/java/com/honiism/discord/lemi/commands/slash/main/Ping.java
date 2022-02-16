@@ -19,7 +19,6 @@
 
 package com.honiism.discord.lemi.commands.slash.main;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.honiism.discord.lemi.Lemi;
@@ -34,27 +33,20 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Ping extends SlashCmd {
 
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public Ping() {
         this.name = "ping";
         this.desc = "Shows the current pings for Lemi.";
-        this.usage = "/ping [true/false]";
+        this.usage = "/ping";
         this.category = CommandCategory.MAIN;
         this.userCategory = UserCategory.USERS;
         this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
         this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(
-                new OptionData(OptionType.BOOLEAN, "help", "Want a help guide for this command? (True = yes, false = no).")
-                    .setRequired(false)
-        );
     }
 
     @Override
@@ -74,13 +66,6 @@ public class Ping extends SlashCmd {
             }
         
             delay.put(user.getIdLong(), System.currentTimeMillis());
-
-            OptionMapping helpOption = event.getOption("help");
-
-            if (helpOption != null && helpOption.getAsBoolean()) {
-                hook.sendMessageEmbeds(getHelp(event)).queue();
-                return;
-            }
 
             event.getJDA().getRestPing()
                 .queue((ping) -> {

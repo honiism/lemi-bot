@@ -34,9 +34,7 @@ import com.honiism.discord.lemi.utils.paginator.Paginator;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -46,32 +44,28 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Inventory extends SlashCmd {
 
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public Inventory() {
         this.name = "inventory";
         this.desc = "Shows the inventory of a user.";
-        this.usage = "/currency inventory <user> [true/false]";
+        this.usage = "/currency inventory <user>";
         this.category = CommandCategory.CURRENCY;
         this.userCategory = UserCategory.USERS;
         this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
         this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(new OptionData(OptionType.USER,
-                                             "user",
-                                             "The user you want to see the inventory of.")
-                                        .setRequired(true),
+        this.options = Arrays.asList(
+                new OptionData(OptionType.USER,
+                            "user",
+                            "The user you want to see the inventory of.",
+                            true),
 
-                                     new OptionData(OptionType.INTEGER,
-                                             "page",
-                                             "Page of the help menu.")
-                                        .setRequired(false),
-                
-                                     new OptionData(OptionType.BOOLEAN,
-                                             "help",
-                                             "Want a help guide for this command? (True = yes, false = no).")
-                                         .setRequired(false)
-                                    );
+                new OptionData(OptionType.INTEGER,
+                            "page",
+                            "Page of the help menu.",
+                            false)
+        );
     }
 
     @Override
@@ -100,8 +94,6 @@ public class Inventory extends SlashCmd {
             }
 
             Member member = event.getOption("user").getAsMember();
-            Guild guild = event.getGuild();
-            TextChannel channel = hook.getInteraction().getTextChannel();
 
             if (member == null) {
                 hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
@@ -121,11 +113,9 @@ public class Inventory extends SlashCmd {
                 .useNumberedItems(true)
                 .useTimestamp(true)
                 .addAllowedUsers(author.getIdLong())
-                .setEmbedDesc(Tools.processPlaceholders(
-                        "‧₊੭ :tulip: %user%'s inventory ♡ ⋆｡˚",
-                        member, guild, channel))
+                .setEmbedDesc("‧₊੭ :tulip: " + member.getAsMention() + "'s inventory ♡ ⋆｡˚")
                 .setColor(0xffd1dc)
-                .setThumbnail(Tools.processPlaceholders("%user_avatar%", member, guild, channel));
+                .setThumbnail(member.getUser().getAvatarUrl());
 
             int page = 1;
 

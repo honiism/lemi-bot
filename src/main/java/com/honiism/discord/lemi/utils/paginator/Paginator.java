@@ -138,14 +138,14 @@ public class Paginator {
             return ActionRow.of(
                     page <= 1 ? first.asDisabled() : first,
                     page <= 1 ? previous.asDisabled() : previous,
+                    delete,
                     page >= pages ? next.asDisabled() : next,
-                    page >= pages ? last.asDisabled() : last,
-                    delete);
+                    page >= pages ? last.asDisabled() : last);
         } else {
             return ActionRow.of(
                     page <= 1 ? previous.asDisabled() : previous,
-                    page >= pages ? next.asDisabled() : next,
-                    delete);
+                    delete,
+                    page >= pages ? next.asDisabled() : next);
         }
     }
 

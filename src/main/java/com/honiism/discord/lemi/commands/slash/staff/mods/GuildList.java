@@ -40,60 +40,48 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.MiscUtil;
 
 public class GuildList extends SlashCmd {
 
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public GuildList() {
         this.name = "guildlist";
         this.desc = "View the list of guilds that Lemi is in.";
-        this.usage = "/mods guildlist [true/false] [page number]";
+        this.usage = "/mods guildlist [page number]";
         this.category = CommandCategory.MODS;
         this.userCategory = UserCategory.MODS;
         this.userPermissions = new Permission[] {Permission.MESSAGE_MANAGE};
         this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(new OptionData(OptionType.BOOLEAN,
-                                             "help",
-                                             "Want a help guide for this command? (True = yes, false = no).")
-                                         .setRequired(false),
-
-                                     new OptionData(OptionType.INTEGER,
-                                             "page",
-                                             "The page number for the guild list you want to see.")
-                                         .setRequired(false)
-                                    );
+        this.options = Arrays.asList(
+                new OptionData(OptionType.INTEGER,
+                            "page",
+                            "The page number for the guild list you want to see.",
+                            false)
+        );
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User user = event.getUser();
+        User author = event.getUser();
         
-        if (delay.containsKey(user.getIdLong())) {
-            timeDelayed = System.currentTimeMillis() - delay.get(user.getIdLong());
+        if (delay.containsKey(author.getIdLong())) {
+            timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
         } else {
             timeDelayed = (10 * 1000);
         }
             
         if (timeDelayed >= (10 * 1000)) {
-            if (delay.containsKey(user.getIdLong())) {
-                delay.remove(user.getIdLong());
+            if (delay.containsKey(author.getIdLong())) {
+                delay.remove(author.getIdLong());
             }
         
-            delay.put(user.getIdLong(), System.currentTimeMillis());
-
-            OptionMapping helpOption = event.getOption("help");
-
-            if (helpOption != null && helpOption.getAsBoolean()) {
-                hook.sendMessageEmbeds(getHelp(event)).queue();
-                return;
-            }
+            delay.put(author.getIdLong(), System.currentTimeMillis());
             
             List<Guild> guilds = new ArrayList<>(Lemi.getInstance().getShardManager().getGuilds());
 	    Collections.reverse(guilds);
@@ -103,21 +91,20 @@ public class GuildList extends SlashCmd {
 
             for (Guild guild : guilds) {
                 guildDetailsBuilder.append(guild.getName() + " | id: " + guild.getIdLong() 
-                        + " | members in cache: " + guild.getMemberCache());
+                        + " | members in cache: " + guild.getMemberCache().size());
 
                 guild.retrieveOwner(true)
                     .queue(
                         (owner) -> {
-                            guildDetailsBuilder.append(" | owner: " + owner.getAsMention() 
-                                    + " | shard id: " 
-                                    + MiscUtil.getShardForGuild(guild, Lemi.getInstance().getShardManager().getShardsTotal()));
+                            guildDetailsBuilder.append(" | owner: " + owner.getAsMention() );
                         },
                         (empty) -> {
-                            guildDetailsBuilder.append(" | owner: " + "not found!" 
-                                    + " | shard id: " 
-                                    + MiscUtil.getShardForGuild(guild, Lemi.getInstance().getShardManager().getShardsTotal()));
+                            guildDetailsBuilder.append(" | owner: " + "not found");
                         }
                     );
+
+                guildDetailsBuilder.append(" | shard id: " 
+                        + MiscUtil.getShardForGuild(guild, Lemi.getInstance().getShardManager().getShardsTotal()));
 
                 guildDetails.add(guildDetailsBuilder.toString());
                 guildDetailsBuilder.setLength(0);
@@ -151,7 +138,7 @@ public class GuildList extends SlashCmd {
             EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
                 .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + user.getAsMention() 
+                        + author.getAsMention() 
                         + ", you can use this command again in `" + time + "`.")
                 .setColor(0xffd1dc);
                 

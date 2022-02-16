@@ -178,6 +178,8 @@ public abstract class SlashCmd implements ISlashCmd {
 
     @Override
     public MessageEmbed getHelp(SlashCommandInteractionEvent event) {
+        SlashCmdManager slashCmdManagerIns = SlashCmdManager.getIns();
+
         EmbedBuilder helpEmbed = new EmbedBuilder()
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
                     + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
@@ -188,7 +190,8 @@ public abstract class SlashCmd implements ISlashCmd {
                     + "`<> : Required argument(s).`\r\n"
                     + "`((. . .)) : pick the options given.`", false)
             .addField(":butterfly: **Other usages**" + CustomEmojis.PINK_DASH,
-                    "`" + String.join(", ", SlashCmdManager.getCmdNames(SlashCmdManager.getCmdByCategory(getCategory()))) 
+                    "`" + String.join(", ", slashCmdManagerIns.getCmdNamesByCategory(
+                            slashCmdManagerIns.getCmdByCategory(getCategory()))) 
                     + "`", false)
             .addField(":cherry_blossom: **Category**" + CustomEmojis.PINK_DASH, "`" + getCategoryString() + "`", false)
             .addField(":grapes: **User category**" + CustomEmojis.PINK_DASH, "`" + getUserCategoryString() + "`", false)
@@ -204,6 +207,8 @@ public abstract class SlashCmd implements ISlashCmd {
 
     @Override
     public EmbedBuilder getHelpBuilder(SlashCommandInteractionEvent event) {
+        SlashCmdManager slashCmdManagerIns = SlashCmdManager.getIns();
+        
         EmbedBuilder helpEmbed = new EmbedBuilder()
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
                     + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
@@ -214,7 +219,8 @@ public abstract class SlashCmd implements ISlashCmd {
                     + "`<> : Required argument(s).`\r\n"
                     + "`((. . .)) : pick the options given.`", false)
             .addField(":butterfly: **Other usages**" + CustomEmojis.PINK_DASH,
-                    "`" + String.join(", ", SlashCmdManager.getCmdNames(SlashCmdManager.getCmdByCategory(getCategory()))) 
+                    "`" + String.join(", ", slashCmdManagerIns.getCmdNamesByCategory(
+                            slashCmdManagerIns.getCmdByCategory(getCategory()))) 
                     + "`", false)
             .addField(":cherry_blossom: **Category**" + CustomEmojis.PINK_DASH, "`" + getCategoryString() + "`", false)
             .addField(":grapes: **User category**" + CustomEmojis.PINK_DASH, "`" + getUserCategoryString() + "`", false)

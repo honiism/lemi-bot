@@ -19,8 +19,6 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.dev;
 
-import java.util.Arrays;
-
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
@@ -35,9 +33,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Shutdown extends SlashCmd {
 
@@ -46,27 +41,17 @@ public class Shutdown extends SlashCmd {
     public Shutdown() {
         this.name = "shutdown";
         this.desc = "Shutsdown Lemi immediately.";
-        this.usage = "/dev shutdown [true/false]";
+        this.usage = "/dev shutdown";
         this.category = CommandCategory.DEV;
         this.userCategory = UserCategory.MODS;
         this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
         this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.options = Arrays.asList(
-                new OptionData(OptionType.BOOLEAN, "help", "Want a help guide for this command? (True = yes, false = no).").setRequired(false)
-        );
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         User author = hook.getInteraction().getUser();
-        
-        OptionMapping helpOption = event.getOption("help");
-
-        if (helpOption != null && helpOption.getAsBoolean()) {
-            hook.sendMessageEmbeds(this.getHelp(event)).queue();
-            return;
-        }
         
         log.info(author.getAsTag() + "(" + author.getIdLong() + ") initiated non-emergency shutdown!");
                         

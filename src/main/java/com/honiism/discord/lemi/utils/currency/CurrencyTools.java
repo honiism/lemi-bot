@@ -59,12 +59,12 @@ public class CurrencyTools {
         return LemiDbBalManager.INS.getUserBal(userId); 
     }
 
-    public static void addBalToUser(String userId, long userBal, long balToAdd) {
-        LemiDbBalManager.INS.addBalToUser(userId, userBal, balToAdd);
+    public static void addBalToUser(String userId, long balToAdd) {
+        LemiDbBalManager.INS.addBalToUser(userId, balToAdd);
     }
 
-    public static void removeBalFromUser(String userId, long userBal, long balToRemove) {
-        LemiDbBalManager.INS.removeBalFromUser(userId, userBal, balToRemove);
+    public static void removeBalFromUser(String userId, long balToRemove) {
+        LemiDbBalManager.INS.removeBalFromUser(userId, balToRemove);
     }
 
     public static void updateUserBal(String userId, long balToUpdate) {
@@ -185,16 +185,16 @@ public class CurrencyTools {
             });
     }
 
-    public static void addItemToUser(String userId, String itemName, long userItemAmount, long amountToAdd) {
-        LemiDbBalManager.INS.addItemToUser(userId, itemName, userItemAmount, amountToAdd);
+    public static void addItemToUser(String userId, String itemName, long amountToAdd) {
+        LemiDbBalManager.INS.addItemToUser(userId, itemName, amountToAdd);
     }
 
     public static void updateItemUser(String userId, String itemName, long amountToUpdate) {
         LemiDbBalManager.INS.updateItemUser(userId, itemName, amountToUpdate);
     }
 
-    public static void removeItemFromUser(String userId, String itemName, long userItemAmount, long amountToRemove) {
-        LemiDbBalManager.INS.removeItemFromUser(userId, itemName, userItemAmount, amountToRemove);
+    public static void removeItemFromUser(String userId, String itemName, long amountToRemove) {
+        LemiDbBalManager.INS.removeItemFromUser(userId, itemName, amountToRemove);
     }
 
     public static void removeAllItems(String userId, Guild guild) {
