@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2022 Honiism
+ * 
+ * This file is part of Lemi-Bot.
+ * 
+ * Lemi-Bot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Lemi-Bot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.honiism.discord.lemi.listeners;
 
 import com.honiism.discord.lemi.Config;
@@ -8,8 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.duncte123.botcommons.BotCommons;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -21,8 +42,26 @@ public class MessageListener extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.isFromGuild()) {
             this.onGuildMessageReceived(event);
+        } else if (event.isFromType(ChannelType.PRIVATE)) {
+            this.onPrivateMessageReceived(event);
         }
-        // else if (event.isFromType(ChannelType.PRIVATE)) {}
+    }
+
+    private void onPrivateMessageReceived(MessageReceivedEvent event) {
+        User author = event.getAuthor();
+
+        if (author.isBot() || event.isWebhookMessage() || Tools.isAuthorDev(author)) {
+            return;
+        }
+
+        String message = event.getMessage().getContentRaw();
+
+        log.info(author.getAsTag() + "(" + author.getIdLong() + "): \"" + message + "\"");
+        	
+        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            .getTextChannelById(Config.get("logs_channel_id"))
+            .sendMessage(author.getAsTag() + "(" + author.getIdLong() + "): \"" + message + "\"")
+            .queue();
     }
 
     private void onGuildMessageReceived(MessageReceivedEvent event) {

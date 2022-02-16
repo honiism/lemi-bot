@@ -36,16 +36,16 @@
 ### A) Main: 🌊
 | Command | Description |
 | --- | --- |
-| /help | Shows information about Lemi (includes private staff commands). |
-| /donate `[true/false]` | Gives you the link for honiism's [paypal][paypal-link]. |
-| /ping `[true/false]` | Shows the current pings for Lemi. |
+| /help `[page_number]` `[command_name]` | Shows information about Lemi/specific commands (includes private staff commands). |
+| /donate | Gives you the link for honiism's [paypal][paypal-link]. |
+| /ping | Shows the current pings for Lemi. |
 
 ### B) Currency: 🌸
 | Command | Description |
 | --- | --- |
 | /currency help | View the help guide for this command. |
-| /currency balance `<user>` `[true/false]` | Shows the balance of a user. |
-| /currency bankrob `[true/false]` | Attempt to bankrob (You can win double but at the same time you can also go in debt). |
-| /currency beg `[true/false]` | Try out your chances! You can get small, maybe rare items. |
-| /currency cook `[true/false]` | Let's see if your cooking skills can handle this! |
-| /currency inventory `<user>` `[true/false]` | Shows the inventory of a user. |
+| /currency balance `<user>` | Shows the balance of a user. |
+| /currency bankrob | Attempt to bankrob (You can win double but at the same time you can also go in debt). |
+| /currency beg | Try out your chances! You can get small, maybe rare items. |
+| /currency cook | Let's see if your cooking skills can handle this! |
+| /currency inventory `<user>` | Shows the inventory of a user. |

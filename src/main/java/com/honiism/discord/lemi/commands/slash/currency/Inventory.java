@@ -1,13 +1,32 @@
+/*
+ * Copyright (C) 2022 Honiism
+ * 
+ * This file is part of Lemi-Bot.
+ * 
+ * Lemi-Bot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Lemi-Bot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.honiism.discord.lemi.commands.slash.currency;
 
+import com.honiism.discord.lemi.commands.handler.CommandCategory;
+import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.commands.slash.handler.CommandCategory;
-import com.honiism.discord.lemi.commands.slash.handler.UserCategory;
 import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
@@ -15,9 +34,7 @@ import com.honiism.discord.lemi.utils.paginator.Paginator;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -27,32 +44,28 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Inventory extends SlashCmd {
 
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public Inventory() {
         this.name = "inventory";
         this.desc = "Shows the inventory of a user.";
-        this.usage = "/currency inventory <user> [true/false]";
+        this.usage = "/currency inventory <user>";
         this.category = CommandCategory.CURRENCY;
         this.userCategory = UserCategory.USERS;
         this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
         this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(new OptionData(OptionType.USER,
-                                             "user",
-                                             "The user you want to see the inventory of.")
-                                        .setRequired(true),
+        this.options = Arrays.asList(
+                new OptionData(OptionType.USER,
+                            "user",
+                            "The user you want to see the inventory of.",
+                            true),
 
-                                     new OptionData(OptionType.INTEGER,
-                                             "page",
-                                             "Page of the help menu.")
-                                        .setRequired(false),
-                
-                                     new OptionData(OptionType.BOOLEAN,
-                                             "help",
-                                             "Want a help guide for this command? (True = yes, false = no).")
-                                         .setRequired(false)
-                                    );
+                new OptionData(OptionType.INTEGER,
+                            "page",
+                            "Page of the help menu.",
+                            false)
+        );
     }
 
     @Override
@@ -81,8 +94,6 @@ public class Inventory extends SlashCmd {
             }
 
             Member member = event.getOption("user").getAsMember();
-            Guild guild = event.getGuild();
-            TextChannel channel = hook.getInteraction().getTextChannel();
 
             if (member == null) {
                 hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
@@ -102,11 +113,9 @@ public class Inventory extends SlashCmd {
                 .useNumberedItems(true)
                 .useTimestamp(true)
                 .addAllowedUsers(author.getIdLong())
-                .setEmbedDesc(Tools.processPlaceholders(
-                        "‧₊੭ :tulip: %user%'s inventory ♡ ⋆｡˚",
-                        member, guild, channel))
+                .setEmbedDesc("‧₊੭ :tulip: " + member.getAsMention() + "'s inventory ♡ ⋆｡˚")
                 .setColor(0xffd1dc)
-                .setThumbnail(Tools.processPlaceholders("%user_avatar%", member, guild, channel));
+                .setThumbnail(member.getUser().getAvatarUrl());
 
             int page = 1;
 

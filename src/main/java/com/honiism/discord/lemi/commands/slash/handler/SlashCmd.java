@@ -1,8 +1,29 @@
+/*
+ * Copyright (C) 2022 Honiism
+ * 
+ * This file is part of Lemi-Bot.
+ * 
+ * Lemi-Bot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Lemi-Bot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.honiism.discord.lemi.commands.slash.handler;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.honiism.discord.lemi.commands.handler.CommandCategory;
+import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
@@ -157,6 +178,8 @@ public abstract class SlashCmd implements ISlashCmd {
 
     @Override
     public MessageEmbed getHelp(SlashCommandInteractionEvent event) {
+        SlashCmdManager slashCmdManagerIns = SlashCmdManager.getIns();
+
         EmbedBuilder helpEmbed = new EmbedBuilder()
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
                     + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
@@ -167,7 +190,8 @@ public abstract class SlashCmd implements ISlashCmd {
                     + "`<> : Required argument(s).`\r\n"
                     + "`((. . .)) : pick the options given.`", false)
             .addField(":butterfly: **Other usages**" + CustomEmojis.PINK_DASH,
-                    "`" + String.join(", ", SlashCmdManager.getCmdNames(SlashCmdManager.getCmdByCategory(getCategory()))) 
+                    "`" + String.join(", ", slashCmdManagerIns.getCmdNamesByCategory(
+                            slashCmdManagerIns.getCmdByCategory(getCategory()))) 
                     + "`", false)
             .addField(":cherry_blossom: **Category**" + CustomEmojis.PINK_DASH, "`" + getCategoryString() + "`", false)
             .addField(":grapes: **User category**" + CustomEmojis.PINK_DASH, "`" + getUserCategoryString() + "`", false)
@@ -183,6 +207,8 @@ public abstract class SlashCmd implements ISlashCmd {
 
     @Override
     public EmbedBuilder getHelpBuilder(SlashCommandInteractionEvent event) {
+        SlashCmdManager slashCmdManagerIns = SlashCmdManager.getIns();
+        
         EmbedBuilder helpEmbed = new EmbedBuilder()
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
                     + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
@@ -193,7 +219,8 @@ public abstract class SlashCmd implements ISlashCmd {
                     + "`<> : Required argument(s).`\r\n"
                     + "`((. . .)) : pick the options given.`", false)
             .addField(":butterfly: **Other usages**" + CustomEmojis.PINK_DASH,
-                    "`" + String.join(", ", SlashCmdManager.getCmdNames(SlashCmdManager.getCmdByCategory(getCategory()))) 
+                    "`" + String.join(", ", slashCmdManagerIns.getCmdNamesByCategory(
+                            slashCmdManagerIns.getCmdByCategory(getCategory()))) 
                     + "`", false)
             .addField(":cherry_blossom: **Category**" + CustomEmojis.PINK_DASH, "`" + getCategoryString() + "`", false)
             .addField(":grapes: **User category**" + CustomEmojis.PINK_DASH, "`" + getUserCategoryString() + "`", false)

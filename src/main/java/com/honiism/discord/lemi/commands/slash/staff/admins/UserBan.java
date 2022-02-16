@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2022 Honiism
+ * 
+ * This file is part of Lemi-Bot.
+ * 
+ * Lemi-Bot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Lemi-Bot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.honiism.discord.lemi.commands.slash.staff.admins;
 
 import java.util.ArrayList;
@@ -7,9 +26,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.commands.slash.handler.CommandCategory;
+import com.honiism.discord.lemi.commands.handler.CommandCategory;
+import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.commands.slash.handler.UserCategory;
 import com.honiism.discord.lemi.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
@@ -26,28 +45,27 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class UserBan extends SlashCmd {
 
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public UserBan() {
         this.name = "userban";
         this.desc = "Bans a user from using Lemi bot.";
-        this.usage = "/userban ((subcommand))";
+        this.usage = "/userban ((subcommands))";
         this.category = CommandCategory.ADMINS;
         this.userCategory = UserCategory.ADMINS;
         this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
         this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(new SubcommandData("help", "View the help guide for this command."),
+        this.subCmds = Arrays.asList(
+                new SubcommandData("add", "Ban a user from using Lemi.")
+                        .addOption(OptionType.USER, "user", "The user you want to ban.", true)
+                        .addOption(OptionType.STRING, "reason", "The reason why they're getting banned.", true),
 
-                                     new SubcommandData("add", "Ban a user from using Lemi.")
-                                         .addOption(OptionType.USER, "user", "The @user/id you want to ban.", true)
-                                         .addOption(OptionType.STRING, "reason", "The reason why they're getting banned.", true),
+                new SubcommandData("remove", "Unban a previously banned user.")
+                        .addOption(OptionType.USER, "user", "The user you want to unban.", true),
 
-                                     new SubcommandData("remove", "Unban a previously banned user.")
-                                         .addOption(OptionType.USER, "user", "The @user/id you want to unban.", true),
-
-                                     new SubcommandData("view", "View all details from the ban list.")
-                                    );
+                new SubcommandData("view", "View all details from the ban list.")
+        );
     }
 
     @Override
@@ -71,10 +89,6 @@ public class UserBan extends SlashCmd {
             String subCmdName = event.getSubcommandName();
 
             switch (subCmdName) {
-                case "help":
-                    hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                    break;
-
                 case "add":
                     Member memberToAdd = event.getOption("user").getAsMember();
                     String reason = event.getOption("reason").getAsString();

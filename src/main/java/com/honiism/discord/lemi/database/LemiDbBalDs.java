@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2022 Honiism
+ * 
+ * This file is part of Lemi-Bot.
+ * 
+ * Lemi-Bot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Lemi-Bot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.honiism.discord.lemi.database;
 
 import java.io.File;
@@ -176,14 +195,18 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
     
     @Override
-    public void addBalToUser(String userId, long userBal, long balanceToAdd) {
+    public void addBalToUser(String userId, long balanceToAdd) {
+        long userBal = getUserBal(userId);
         long balAfterAdd = userBal + balanceToAdd;
+
         updateUserBal(userId, balAfterAdd);
     }
 
     @Override
-    public void removeBalFromUser(String userId, long userBal, long balanceToRemove) {
+    public void removeBalFromUser(String userId, long balanceToRemove) {
+        long userBal = getUserBal(userId);
         long balAfterRemove = userBal - balanceToRemove;
+
         updateUserBal(userId, balAfterRemove);
     }
     
@@ -269,8 +292,10 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void addItemToUser(String userId, String itemName, long userItemAmount, long amountToAdd) {
+    public void addItemToUser(String userId, String itemName, long amountToAdd) {
+        long userItemAmount = getItemFromUserInv(userId, itemName);
         long itemAfterAdd = userItemAmount + amountToAdd;
+
         updateItemUser(userId, itemName, itemAfterAdd);
     }
 
@@ -290,8 +315,10 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void removeItemFromUser(String userId, String itemName, long userItemAmount, long amountToRemove) {
+    public void removeItemFromUser(String userId, String itemName, long amountToRemove) {
+        long userItemAmount = getItemFromUserInv(userId, itemName);
         long itemAfterRemove = userItemAmount - amountToRemove;
+        
         updateItemUser(userId, itemName, itemAfterRemove);
     }
 

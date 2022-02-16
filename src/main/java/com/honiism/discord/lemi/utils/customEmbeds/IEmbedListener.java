@@ -17,14 +17,18 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi;
+package com.honiism.discord.lemi.utils.customEmbeds;
 
-import io.github.cdimascio.dotenv.Dotenv;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 
-public class Config {
-    private static final Dotenv dotenv = Dotenv.load();
-
-    public static String get(String key) {
-        return dotenv.get(key.toUpperCase());
-    }
+public interface IEmbedListener {
+    void afterAskingId(InteractionHook hook);
+    void afterAskingTitle(InteractionHook hook);
+    void afterAskingColor(InteractionHook hook);
+    void afterAskingAuthor(InteractionHook hook);
+    void afterAskingThumbnail(InteractionHook hook);
+    void afterAskingDesc(InteractionHook hook);
+    void afterAskingImg(InteractionHook hook);
+    void afterAskingFooter(InteractionHook hook);
+    void afterAskingMessageContent(InteractionHook hook);
 }

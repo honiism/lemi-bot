@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2022 Honiism
+ * 
+ * This file is part of Lemi-Bot.
+ * 
+ * Lemi-Bot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Lemi-Bot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.honiism.discord.lemi.utils.misc;
 
 import java.text.ParseException;
@@ -10,17 +29,13 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.honiism.discord.lemi.Config;
-import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.currency.CurrencyTools;
-
-import org.slf4j.Logger;
 
 import me.duncte123.botcommons.StringUtils;
 import net.dv8tion.jda.api.Permission;
@@ -500,28 +515,5 @@ public class Tools {
             .collect(Collectors.joining(","));
 
         return StringUtils.replaceLast(modifiedAliases, ", ", " and ");
-    }
-
-    public static ThreadFactory newThreadFactory(String threadName) {
-        return newThreadFactory(threadName, Lemi.getLemiLogger());
-    }
-
-    public static ThreadFactory newThreadFactory(String threadName, boolean isDaemon) {
-        return newThreadFactory(threadName, Lemi.getLemiLogger(), isDaemon);
-    }
-
-    public static ThreadFactory newThreadFactory(String threadName, Logger log) {
-        return newThreadFactory(threadName, Lemi.getLemiLogger(), true);
-    }
-
-    public static ThreadFactory newThreadFactory(String threadName, Logger log, boolean isDaemon) {
-        return (r) -> {
-            Thread t = new Thread(r, threadName);
-
-            t.setDaemon(isDaemon);
-            t.setUncaughtExceptionHandler((final Thread thread, final Throwable throwable) ->
-                    log.error("There was a uncaught exception in the {} threadpool", thread.getName(), throwable));
-            return t;
-        };
     }
 }

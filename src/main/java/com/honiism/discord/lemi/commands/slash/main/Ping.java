@@ -1,12 +1,30 @@
+/*
+ * Copyright (C) 2022 Honiism
+ * 
+ * This file is part of Lemi-Bot.
+ * 
+ * Lemi-Bot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Lemi-Bot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.honiism.discord.lemi.commands.slash.main;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.commands.slash.handler.CommandCategory;
+import com.honiism.discord.lemi.commands.handler.CommandCategory;
+import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.commands.slash.handler.UserCategory;
 import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
@@ -15,27 +33,20 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Ping extends SlashCmd {
 
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public Ping() {
         this.name = "ping";
         this.desc = "Shows the current pings for Lemi.";
-        this.usage = "/ping [true/false]";
+        this.usage = "/ping";
         this.category = CommandCategory.MAIN;
         this.userCategory = UserCategory.USERS;
         this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
         this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(
-                new OptionData(OptionType.BOOLEAN, "help", "Want a help guide for this command? (True = yes, false = no).")
-                    .setRequired(false)
-        );
     }
 
     @Override
@@ -55,13 +66,6 @@ public class Ping extends SlashCmd {
             }
         
             delay.put(user.getIdLong(), System.currentTimeMillis());
-
-            OptionMapping helpOption = event.getOption("help");
-
-            if (helpOption != null && helpOption.getAsBoolean()) {
-                hook.sendMessageEmbeds(getHelp(event)).queue();
-                return;
-            }
 
             event.getJDA().getRestPing()
                 .queue((ping) -> {

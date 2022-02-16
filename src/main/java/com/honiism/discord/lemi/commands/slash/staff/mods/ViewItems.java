@@ -10,18 +10,17 @@
  * 
  * Lemi-Bot is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
+ * along with Lemi-Bot.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.honiism.discord.lemi.commands.slash.staff.mods;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -29,30 +28,30 @@ import java.util.concurrent.TimeUnit;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
+import com.honiism.discord.lemi.commands.slash.currency.objects.items.Items;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.honiism.discord.lemi.utils.paginator.Paginator;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.utils.MiscUtil;
 
-public class GuildList extends SlashCmd {
+public class ViewItems extends SlashCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
-    public GuildList() {
-        this.name = "guildlist";
-        this.desc = "View the list of guilds that Lemi is in.";
-        this.usage = "/mods guildlist [page number]";
+    public ViewItems() {
+        this.name = "viewitems";
+        this.desc = "View the currently available items in the internal list.";
+        this.usage = "/mods viewitems";
         this.category = CommandCategory.MODS;
         this.userCategory = UserCategory.MODS;
         this.userPermissions = new Permission[] {Permission.MESSAGE_MANAGE};
@@ -73,51 +72,34 @@ public class GuildList extends SlashCmd {
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
         } else {
-            timeDelayed = (10 * 1000);
+            timeDelayed = (5 * 1000);
         }
             
-        if (timeDelayed >= (10 * 1000)) {
+        if (timeDelayed >= (5 * 1000)) {
             if (delay.containsKey(author.getIdLong())) {
                 delay.remove(author.getIdLong());
             }
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
             
-            List<Guild> guilds = new ArrayList<>(Lemi.getInstance().getShardManager().getGuilds());
-	    Collections.reverse(guilds);
+            List<String> items = new ArrayList<String>();
 
-            List<String> guildDetails = new ArrayList<>();
-            StringBuilder guildDetailsBuilder = new StringBuilder();
-
-            for (Guild guild : guilds) {
-                guildDetailsBuilder.append(guild.getName() + " | id: " + guild.getIdLong() 
-                        + " | members in cache: " + guild.getMemberCache().size());
-
-                guild.retrieveOwner(true)
-                    .queue(
-                        (owner) -> {
-                            guildDetailsBuilder.append(" | owner: " + owner.getAsMention() );
-                        },
-                        (empty) -> {
-                            guildDetailsBuilder.append(" | owner: " + "not found");
-                        }
-                    );
-
-                guildDetailsBuilder.append(" | shard id: " 
-                        + MiscUtil.getShardForGuild(guild, Lemi.getInstance().getShardManager().getShardsTotal()));
-
-                guildDetails.add(guildDetailsBuilder.toString());
-                guildDetailsBuilder.setLength(0);
+            for (Items item : CurrencyTools.getItems()) {
+                if (CurrencyTools.checkIfItemExists(item.getName())) {
+                   items.add(item.getEmoji() + " " + item.getName() + " | " + item.getId()); 
+                } else {
+                    items.add(item.getEmoji() + " " + item.getName() + " | " + item.getId() + " | **NOT IN DATABASE**");
+                }
             }
 
             Paginator.Builder builder = new Paginator.Builder(event.getJDA())
-                .setEmbedDesc("‧₊੭ :snowflake: **GUILD LIST!** ♡ ⋆｡˚")
                 .setEventWaiter(Lemi.getInstance().getEventWaiter())
+                .setEmbedDesc("‧₊੭ :tulip: **ITEMS!** ♡ ⋆｡˚")
                 .setItemsPerPage(10)
-                .setItems(guildDetails)
+                .setItems(items)
                 .useNumberedItems(true)
                 .useTimestamp(true)
-                .addAllowedUsers(event.getUser().getIdLong())
+                .addAllowedUsers(author.getIdLong())
                 .setColor(0xffd1dc)
                 .setTimeout(1, TimeUnit.MINUTES);
 
@@ -129,11 +111,11 @@ public class GuildList extends SlashCmd {
 
             int finalPage = page;
 
-            hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tea: Loading..."))
+            hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":seedling: Loading..."))
                 .queue(message -> builder.build().paginate(message, finalPage));
-
+                
         } else {
-            String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
+            String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);
                 
             EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
                 .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 

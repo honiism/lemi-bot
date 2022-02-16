@@ -1,13 +1,31 @@
+/*
+ * Copyright (C) 2022 Honiism
+ * 
+ * This file is part of Lemi-Bot.
+ * 
+ * Lemi-Bot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Lemi-Bot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.honiism.discord.lemi.commands.slash.currency;
 
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
+import com.honiism.discord.lemi.commands.handler.CommandCategory;
+import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.currency.objects.items.Items;
-import com.honiism.discord.lemi.commands.slash.handler.CommandCategory;
-import com.honiism.discord.lemi.commands.slash.handler.UserCategory;
 import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.currency.WeightedRandom;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
@@ -19,13 +37,10 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Cook extends SlashCmd {
     
-    private  HashMap<Long, Long> delay = new HashMap<>();
+    private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public Cook() {
@@ -36,11 +51,6 @@ public class Cook extends SlashCmd {
         this.userCategory = UserCategory.USERS;
         this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
         this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(new OptionData(OptionType.BOOLEAN,
-                                             "help",
-                                             "Want a help guide for this command? (True = yes, false = no).")
-                                         .setRequired(false)
-                                    );
     }
 
     @Override
@@ -61,28 +71,21 @@ public class Cook extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            OptionMapping helpOption = event.getOption("help");
+            WeightedRandom<String> randomResult = new WeightedRandom<String>()
+                .add(60, "fail")
+                .add(40, "success");
 
-            if (helpOption != null && helpOption.getAsBoolean()) {
-                hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                return;
-            }
-
+            String randomResultString = randomResult.next();
             Guild guild = event.getGuild();
-            WeightedRandom<String> randomResult = new WeightedRandom<>();
 
-            randomResult.add(60, "fail").add(40, "success");
+            if (randomResultString.equals("fail")) {
+                failAction(hook, author, guild);
+            } else if (randomResultString.equals("success")) {
+                WeightedRandom<String> randomLootType = new WeightedRandom<String>()
+                    .add(50, "coins")
+                    .add(50, "item");
 
-            switch (randomResult.next()) {
-                case "fail":
-                    failAction(hook, author, guild);
-                    break;
-
-                case "success":
-                    WeightedRandom<String> randomLootType = new WeightedRandom<>();
-                    randomLootType.add(50, "coins").add(50, "item");
-
-                    successAction(hook, author, guild, randomLootType.next());
+                successAction(hook, author, guild, randomLootType.next());
             }
 
         } else {
@@ -154,8 +157,7 @@ public class Cook extends SlashCmd {
             gainedAmount += 1;
             String gainedBal = gainedAmount + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong()));
 
-            CurrencyTools.addBalToUser(String.valueOf(author.getIdLong()),
-                    CurrencyTools.getUserbal(String.valueOf(author.getIdLong())), gainedAmount);
+            CurrencyTools.addBalToUser(String.valueOf(author.getIdLong()), gainedAmount);
         
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **COOKING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -183,8 +185,7 @@ public class Cook extends SlashCmd {
             String itemName = pickedItem.getName();
             String itemEmoji = pickedItem.getEmoji();
 
-            CurrencyTools.addItemToUser(userId, itemName,
-                    CurrencyTools.getItemFromUserInv(userId, itemName), 1);
+            CurrencyTools.addItemToUser(userId, itemName, 1);
 
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **COOKING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
