@@ -27,4 +27,8 @@ public class Config {
     public static String get(String key) {
         return DOTENV.get(key.toUpperCase());
     }
+
+    public static long getLong(String key) {
+        return Long.valueOf(DOTENV.get(key.toUpperCase()));
+    }
 }

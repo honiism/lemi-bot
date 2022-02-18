@@ -449,24 +449,19 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getAdminIds(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    public List<String> getAdminIds() {
         List<String> adminIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT admin_ids FROM admin_mod_ids")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.sendMessage(":blueberries: Fetching all the admin ids...").queue();
-
                 while (rs.next()) {
                     if (rs.getString("admin_ids").equals("0")) {
                         continue;
                     }
                     adminIds.add(rs.getString("admin_ids"));
                 }
-
-                hook.editOriginal(":grapes: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -476,17 +471,6 @@ public class LemiDbDs implements LemiDbManager {
                     + "\r\n");
 
             e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "fetch all the admin ids. :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
             
             Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
         	.getTextChannelById(Config.get("logs_channel_id"))
@@ -506,24 +490,19 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getAdminKeys(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    public List<String> getAdminKeys() {
         List<String> adminKeys = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT staff_key FROM admin_mod_ids")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.editOriginal(":cherry_blossom: Fetching all the admin keys...").queue();
-
                 while (rs.next()) {
                     if (!rs.getString("staff_key").endsWith("admin")) {
                         continue;
                     }
                     adminKeys.add(rs.getString("staff_key"));
                 }
-
-                hook.editOriginal(":sunflower: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -533,17 +512,6 @@ public class LemiDbDs implements LemiDbManager {
                     + "\r\n");
 
             e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "fetch all the admin keys. :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
             
             Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
         	.getTextChannelById(Config.get("logs_channel_id"))
@@ -766,24 +734,19 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getModIds(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    public List<String> getModIds() {
         List<String> modIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT mod_ids FROM admin_mod_ids")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.sendMessage(":cherry_blossom: Fetching all the mod ids...").queue();
-
                 while (rs.next()) {
                     if (rs.getString("mod_ids").equals("0")) {
                         continue;
                     }
                     modIds.add(rs.getString("mod_ids"));
                 }
-
-                hook.editOriginal(":grapes: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -794,19 +757,6 @@ public class LemiDbDs implements LemiDbManager {
                     + "\r\n");
 
             e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "Something went wrong while trying to "
-                    + "fetch all the mod ids.\r\n"
-                    + " : commands.staff.developer.ModifyMods\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
             
             Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
         	.getTextChannelById(Config.get("logs_channel_id"))
@@ -828,24 +778,19 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getModKeys(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    public List<String> getModKeys() {
         List<String> modKeys = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT staff_key FROM admin_mod_ids")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.editOriginal(":cherries: Fetching all the mod keys...").queue();
-
                 while (rs.next()) {
                     if (!rs.getString("staff_key").endsWith("mod")) {
                         continue;
                     }
                     modKeys.add(rs.getString("staff_key"));
                 }
-
-                hook.editOriginal(":sunflower: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -856,18 +801,6 @@ public class LemiDbDs implements LemiDbManager {
                     + "\r\n");
 
             e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "fetch all the mod keys. :no_entry:**\r\n"
-                    + " : commands.staff.developer.ModifyMods\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
             
             Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
         	.getTextChannelById(Config.get("logs_channel_id"))
