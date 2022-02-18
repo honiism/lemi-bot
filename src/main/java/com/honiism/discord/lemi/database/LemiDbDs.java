@@ -1118,7 +1118,7 @@ public class LemiDbDs implements LemiDbManager {
             
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
-                    conn.prepareStatement("SELECT * FROM banned_users WHERE user_id = ?")) {
+                    conn.prepareStatement("SELECT reason FROM banned_users WHERE user_id = ?")) {
             
             selectStatement.setLong(1, member.getIdLong());
             
