@@ -19,12 +19,15 @@
 
 package com.honiism.discord.lemi;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.security.auth.login.LoginException;
 
 import com.honiism.discord.lemi.commands.slash.currency.objects.items.Items;
+import com.honiism.discord.lemi.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.listeners.BaseListener;
 import com.honiism.discord.lemi.listeners.CustomEmbedListener;
 import com.honiism.discord.lemi.listeners.GuildListener;
@@ -37,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.duncte123.botcommons.BotCommons;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
@@ -49,10 +51,10 @@ import okhttp3.OkHttpClient;
 
 public class Lemi {
 
-    private static final Logger log = LoggerFactory.getLogger(Lemi.class); 
+    private static final Logger log = LoggerFactory.getLogger(Lemi.class);
+    private static final List<Long> WHITELISTED_USERS = new ArrayList<>();
     
     private static Lemi instance;
-    private static boolean debug = false;
 
     private final ShardManager shardManager;
     private final ScheduledExecutorService threadpool;
@@ -60,6 +62,7 @@ public class Lemi {
     private final OkHttpClient httpClient;
 
     private boolean shuttingDown = false;
+    private boolean debug = false;
     
     public Lemi() throws LoginException {
         instance = this;
@@ -108,6 +111,7 @@ public class Lemi {
 
         embedTools.registerEmbedListener(embedListener);
         Items.addItemsToList();
+        whitelistUsers();
     }
 
     public static void main(String[] args) {
@@ -118,7 +122,7 @@ public class Lemi {
         }
     }
 
-    public void shutdown(JDA jda) {
+    public void shutdown() {
         if (shuttingDown) {
             return;
         }
@@ -127,14 +131,14 @@ public class Lemi {
 
         threadpool.shutdownNow();
 
-        jda.getGuilds().stream().forEach(guild -> {
+        getShardManager().getGuilds().stream().forEach(guild -> {
             if (guild.getAudioManager().getConnectedChannel() != null) {
                 guild.getAudioManager().closeAudioConnection();
             }
         });
 
-        jda.getShardManager().shutdown();
-        BotCommons.shutdown(jda.getShardManager());
+        getShardManager().shutdown();
+        BotCommons.shutdown(getShardManager());
     }
 
     public static Logger getLemiLogger() {
@@ -144,13 +148,28 @@ public class Lemi {
     public static Lemi getInstance() {
         return instance;
     }
+
+    public boolean isWhitelisted(long userId) {
+        return WHITELISTED_USERS.contains(userId);
+    }
+
+    private void whitelistUsers() {
+        List<Long> whitelistedUserIds = new ArrayList<>();
+
+        whitelistedUserIds.add(Config.getLong("dev_id"));
+        whitelistedUserIds.add(Config.getLong("alt_id"));
+
+        for (String userId : LemiDbManager.INS.getAdminIds()) {
+            whitelistedUserIds.add(Long.valueOf(userId));
+        }
+    }
     
     public boolean isDebug() {
         return debug;
     }
 
     public void setDebug(boolean debug) {
-        Lemi.debug = debug;
+        this.debug = debug;
     }
 
     public ShardManager getShardManager() {
