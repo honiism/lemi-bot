@@ -19,6 +19,7 @@
 
 package com.honiism.discord.lemi.listeners;
 
+import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmdManager;
 import com.honiism.discord.lemi.database.managers.LemiDbManager;
 
@@ -35,6 +36,10 @@ public class SlashCmdListener extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        if (Lemi.getInstance().isDebug() && !Lemi.getInstance().isWhitelisted(event.getMember().getIdLong())) {
+            return;
+        }
+
         LemiDbManager.INS.onSlashCommand(event);
         slashManager.handle(event);
     }
