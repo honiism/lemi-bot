@@ -197,7 +197,7 @@ public class Compile extends SlashCmd {
 
                     } catch (IOException | InterruptedException e) {
                         log.error("\r\nSomething went wrong while trying to "
-                                + "get the output/input stream.\r\n"
+                                + "get the code output.\r\n"
                                 + "Location : commands.staff.developer.Compile\r\n"
                                 + "Error : IOException" + "\r\n"
                                 + "\r\n");
@@ -206,7 +206,7 @@ public class Compile extends SlashCmd {
 
                         hook.sendMessage("--------------------------\r\n" 
                                 + "**Something went wrong while trying to "
-                                + "get the output/input stream. :no_entry:**\r\n"
+                                + "get the code output. :no_entry:**\r\n"
                                 + "Location : commands.staff.developer.Compile\r\n"
                                 + "Error : IOException\r\n"
                                 + "--------------------------\r\n"
