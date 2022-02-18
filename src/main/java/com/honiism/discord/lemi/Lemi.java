@@ -50,7 +50,9 @@ import okhttp3.OkHttpClient;
 public class Lemi {
 
     private static final Logger log = LoggerFactory.getLogger(Lemi.class); 
+    
     private static Lemi instance;
+    private static boolean debug = false;
 
     private final ShardManager shardManager;
     private final ScheduledExecutorService threadpool;
@@ -143,6 +145,13 @@ public class Lemi {
         return instance;
     }
     
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        Lemi.debug = debug;
+    }
 
     public ShardManager getShardManager() {
         return shardManager;
