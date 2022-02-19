@@ -24,7 +24,6 @@ import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.listeners.BaseListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +59,6 @@ public class Shutdown extends SlashCmd {
             .sendMessage(author.getAsMention() + " **received non-emergency shutdown request. :bell:**")
             .queue();
 
-        Lemi.getInstance().shutdown(BaseListener.getJDA());
+        Lemi.getInstance().shutdown();
     }   
 }

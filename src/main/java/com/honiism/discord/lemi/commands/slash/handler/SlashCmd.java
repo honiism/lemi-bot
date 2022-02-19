@@ -19,7 +19,6 @@
 
 package com.honiism.discord.lemi.commands.slash.handler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
@@ -33,21 +32,18 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
 public abstract class SlashCmd implements ISlashCmd {
 
-    protected String name = "";
-    protected String desc = "";
-    protected String usage = "";
-    protected CommandCategory category = CommandCategory.MAIN;
-    protected UserCategory userCategory = UserCategory.USERS;
-    protected Permission[] userPermissions = new Permission[0];
-    protected Permission[] botPermissions = new Permission[0];
-    protected List<OptionData> options = new ArrayList<>();
-    protected List<SubcommandData> subCmds = new ArrayList<>();
-    protected List<SubcommandGroupData> subCmdGroups = new ArrayList<>();
+    private SlashCommandData commandData;
+    private String usage;
+    private CommandCategory category;
+    private UserCategory userCategory;
+    private Permission[] userPermissions;
+    private Permission[] botPermissions;
 
     @Override
     public void executeAction(SlashCommandInteractionEvent event) {
@@ -99,18 +95,38 @@ public abstract class SlashCmd implements ISlashCmd {
     public abstract void action(SlashCommandInteractionEvent event);
 
     @Override
+    public SlashCommandData getCommandData() {
+        return commandData;    
+    }
+
+    @Override
+    public void setCommandData(SlashCommandData commandData) {
+        this.commandData = commandData;
+    }
+
+    @Override
     public String getName() {
-        return this.name;
+        return getCommandData().getName();
+    }
+
+    @Override
+    public void setCategory(CommandCategory category) {
+        this.category = category;
     }
 
     @Override
     public CommandCategory getCategory() {
-        return this.category;
+        return category;
+    }
+
+    @Override
+    public void setUserCategory(UserCategory userCategory) {
+        this.userCategory = userCategory;
     }
 
     @Override
     public UserCategory getUserCategory() {
-        return this.userCategory;
+        return userCategory;
     }
 
     @Override
@@ -125,55 +141,65 @@ public abstract class SlashCmd implements ISlashCmd {
 
     @Override
     public String getUserPermsString() {
-        if (this.userPermissions.length == 0) {
+        if (userPermissions.length == 0) {
             return "No user permissions needed.";
         }
-        return Tools.parsePerms(this.userPermissions)
-                + (this.userPermissions.length > 1 ? " permissions" : " permission");
+        return Tools.parsePerms(userPermissions)
+                + (userPermissions.length > 1 ? " permissions" : " permission");
     }
 
     @Override
     public String getBotPermsString() {
-        if (this.botPermissions.length == 0) {
+        if (botPermissions.length == 0) {
             return "No bot permissions needed.";
         }
-        return Tools.parsePerms(this.botPermissions)
-        + (this.botPermissions.length > 1 ? " permissions" : " permission");
+        return Tools.parsePerms(botPermissions)
+        + (botPermissions.length > 1 ? " permissions" : " permission");
+    }
+
+    @Override
+    public void setUserPerms(Permission[] userPermissions) {
+        this.userPermissions = userPermissions;
     }
 
     @Override
     public Permission[] getUserPerms() {
-        return (this.userPermissions.length == 0 ? null : this.userPermissions);
+        return (userPermissions.length == 0 ? null : userPermissions);
+    }
+
+    @Override
+    public void setBotPerms(Permission[] botPermissions) {
+        this.botPermissions = botPermissions;
     }
 
     @Override
     public Permission[] getBotPerms() {
-        return (this.botPermissions.length == 0 ? null : this.botPermissions);
+        return (botPermissions.length == 0 ? null : botPermissions);
     }
 
     @Override
     public String getDesc() {
-        return this.desc;
+        return getCommandData().getDescription();
     }
 
     @Override
     public String getUsage() {
-        return this.usage;
+        return usage;
     }
 
     @Override
     public List<OptionData> getOptions() {
-        return this.options;
+        return getCommandData().getOptions();
     }
 
     @Override
     public List<SubcommandData> getSubCmds() {
-        return this.subCmds;
+        return getCommandData().getSubcommands();
     }
 
     @Override
     public List<SubcommandGroupData> getSubCmdGroups() {
-        return this.subCmdGroups;
+        return getCommandData().getSubcommandGroups();
     }
 
     @Override
