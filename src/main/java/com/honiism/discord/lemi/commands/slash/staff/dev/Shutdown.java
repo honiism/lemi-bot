@@ -32,19 +32,20 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public class Shutdown extends SlashCmd {
 
     private static final Logger log = LoggerFactory.getLogger(Shutdown.class);
 
     public Shutdown() {
-        this.name = "shutdown";
-        this.desc = "Shutsdown Lemi immediately.";
-        this.usage = "/dev shutdown";
-        this.category = CommandCategory.DEV;
-        this.userCategory = UserCategory.MODS;
-        this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
+        setCommandData(Commands.slash("shutdown", "Shutsdown Lemi immediately."));
+        setUsage("/dev shutdown");
+        setCategory(CommandCategory.DEV);
+        setUserCategory(UserCategory.DEV);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setGlobal(true);
     }
 
     @Override

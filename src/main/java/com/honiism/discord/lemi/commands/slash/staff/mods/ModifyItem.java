@@ -19,7 +19,6 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.mods;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
@@ -35,6 +34,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class ModifyItem extends SlashCmd {
@@ -43,36 +43,26 @@ public class ModifyItem extends SlashCmd {
     private long timeDelayed;
 
     public ModifyItem() {
-        this.name = "modifyitem";
-        this.desc = "Add or remove some items from a user.";
-        this.usage = "/mods modifybal ((subcommands))";
-        this.category = CommandCategory.MODS;
-        this.userCategory = UserCategory.MODS;
-        this.userPermissions = new Permission[] {Permission.MESSAGE_MANAGE};
-        this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.subCmds = Arrays.asList(
-                new SubcommandData("add", "Add some items to a user.")
-                        .addOption(OptionType.USER, "user",
-                                "The user you'd like to give some items to.",
-                                true)
-                        .addOption(OptionType.STRING, "item_name",
-                                "The name of the item you'd like to add.",
-                                true)
-                        .addOption(OptionType.INTEGER, "amount",
-                                "The amount of item you'd like to add.'",
-                                true),
+        setCommandData(Commands.slash("modifyitem", "Add or remove some items from a user.")
+                .addSubcommands(
+                        new SubcommandData("add", "Add some items to a user.")
+                                .addOption(OptionType.USER, "user", "The user you'd like to give some items to.", true)
+                                .addOption(OptionType.STRING, "item_name", "The name of the item you'd like to add.", true)
+                                .addOption(OptionType.INTEGER, "amount", "The amount of item you'd like to add.'", true),
   
-                new SubcommandData("remove", "Remove some otems from a user.")
-                        .addOption(OptionType.USER, "user",
-                                "The user you'd like to take some items from.",
-                                true)
-                        .addOption(OptionType.STRING, "item_name",
-                                "The name of the item you'd like to take.'",
-                                true)
-                        .addOption(OptionType.INTEGER, "amount",
-                                "The amount of item you'd like to take.'",
-                                true)
+                        new SubcommandData("remove", "Remove some items from a user.")
+                                .addOption(OptionType.USER, "user", "The user you'd like to take some items from.", true)
+                                .addOption(OptionType.STRING, "item_name", "The name of the item you'd like to take.'", true)
+                                .addOption(OptionType.INTEGER, "amount", "The amount of item you'd like to take.'", true)
+                )
         );
+
+        setUsage("/mods modifyitem ((subcommands))");
+        setCategory(CommandCategory.MODS);
+        setUserCategory(UserCategory.MODS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setGlobal(true);
     }
 
     @Override

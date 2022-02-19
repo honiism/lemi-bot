@@ -20,7 +20,6 @@
 package com.honiism.discord.lemi.commands.slash.main;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +42,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Help extends SlashCmd {
@@ -51,24 +51,19 @@ public class Help extends SlashCmd {
     private long timeDelayed;
 
     public Help() {
-        this.name = "help";
-        this.desc = "Shows information about Lemi.";
-        this.usage = "/help [page number]";
-        this.category = CommandCategory.MAIN;
-        this.userCategory = UserCategory.USERS;
-        this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(
-                new OptionData(OptionType.INTEGER,
-                            "page",
-                            "Page of the help menu.",
-                            false),
-
-                new OptionData(OptionType.STRING,
-                            "command_name",
-                            "The name of command/category to display its help menu.",
-                            false)
+        setCommandData(Commands.slash("help", "Shows information about Lemi.")
+                .addOptions(
+                        new OptionData(OptionType.INTEGER, "page", "Page of the help menu.", false),
+                        new OptionData(OptionType.STRING, "command_name", "The name of command/category to display its help menu.", false)
+                )
         );
+        
+        setUsage("/help [page number]");
+        setCategory(CommandCategory.MAIN);
+        setUserCategory(UserCategory.USERS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setGlobal(true);
     }
     
     @Override

@@ -40,6 +40,8 @@ public interface ISlashCmd {
     void setCommandData(SlashCommandData commandData);
     String getName();
     String getDesc();
+    void setGlobal(boolean isGlobal);
+    boolean isGlobal();
     void setCategory(CommandCategory category);
     CommandCategory getCategory();
     void setUserCategory(UserCategory userCategory);

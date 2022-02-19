@@ -39,11 +39,12 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 public abstract class SlashCmd implements ISlashCmd {
 
     private SlashCommandData commandData;
-    private String usage;
-    private CommandCategory category;
-    private UserCategory userCategory;
-    private Permission[] userPermissions;
-    private Permission[] botPermissions;
+    private boolean isGlobal = true;
+    private String usage = "";
+    private CommandCategory category = CommandCategory.MAIN;
+    private UserCategory userCategory = UserCategory.USERS;
+    private Permission[] userPermissions = new Permission[0];
+    private Permission[] botPermissions = new Permission[0];
 
     @Override
     public void executeAction(SlashCommandInteractionEvent event) {
@@ -107,6 +108,16 @@ public abstract class SlashCmd implements ISlashCmd {
     @Override
     public String getName() {
         return getCommandData().getName();
+    }
+
+    @Override
+    public void setGlobal(boolean isGlobal) {
+        this.isGlobal = isGlobal;
+    }
+
+    @Override
+    public boolean isGlobal() {
+        return isGlobal;
     }
 
     @Override
@@ -180,6 +191,11 @@ public abstract class SlashCmd implements ISlashCmd {
     @Override
     public String getDesc() {
         return getCommandData().getDescription();
+    }
+
+    @Override
+    public void setUsage(String usage) {
+        this.usage = usage;
     }
 
     @Override

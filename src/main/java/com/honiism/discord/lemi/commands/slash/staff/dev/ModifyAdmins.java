@@ -20,7 +20,6 @@
 package com.honiism.discord.lemi.commands.slash.staff.dev;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +41,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class ModifyAdmins extends SlashCmd {
@@ -50,27 +50,25 @@ public class ModifyAdmins extends SlashCmd {
     private long timeDelayed;
 
     public ModifyAdmins() {
-        this.name = "modifyadmins";
-        this.desc = "Add/remove/view user(s) to/from the administrator database.";
-        this.usage = "/dev modifyadmins ((subcommands))";
-        this.category = CommandCategory.DEV;
-        this.userCategory = UserCategory.DEV;
-        this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(
-                new SubcommandData("add", "Add a user's key in the official administrator list.")
-                        .addOption(OptionType.USER, "user", "The user you want to add.", true)
-                        .addOption(OptionType.STRING, "key",
-                                "The key that will be assigned for this user.",
-                                true),
+        setCommandData(Commands.slash("modifyadmins", "Add/remove/view user(s) to/from the administrator database.")
+                .addSubcommands(
+                        new SubcommandData("add", "Add a user's key in the official administrator list.")
+                                .addOption(OptionType.USER, "user", "The user you want to add.", true)
+                                .addOption(OptionType.STRING, "key", "The key that will be assigned for this user.", true),
   
-                new SubcommandData("remove", "Remove a user from the official administrator list.")
-                        .addOption(OptionType.USER, "user",
-                                "The user you want to remove.",
-                                true),
+                        new SubcommandData("remove", "Remove a user from the official administrator list.")
+                                .addOption(OptionType.USER, "user", "The user you want to remove.", true),
 
-                new SubcommandData("view", "View all details from the official administrator list.")
+                        new SubcommandData("view", "View all details from the official administrator list.")
+                )
         );
+
+        setUsage("/dev modifyadmins ((subcommands))");
+        setCategory(CommandCategory.DEV);
+        setUserCategory(UserCategory.DEV);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setGlobal(true);
     }
 
     @Override

@@ -19,14 +19,13 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.admins;
 
-import java.util.Arrays;
-
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
@@ -44,27 +43,29 @@ public class AdminsTopLevel extends SlashCmd {
         this.embedGroup = embedGroup;
         this.resetCurrDataCmd = resetCurrData;
 
-        this.name = "admins";
-        this.desc = "Commands for the admins of Lemi the discord bot.";
-        this.usage = "/admins ((subcommand groups/subcommands))";
-        this.category = CommandCategory.ADMINS;
-        this.userCategory = UserCategory.ADMINS;
-        this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(
-                new SubcommandData(this.shardRestartSubCmd.getName(), this.shardRestartSubCmd.getDesc())
-                        .addOptions(this.shardRestartSubCmd.getOptions()),
+        setCommandData(Commands.slash("admins", "Commands for the admins of Lemi the discord bot.")
+                .addSubcommands(
+                        new SubcommandData(this.shardRestartSubCmd.getName(), this.shardRestartSubCmd.getDesc())
+                                .addOptions(this.shardRestartSubCmd.getOptions()),
 
-                new SubcommandData(this.resetCurrDataCmd.getName(), this.resetCurrDataCmd.getDesc())
-                        .addOptions(this.resetCurrDataCmd.getOptions())
-        );
-        this.subCmdGroups = Arrays.asList(
-                new SubcommandGroupData(this.userBanGroup.getName(), this.userBanGroup.getDesc())
-                        .addSubcommands(this.userBanGroup.getSubCmds()),
+                        new SubcommandData(this.resetCurrDataCmd.getName(), this.resetCurrDataCmd.getDesc())
+                                .addOptions(this.resetCurrDataCmd.getOptions())
+                )
+                .addSubcommandGroups(
+                        new SubcommandGroupData(this.userBanGroup.getName(), this.userBanGroup.getDesc())
+                                .addSubcommands(this.userBanGroup.getSubCmds()),
 
-                new SubcommandGroupData(this.embedGroup.getName(), this.embedGroup.getDesc())
-                        .addSubcommands(this.embedGroup.getSubCmds())
+                        new SubcommandGroupData(this.embedGroup.getName(), this.embedGroup.getDesc())
+                                .addSubcommands(this.embedGroup.getSubCmds())
+                )
         );
+
+        setUsage("/admins ((subcommand groups/subcommands))");
+        setCategory(CommandCategory.ADMINS);
+        setUserCategory(UserCategory.ADMINS);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setGlobal(true);
     }
 
     @Override

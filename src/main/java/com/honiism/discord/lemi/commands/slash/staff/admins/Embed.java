@@ -19,7 +19,6 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.admins;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
@@ -45,24 +44,10 @@ public class Embed extends SlashCmd {
     private long timeDelayed;
 
     public Embed() {
-        /*
-        this.usage = "/mods embed ((subcommands))";
-        this.category = CommandCategory.MODS;
-        this.userCategory = UserCategory.MODS;
-        this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        */
-
-        setUsage("/mods embed ((subcommands))");
-        setCategory(CommandCategory.MODS);
-        setUserCategory(UserCategory.MODS);
-        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
-        setBotPerms(botPermissions);
-
         setCommandData(Commands.slash("embed", "Add, remove or show an embed you created.")
                 .addSubcommands(
                         new SubcommandData("create", "Create a custom embed."),
-  
+
                         new SubcommandData("remove", "Remove an existing embed.")
                                 .addOption(OptionType.STRING, "embed_id", "The id of an embed you want to remove.", true),
 
@@ -72,6 +57,13 @@ public class Embed extends SlashCmd {
                                 .addOption(OptionType.STRING, "embed_id", "The embed you want to show.", true)
                 )
         );
+
+        setUsage("/mods embed ((subcommands))");
+        setCategory(CommandCategory.ADMINS);
+        setUserCategory(UserCategory.ADMINS);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setGlobal(false);
     }
 
     @Override

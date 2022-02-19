@@ -37,6 +37,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public class Cook extends SlashCmd {
     
@@ -44,13 +45,13 @@ public class Cook extends SlashCmd {
     private long timeDelayed;
 
     public Cook() {
-        this.name = "cook";
-        this.desc = "Let's see if your cooking skills can handle this!";
-        this.usage = "/currency cook";
-        this.category = CommandCategory.CURRENCY;
-        this.userCategory = UserCategory.USERS;
-        this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
+        setCommandData(Commands.slash("cook", "Let's see if your cooking skills can handle this!"));
+        setUsage("/currency cook");
+        setCategory(CommandCategory.CURRENCY);
+        setUserCategory(UserCategory.USERS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setGlobal(true);
     }
 
     @Override

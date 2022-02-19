@@ -19,7 +19,6 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.admins;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.honiism.discord.lemi.Config;
@@ -39,6 +38,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class ShardRestart extends SlashCmd {
@@ -48,19 +48,20 @@ public class ShardRestart extends SlashCmd {
     private long timeDelayed;
 
     public ShardRestart() {
-        this.name = "shardrestart";
-        this.desc = "Restart a shard if it gets stuck.";
-        this.usage = "/admins shardrestart [shard id]";
-        this.category = CommandCategory.ADMINS;
-        this.userCategory = UserCategory.ADMINS;
-        this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.options = Arrays.asList(
-                new OptionData(OptionType.INTEGER,
-                            "shard_id",
-                            "The shard id to restart (Skip this option to reset all the shards).",
-                            false)
+        setCommandData(Commands.slash("shardrestart", "Restart a shard if it gets stuck.")
+                .addOptions(
+                        new OptionData(OptionType.INTEGER, "shard_id",
+                                "The shard id to restart (Skip this option to reset all the shards).",
+                                false)
+                )
         );
+
+        setUsage("/admins shardrestart [shard id]");
+        setCategory(CommandCategory.ADMINS);
+        setUserCategory(UserCategory.ADMINS);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setGlobal(false);
     }
 
     @Override

@@ -27,7 +27,6 @@ import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -52,6 +51,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Compile extends SlashCmd {
@@ -61,34 +61,21 @@ public class Compile extends SlashCmd {
     private long timeDelayed;
 
     public Compile() {
-        this.name = "compile";
-        this.desc = "Compile code using Lemi's core system.";
-        this.usage = "/dev compile [input] [page number]";
-        this.category = CommandCategory.DEV;
-        this.userCategory = UserCategory.DEV;
-        this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.options = Arrays.asList(
-                new OptionData(OptionType.STRING,
-                            "language",
-                            "Language you want to use to code.",
-                            true),
-
-                new OptionData(OptionType.STRING,
-                            "version_index",
-                            "The version index of the language to use.",
-                            true),
-
-                new OptionData(OptionType.STRING,
-                            "input",
-                            "Input for the code if needed for execution.",
-                            false),
-
-                new OptionData(OptionType.INTEGER,
-                            "page",
-                            "The page number for the compile menu you want to see.",
-                            false)
+        setCommandData(Commands.slash("compile", "Compile code using Lemi's core system.")
+                .addOptions(
+                        new OptionData(OptionType.STRING, "language", "Language you want to use to code.", true),
+                        new OptionData(OptionType.STRING, "version_index", "The version index of the language to use.", true),
+                        new OptionData(OptionType.STRING, "input", "Input for the code if needed for execution.", false),
+                        new OptionData(OptionType.INTEGER, "page", "The page number for the compile menu you want to see.", false)
+                )
         );
+
+        setUsage("/dev compile <language> <version_index> [input] [page number]");
+        setCategory(CommandCategory.DEV);
+        setUserCategory(UserCategory.DEV);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setGlobal(true);
     }
 
     @Override
