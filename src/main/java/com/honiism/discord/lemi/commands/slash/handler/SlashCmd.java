@@ -51,13 +51,7 @@ public abstract class SlashCmd implements ISlashCmd {
     @Override
     public void executeAction(SlashCommandInteractionEvent event) {
         LemiDbManager.INS.checkIfBanned(event);
-        checkPerms(event);
-        action(event);      
-    }
 
-    public abstract void action(SlashCommandInteractionEvent event);
-    
-    public void checkPerms(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
 
         if (getUserCategory().equals(UserCategory.DEV) 
@@ -99,7 +93,11 @@ public abstract class SlashCmd implements ISlashCmd {
             hook.sendMessageEmbeds(needUserPermsMsg.build()).queue();
             return;
         }
+
+        action(event);      
     }
+
+    public abstract void action(SlashCommandInteractionEvent event);
 
     @Override
     public SlashCommandData getCommandData() {

@@ -350,6 +350,10 @@ public class SlashCmdManager {
         }
 
         if (command != null) {
+            if (!command.isGlobal() && !(guild.getIdLong() == Config.getLong("honeys_sweets_id"))) {
+                return;
+            }
+
             command.executeAction(event);
         }
     }

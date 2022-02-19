@@ -29,6 +29,7 @@ public class SlashCmdListener extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (Lemi.getInstance().isDebug() && !Lemi.getInstance().isWhitelisted(event.getMember().getIdLong())) {
+            event.reply(":no_entry_sign: The bot is currently in debug mode and only whitelisted users can execute commands.").queue();
             return;
         }
         Lemi.getInstance().getSlashCmdManager().handle(event);
