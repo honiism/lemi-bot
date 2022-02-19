@@ -24,10 +24,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.honiism.discord.lemi.Config;
+import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.slash.staff.admins.Embed;
 import com.honiism.discord.lemi.commands.slash.staff.admins.ResetCurrData;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
@@ -59,6 +61,7 @@ import com.honiism.discord.lemi.commands.slash.staff.mods.Test;
 import com.honiism.discord.lemi.commands.slash.staff.mods.ViewItems;
 import com.honiism.discord.lemi.listeners.BaseListener;
 
+import org.hamcrest.core.Is;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +69,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
@@ -73,12 +77,23 @@ import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 public class SlashCmdManager {
 
     private static final Logger log = LoggerFactory.getLogger(SlashCmdManager.class);
+
+    private final List<ISlashCmd> registeredCmds;
+    private final Map<Long, List<ISlashCmd>> registeredGuildCmds;
+
+    private CommandListUpdateAction commandUpdateAction;
+
     private static Multimap<CommandCategory, ISlashCmd> cmdsByCategory = ArrayListMultimap.create();
     private static SlashCmdManager instance;
     private Map<String, ISlashCmd> topLevelCmdsMap = new HashMap<>();
     private List<ISlashCmd> allSlashCmds = new ArrayList<>();
 
     public SlashCmdManager() {
+        registeredCmds = new ArrayList<>();
+        registeredGuildCmds = new HashMap<>();
+    }
+
+    public void test() {
         instance = this;
 
         Shutdown shutdownCmd = new Shutdown();
@@ -239,6 +254,28 @@ public class SlashCmdManager {
 
     public static SlashCmdManager getIns() {
         return instance;
+    }
+
+    public void updateCmds(Consumer<List<Command>> success, Consumer<Throwable> failure) {
+        if (!Lemi.getInstance().isDebug()) {
+            commandUpdateAction.queue(success, failure);
+
+            for (Map.Entry<Long, List<ISlashCmd>> entrySet : registeredGuildCmds.entrySet()) {
+                Long guildId = entrySet.getKey();
+                List<ISlashCmd> slashCmds = entrySet.getValue();
+                Guild guild = Lemi.getInstance().getShardManager().getGuildById(guildId);
+
+                if (guildId == null || slashCmds == null || slashCmds.isEmpty() || guild == null) {
+                    continue;
+                }
+
+                CommandListUpdateAction guildCommandUpdateAction = guild.updateCommands();
+
+                for (ISlashCmd cmd : slashCmds) {
+                    
+                }
+            }
+        }
     }
 
     private void addSlashCmd(ISlashCmd cmd) {
