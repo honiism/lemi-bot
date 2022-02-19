@@ -1097,24 +1097,10 @@ public class LemiDbDs implements LemiDbManager {
     }
 
     @Override
-    public void onSlashCommand(SlashCommandInteractionEvent event) {
-        event.deferReply().queue();
-        
+    public void checkIfBanned(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         Guild guild = event.getGuild();
         Member member = event.getMember();
-                    
-        if (guild == null || member.getUser().isBot()) {
-            return;
-        }
-
-        Long guildId = guild.getIdLong();
-
-        if (!guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))
-                && !guildId.equals(Long.parseLong(Config.get("test_server")))) {
-            guild.leave().queue();
-            return;
-        }
             
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
@@ -1125,7 +1111,6 @@ public class LemiDbDs implements LemiDbManager {
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
                     String reason = rs.getString("reason");
-            
                     hook.sendMessage("Sorry, you're banned from using Lemi for : " + reason).queue();
                     return;
                 }

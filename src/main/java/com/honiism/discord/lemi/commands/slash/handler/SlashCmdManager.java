@@ -59,19 +59,14 @@ import com.honiism.discord.lemi.commands.slash.staff.mods.ModsTopLevel;
 import com.honiism.discord.lemi.commands.slash.staff.mods.ShardStatus;
 import com.honiism.discord.lemi.commands.slash.staff.mods.Test;
 import com.honiism.discord.lemi.commands.slash.staff.mods.ViewItems;
-import com.honiism.discord.lemi.listeners.BaseListener;
 
-import org.hamcrest.core.Is;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 
 public class SlashCmdManager {
@@ -84,8 +79,6 @@ public class SlashCmdManager {
     private CommandListUpdateAction commandUpdateAction;
 
     private static Multimap<CommandCategory, ISlashCmd> cmdsByCategory = ArrayListMultimap.create();
-    private static SlashCmdManager instance;
-    private Map<String, ISlashCmd> topLevelCmdsMap = new HashMap<>();
     private List<ISlashCmd> allSlashCmds = new ArrayList<>();
 
     public SlashCmdManager() {
@@ -93,9 +86,12 @@ public class SlashCmdManager {
         registeredGuildCmds = new HashMap<>();
     }
 
-    public void test() {
-        instance = this;
+    public void initialize() {
+        commandUpdateAction = Lemi.getInstance().getShardManager().getShards().get(0).updateCommands();
+        registerAllCmds();
+    }
 
+    public void registerAllCmds() {
         Shutdown shutdownCmd = new Shutdown();
         Help helpCmd = new Help();
         ModifyAdmins modifyAdminsCmd = new ModifyAdmins();
@@ -129,19 +125,19 @@ public class SlashCmdManager {
                 cookCmd);
 
         // staff
-        addSlashCmd(devTopLevelCmd);
-        addSlashCmd(adminsTopLevelCmd);
-        addSlashCmd(modsTopLevelCmd);
+        registerCmd(devTopLevelCmd);
+        registerCmd(adminsTopLevelCmd);
+        registerCmd(modsTopLevelCmd);
 
         // main
-        addSlashCmd(helpCmd);
-        addSlashCmd(pingCmd);
-        addSlashCmd(donateCmd);
+        registerCmd(helpCmd);
+        registerCmd(pingCmd);
+        registerCmd(donateCmd);
 
         // currency
-        addSlashCmd(currencyTopLevelCmd);
+        registerCmd(currencyTopLevelCmd);
 
-        updateCmd(BaseListener.getJDA());
+        updateCmdCategory();
 
         allSlashCmds.add(shutdownCmd);
         allSlashCmds.add(helpCmd);
@@ -171,89 +167,41 @@ public class SlashCmdManager {
         allSlashCmds.add(adminsTopLevelCmd);
         allSlashCmds.add(modsTopLevelCmd);
         allSlashCmds.add(currencyTopLevelCmd);
-
-        CommandListUpdateAction commands = BaseListener.getJDA().getShardManager()
-            .getGuildById(Config.get("honeys_sweets_id"))
-            .updateCommands();
-
-        commands.addCommands(
-                // needs privileges
-                Commands.slash(devTopLevelCmd.getName(), devTopLevelCmd.getDesc())
-                    .addSubcommandGroups(devTopLevelCmd.getSubCmdGroups())
-                    .addSubcommands(devTopLevelCmd.getSubCmds())
-                    .setDefaultEnabled(false),
-
-                Commands.slash(adminsTopLevelCmd.getName(), adminsTopLevelCmd.getDesc())
-                    .addSubcommandGroups(adminsTopLevelCmd.getSubCmdGroups())
-                    .addSubcommands(adminsTopLevelCmd.getSubCmds())
-                    .setDefaultEnabled(false),
-
-                Commands.slash(modsTopLevelCmd.getName(), modsTopLevelCmd.getDesc())
-                    .addSubcommandGroups(modsTopLevelCmd.getSubCmdGroups())
-                    .addSubcommands(modsTopLevelCmd.getSubCmds())
-                    .setDefaultEnabled(false),
-
-                // doesn't need privileges
-                Commands.slash(currencyTopLevelCmd.getName(), currencyTopLevelCmd.getDesc())
-                    .addSubcommandGroups(currencyTopLevelCmd.getSubCmdGroups())
-                    .addSubcommands(currencyTopLevelCmd.getSubCmds()),
-
-                Commands.slash(helpCmd.getName(), helpCmd.getDesc())
-                    .addOptions(helpCmd.getOptions()),
-                Commands.slash(pingCmd.getName(), pingCmd.getDesc()),
-                Commands.slash(donateCmd.getName(), donateCmd.getDesc())
-        );
-
-        Guild honeysSweetsGuild = BaseListener.getJDA().getShardManager().getGuildById(Config.get("honeys_sweets_id"));
-        Role adminRole = honeysSweetsGuild.getRoleById(Config.get("admin_role_id"));
-        Role modsRole = honeysSweetsGuild.getRoleById(Config.get("mod_role_id"));
-        Role twitchModsRole = honeysSweetsGuild.getRoleById(Config.get("twitch_mod_role_id"));
-
-        commands.queue((cmds) -> {
-            cmds.forEach((cmd) -> {
-                if (cmd.getName().equals(devTopLevelCmd.getName())) {
-                    honeysSweetsGuild.retrieveMemberById(Config.get("dev_id"))
-                        .queue(
-                            (dev) -> {
-                                Collection<CommandPrivilege> privileges = new ArrayList<>();
-
-                                privileges.add(CommandPrivilege.enable(dev.getUser()));
-                                cmd.updatePrivileges(honeysSweetsGuild, privileges).queue();
-                            }
-                        );
-                } else if (cmd.getName().equals(adminsTopLevelCmd.getName())) {
-                    honeysSweetsGuild.retrieveMemberById(Config.get("dev_id"))
-                        .queue(
-                            (dev) -> {
-                                Collection<CommandPrivilege> privileges = new ArrayList<>();
-
-                                privileges.add(CommandPrivilege.enable(dev.getUser()));
-                                privileges.add(CommandPrivilege.enable(adminRole));
-                                
-                                cmd.updatePrivileges(honeysSweetsGuild, privileges).queue();
-                            }
-                        );
-                } else if (cmd.getName().equals(modsTopLevelCmd.getName())) {
-                    honeysSweetsGuild.retrieveMemberById(Config.get("dev_id"))
-                        .queue(
-                            (dev) -> {
-                                Collection<CommandPrivilege> privileges = new ArrayList<>();
-
-                                privileges.add(CommandPrivilege.enable(dev.getUser()));
-                                privileges.add(CommandPrivilege.enable(adminRole));
-                                privileges.add(CommandPrivilege.enable(modsRole));
-                                privileges.add(CommandPrivilege.enable(twitchModsRole));
-                                
-                                cmd.updatePrivileges(honeysSweetsGuild, privileges).queue();
-                            }
-                        );
-                }
-            });
-        });
     }
 
-    public static SlashCmdManager getIns() {
-        return instance;
+    private void registerCmd(ISlashCmd cmd) {
+        if (!cmd.isGlobal() && !Lemi.getInstance().isDebug()) {
+            for (long guildId : Lemi.getInstance().getWhitelistedUsers()) {
+                Guild guild = Lemi.getInstance().getShardManager().getGuildById(guildId);
+
+                if (guild == null) {
+                    return;
+                }
+
+                List<ISlashCmd> alreadyRegistered = registeredGuildCmds.containsKey(guildId) ?
+                        registeredGuildCmds.get(guildId) : new ArrayList<>();
+
+                alreadyRegistered.add(cmd);
+                registeredGuildCmds.put(guildId, alreadyRegistered);
+            }
+            return;
+        }
+
+        if (Lemi.getInstance().isDebug()) {
+            Guild honeysSweetsGuild = Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_sweets_id"));
+
+            if (honeysSweetsGuild != null) {
+                List<ISlashCmd> alreadyRegistered = registeredGuildCmds.containsKey(Config.getLong("honeys_sweets_id")) ?
+                        registeredGuildCmds.get(Config.getLong("honeys_sweets_id")) : new ArrayList<>();
+                
+                alreadyRegistered.add(cmd);
+                registeredGuildCmds.put(Config.getLong("honeys_sweets_id"), alreadyRegistered);
+            }
+            return;
+         }
+
+        commandUpdateAction.addCommands(cmd.getCommandData());
+        registeredCmds.add(cmd);
     }
 
     public void updateCmds(Consumer<List<Command>> success, Consumer<Throwable> failure) {
@@ -272,38 +220,55 @@ public class SlashCmdManager {
                 CommandListUpdateAction guildCommandUpdateAction = guild.updateCommands();
 
                 for (ISlashCmd cmd : slashCmds) {
-                    
+                    guildCommandUpdateAction = guildCommandUpdateAction.addCommands(cmd.getCommandData());
                 }
+
+                if (slashCmds.size() > 0) {
+                     guildCommandUpdateAction.queue();
+                }
+            }
+        } else {
+            List<ISlashCmd> honeysSweetsCmds = registeredGuildCmds.get(Config.getLong("honeys_sweets_id"));
+
+            if ((honeysSweetsCmds != null && !honeysSweetsCmds.isEmpty())) {
+                Guild honeysSweetsGuild = Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_sweets_id"));
+
+                if (honeysSweetsGuild == null) {
+                    return;
+                }
+
+                CommandListUpdateAction honeysSweetsUpdateAction = honeysSweetsGuild.updateCommands();
+
+                for (ISlashCmd cmd : honeysSweetsCmds) {
+                    honeysSweetsUpdateAction.addCommands(cmd.getCommandData());
+                }
+
+                honeysSweetsUpdateAction.queue(success, failure);
             }
         }
     }
 
-    private void addSlashCmd(ISlashCmd cmd) {
-        if (topLevelCmdsMap.containsKey(cmd.getName())) {
-            return;
-        }
-        topLevelCmdsMap.put(cmd.getName(), cmd);
-    }
-
-    private void updateCmd(JDA jda) {
-        for (ISlashCmd cmd : topLevelCmdsMap.values()) {
+    private void updateCmdCategory() {
+        for (ISlashCmd cmd : registeredCmds) {
             cmdsByCategory.put(cmd.getCategory(), cmd);
         }
-        
         log.info("Updated all commands according to it's categories.");
-
-        jda.getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-                .getTextChannelById(Config.get("logs_channel_id"))
-                .sendMessage("Updated all commands according to it's categories.")
-                .queue();
     }
 
-    public List<ISlashCmd> getCmds() {
+    public List<ISlashCmd> getAllCmds() {
         return allSlashCmds;
     }
 
+    public List<ISlashCmd> getRegisteredCmds() {
+        return registeredCmds;
+    }
+
+    public Map<Long, List<ISlashCmd>> getRegisteredGuildCmds() {
+        return registeredGuildCmds;
+    }
+
     public ISlashCmd getCmdByName(String name) {
-        for (ISlashCmd cmd : getCmds()) {
+        for (ISlashCmd cmd : getAllCmds()) {
             if (cmd.getName().equalsIgnoreCase(name)) {
                 return cmd;
             }
@@ -348,11 +313,44 @@ public class SlashCmdManager {
     }
 
     public void handle(SlashCommandInteractionEvent event) {
-        String executedCmdName = event.getName();
-        ISlashCmd slashCmd = topLevelCmdsMap.get(executedCmdName);
+        event.deferReply().queue();
 
-        if (slashCmd != null) {
-            slashCmd.executeAction(event);
+        Member member = event.getMember();
+
+        if (!event.isFromGuild() || member.getUser().isBot()) {
+            return;
+        }
+
+        Guild guild = event.getGuild();
+        ISlashCmd command = null;
+
+        if (registeredGuildCmds.containsKey(guild.getIdLong())) {
+            List<ISlashCmd> guildCmds = registeredGuildCmds.get(guild.getIdLong());
+
+            ISlashCmd guildCmd = guildCmds.stream()
+                .filter(cmd -> cmd.getName().equalsIgnoreCase(event.getName()))
+                .findFirst()
+                .orElse(null);
+
+            if (guildCmd != null) {
+                command = guildCmd;
+            }
+        }
+
+        if (command == null) {
+            ISlashCmd globalCmd = getRegisteredCmds()
+                .stream()
+                .filter(cmd -> cmd.getName().equalsIgnoreCase(event.getName()))
+                .findFirst()
+                .orElse(null);
+
+            if (globalCmd != null) {
+                command = globalCmd;
+            }
+        }
+
+        if (command != null) {
+            command.executeAction(event);
         }
     }
 }

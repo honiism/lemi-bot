@@ -21,8 +21,10 @@ package com.honiism.discord.lemi.commands.slash.handler;
 
 import java.util.List;
 
+import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
+import com.honiism.discord.lemi.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
@@ -48,6 +50,14 @@ public abstract class SlashCmd implements ISlashCmd {
 
     @Override
     public void executeAction(SlashCommandInteractionEvent event) {
+        LemiDbManager.INS.checkIfBanned(event);
+        checkPerms(event);
+        action(event);      
+    }
+
+    public abstract void action(SlashCommandInteractionEvent event);
+    
+    public void checkPerms(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
 
         if (getUserCategory().equals(UserCategory.DEV) 
@@ -89,11 +99,7 @@ public abstract class SlashCmd implements ISlashCmd {
             hook.sendMessageEmbeds(needUserPermsMsg.build()).queue();
             return;
         }
-
-        action(event);      
     }
-
-    public abstract void action(SlashCommandInteractionEvent event);
 
     @Override
     public SlashCommandData getCommandData() {
@@ -220,7 +226,7 @@ public abstract class SlashCmd implements ISlashCmd {
 
     @Override
     public MessageEmbed getHelp(SlashCommandInteractionEvent event) {
-        SlashCmdManager slashCmdManagerIns = SlashCmdManager.getIns();
+        SlashCmdManager slashCmdManagerIns = Lemi.getInstance().getSlashCmdManager();
 
         EmbedBuilder helpEmbed = new EmbedBuilder()
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
@@ -249,7 +255,7 @@ public abstract class SlashCmd implements ISlashCmd {
 
     @Override
     public EmbedBuilder getHelpBuilder(SlashCommandInteractionEvent event) {
-        SlashCmdManager slashCmdManagerIns = SlashCmdManager.getIns();
+        SlashCmdManager slashCmdManagerIns = Lemi.getInstance().getSlashCmdManager();
         
         EmbedBuilder helpEmbed = new EmbedBuilder()
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"

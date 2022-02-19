@@ -55,8 +55,8 @@ public interface LemiDbManager {
     // guildlistener
     void onGuildReady(GuildReadyEvent event);
 
-    // slashcmdlistener
-    void onSlashCommand(SlashCommandInteractionEvent event);
+    // slashcmd
+    void checkIfBanned(SlashCommandInteractionEvent event);
 
     // currencytools
     String getBalName(String guildId);

@@ -89,7 +89,7 @@ public class Help extends SlashCmd {
             if (cmdNameOption != null) {
                 String cmdName = cmdNameOption.getAsString();
 
-                if (SlashCmdManager.getIns().getCmdByName(cmdName) == null) {
+                if (Lemi.getInstance().getSlashCmdManager().getCmdByName(cmdName) == null) {
                     hook.sendMessage(":tulip: That command doesn't exist.\r\n"
                             + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
                             + ":sunflower: Don't include the category names when you're trying to " 
@@ -112,7 +112,7 @@ public class Help extends SlashCmd {
                     return;
                 }
 
-                ISlashCmd cmd = SlashCmdManager.getIns().getCmdByName(cmdName);
+                ISlashCmd cmd = Lemi.getInstance().getSlashCmdManager().getCmdByName(cmdName);
 
                 hook.sendMessageEmbeds(cmd.getHelp(event)).queue();
                 return;
@@ -129,7 +129,7 @@ public class Help extends SlashCmd {
                     continue;
                 }
                 
-                SlashCmdManager slashCmdManagerIns = SlashCmdManager.getIns();
+                SlashCmdManager slashCmdManagerIns = Lemi.getInstance().getSlashCmdManager();
                 
                 items.add(new EmbedBuilder()
                     .setTitle("‧₊੭ :cherries: Lemi commands!")
