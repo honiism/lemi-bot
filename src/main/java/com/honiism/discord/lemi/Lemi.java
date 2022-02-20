@@ -56,7 +56,6 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import okhttp3.OkHttpClient;
 
 public class Lemi {
 
@@ -69,7 +68,6 @@ public class Lemi {
     private final ShardManager shardManager;
     private final ExecutorService cmdExecutor;
     private final EventWaiter waiter;
-    private final OkHttpClient httpClient;
     private final SlashCmdManager slashCmdManager;
 
     private boolean shuttingDown = false;
@@ -78,7 +76,6 @@ public class Lemi {
     public Lemi() throws LoginException {
         instance = this;
         waiter = new EventWaiter();
-        httpClient = new OkHttpClient();
         slashCmdManager = new SlashCmdManager();
 
         cmdExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
@@ -435,10 +432,6 @@ public class Lemi {
 
     public EventWaiter getEventWaiter() {
         return waiter;
-    }
-
-    public OkHttpClient getHttpClient() {
-        return httpClient;
     }
 
     public ExecutorService getCmdExecutor() {
