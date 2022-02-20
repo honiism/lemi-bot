@@ -62,6 +62,7 @@ public class Lemi {
 
     private static final Logger log = LoggerFactory.getLogger(Lemi.class);
     private static final List<Long> WHITELISTED_USERS = new ArrayList<>();
+    private static final List<Long> WHITELISTED_GUILDS = new ArrayList<>();
     
     private static Lemi instance;
 
@@ -87,6 +88,9 @@ public class Lemi {
                                 + "Thread: " + t.getName()))
                         .build()
         );
+
+        WHITELISTED_GUILDS.add(Config.getLong("honeys_sweets_id"));
+        WHITELISTED_GUILDS.add(Config.getLong("test_server_id"));
 
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder
             .create(
@@ -198,6 +202,8 @@ public class Lemi {
                     .filter(ISlashCmd::isGlobal)
                     .toList();
 
+                log.info(discordCmds.size() + " global commands and " + localCmds.size() + " local commands.");
+
                 handleCmdUpdates(discordCmds, localCmds);
             });
         });
@@ -214,6 +220,52 @@ public class Lemi {
         for (String userId : LemiDbManager.INS.getAdminIds()) {
             whitelistedUserIds.add(Long.valueOf(userId));
         }
+    }
+
+    public void updateCmdPrivileges(Guild guild, List<Command> cmds) {
+        Guild honeysSweetsGuild = Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"));
+        Role adminRole = honeysSweetsGuild.getRoleById(Config.get("admin_role_id"));
+        Role modsRole = honeysSweetsGuild.getRoleById(Config.get("mod_role_id"));
+        Role twitchModsRole = honeysSweetsGuild.getRoleById(Config.get("twitch_mod_role_id"));
+                
+        cmds.forEach((cmd) -> {
+            if (cmd.getName().equals("dev")) {
+                honeysSweetsGuild.retrieveMemberById(Config.get("dev_id"))
+                    .queue(
+                        (dev) -> {
+                            Collection<CommandPrivilege> privileges = new ArrayList<>();
+                            privileges.add(CommandPrivilege.enable(dev.getUser()));
+                            cmd.updatePrivileges(guild, privileges).queue();
+                        }
+                            );
+                    } else if (cmd.getName().equals("admins")) {
+                        honeysSweetsGuild.retrieveMemberById(Config.get("dev_id"))
+                            .queue(
+                                (dev) -> {
+                                    Collection<CommandPrivilege> privileges = new ArrayList<>();
+        
+                                    privileges.add(CommandPrivilege.enable(dev.getUser()));
+                                    privileges.add(CommandPrivilege.enable(adminRole));
+                                        
+                                    cmd.updatePrivileges(guild, privileges).queue();
+                                }
+                            );
+                    } else if (cmd.getName().equals("mods")) {
+                        honeysSweetsGuild.retrieveMemberById(Config.get("dev_id"))
+                            .queue(
+                                (dev) -> {
+                                    Collection<CommandPrivilege> privileges = new ArrayList<>();
+        
+                                    privileges.add(CommandPrivilege.enable(dev.getUser()));
+                                    privileges.add(CommandPrivilege.enable(adminRole));
+                                    privileges.add(CommandPrivilege.enable(modsRole));
+                                    privileges.add(CommandPrivilege.enable(twitchModsRole));
+                                        
+                                    cmd.updatePrivileges(guild, privileges).queue();
+                                }
+                            );
+                    }
+        });
     }
 
     private void handleCmdUpdates(Collection<Command> discordCmds, Collection<ISlashCmd> localCmds) {
@@ -363,6 +415,10 @@ public class Lemi {
 
     public List<Long> getWhitelistedUsers() {
         return WHITELISTED_USERS;
+    }
+
+    public List<Long> getWhitelistedGuilds() {
+        return WHITELISTED_GUILDS;
     }
     
     public boolean isDebug() {

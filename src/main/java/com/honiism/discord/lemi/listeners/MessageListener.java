@@ -65,7 +65,7 @@ public class MessageListener extends ListenerAdapter {
     private void onGuildMessageReceived(MessageReceivedEvent event) {
         Member member = event.getMember();
         
-        if (member.getUser().isBot() || event.isWebhookMessage()) {
+        if (member == null || member.getUser().isBot() || event.isWebhookMessage()) {
             return;
         }
 

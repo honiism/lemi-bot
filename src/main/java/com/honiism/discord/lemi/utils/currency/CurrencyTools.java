@@ -174,7 +174,7 @@ public class CurrencyTools {
         return false;
     }
 
-    public static void onGuildReadyAddProf(Guild guild) {
+    public static void guildAddCurrProfs(Guild guild) {
         guild.loadMembers()
             .onSuccess((memberList) -> {
                 memberList.stream()

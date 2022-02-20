@@ -32,7 +32,6 @@ import java.util.List;
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.database.managers.LemiDbManager;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -44,7 +43,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
@@ -1028,72 +1026,42 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public void onGuildReady(GuildReadyEvent event) {
-        Guild guild = event.getGuild();
-        Long guildId = guild.getIdLong();
+    public void insertGuildSettings(Guild guild) {
+        try (Connection conn = getConnection();
+                PreparedStatement selectStatement =
+                    conn.prepareStatement("SELECT guild_id FROM guild_settings WHERE guild_id = ?")) {
 
-        if (guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))) {
-            guild.loadMembers()
-                .onSuccess((memberList) -> {
-                    log.info("Successfully loaded members for Honey's Picnic server.");
-                    
-                    guild.getTextChannelById(Config.get("logs_channel_id"))
-                        .sendMessage("Successfully loaded members for Honey's Picnic server.")
-                        .queue();
-
-                    CurrencyTools.onGuildReadyAddProf(guild);
-
-                    try (Connection conn = getConnection();
-                            PreparedStatement selectStatement =
-                                conn.prepareStatement("SELECT guild_id FROM guild_settings WHERE guild_id = ?")) {
-
-                        selectStatement.setString(1, Config.get("honeys_sweets_id"));
+            selectStatement.setLong(1, guild.getIdLong());
                         
-                        try (ResultSet rs = selectStatement.executeQuery()) {
-                            if (rs.next()) {
-                                return;
-                            }
-                        }
+            try (ResultSet rs = selectStatement.executeQuery()) {
+                if (rs.next()) {
+                    return;
+                }
+            }
 
-                        try (PreparedStatement insertStatement =
-    		                conn.prepareStatement("INSERT INTO guild_settings (guild_id) VALUES(?)")) {
-                            insertStatement.setString(1, Config.get("honeys_sweets_id"));
+            try (PreparedStatement insertStatement =
+    	            conn.prepareStatement("INSERT INTO guild_settings (guild_id) VALUES(?)")) {
+                insertStatement.setLong(1, guild.getIdLong());
                         
-                            int result = insertStatement.executeUpdate();
+                int result = insertStatement.executeUpdate();
+                Guild honeysSweetsGuild = Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_sweets_id"));
 
-                            if (result != 0) {
-                                log.info("Successfully registered settings.");
+                if (result != 0) {
+                    log.info("Successfully registered settings for " + guild.getName() + "(" + guild.getIdLong() + ").");
                                 
-                                guild.getTextChannelById(Config.get("logs_channel_id"))
-                                    .sendMessage("Successfully registered settings.")
-                                    .queue();
-                            } else {
-                                log.info("Had problems while registering settings.");
-                                
-                                guild.getTextChannelById(Config.get("logs_channel_id"))
-                                    .sendMessage("Had problems while registering settings.")
-                                    .queue();
-                            }
-                        }
-                        
-                    } catch (SQLException e) {
-                        
-                    }
-                })
-                .onError((error) -> {
-                    log.error("Failed to load members for Honey's Picnic server.", error);
-
-                    guild.getTextChannelById(Config.get("logs_channel_id"))
-                        .sendMessage("Failed to load members for Honey's Picnic server.\r\n"
-                                + "--------------------------\r\n"
-                                + "Message : " + error.getMessage() + "\r\n"
-                                + "--------------------------\r\n"
-                                + "Cause : " + error.getCause().getMessage() + "\r\n"
-                                + "--------------------------\r\n"
-                                + "Stack trace : " + error.getStackTrace().toString())
+                    honeysSweetsGuild.getTextChannelById(Config.get("logs_channel_id"))
+                        .sendMessage("Successfully registered settings for " + guild.getName() + "(" + guild.getIdLong() + ").")
                         .queue();
-                });
-        }
+                } else {
+                    log.info("Had problems while registering settings for " + guild.getName() + "(" + guild.getIdLong() + ").");
+                                
+                    honeysSweetsGuild.getTextChannelById(Config.get("logs_channel_id"))
+                        .sendMessage("Had problems while registering settings for " + guild.getName() + "(" + guild.getIdLong() + ").")
+                        .queue();
+                }
+            }
+                        
+        } catch (SQLException e) {}
     }
 
     @Override

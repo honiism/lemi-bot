@@ -171,12 +171,14 @@ public class SlashCmdManager {
 
     private void registerCmd(ISlashCmd cmd) {
         if (!cmd.isGlobal() && !Lemi.getInstance().isDebug()) {
-            for (long guildId : Lemi.getInstance().getWhitelistedUsers()) {
+            for (long guildId : Lemi.getInstance().getWhitelistedGuilds()) {
                 Guild guild = Lemi.getInstance().getShardManager().getGuildById(guildId);
 
                 if (guild == null) {
                     return;
                 }
+
+                System.out.println(registeredGuildCmds.get(guildId));
 
                 List<ISlashCmd> alreadyRegistered = registeredGuildCmds.containsKey(guildId) ?
                         registeredGuildCmds.get(guildId) : new ArrayList<>();

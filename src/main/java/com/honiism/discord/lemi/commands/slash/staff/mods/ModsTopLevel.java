@@ -72,6 +72,7 @@ public class ModsTopLevel extends SlashCmd {
                         new SubcommandGroupData(this.modifyItemGroup.getName(), this.modifyItemGroup.getDesc())
                                 .addSubcommands(this.modifyItemGroup.getSubCmds())
                 )
+                .setDefaultEnabled(false)
         );
 
         setUsage("/mods ((subcommand groups/subcommands))");

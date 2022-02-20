@@ -22,6 +22,7 @@ package com.honiism.discord.lemi.listeners;
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,39 @@ public class GuildListener extends ListenerAdapter{
 
     @Override
     public void onGuildReady(GuildReadyEvent event) {
-        LemiDbManager.INS.onGuildReady(event);
+        Guild guild = event.getGuild();
+        Long guildId = guild.getIdLong();
+
+        if (guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))) {
+            guild.loadMembers()
+                .onSuccess((memberList) -> {
+                    log.info("Successfully loaded members for Honey's Picnic server.");
+                    
+                    guild.getTextChannelById(Config.get("logs_channel_id"))
+                        .sendMessage("Successfully loaded members for Honey's Picnic server.")
+                        .queue();
+                })
+                .onError((error) -> {
+                    log.error("Failed to load members for Honey's Picnic server.", error);
+
+                    guild.getTextChannelById(Config.get("logs_channel_id"))
+                        .sendMessage("Failed to load members for Honey's Picnic server.\r\n"
+                                + "--------------------------\r\n"
+                                + "Message : " + error.getMessage() + "\r\n"
+                                + "--------------------------\r\n"
+                                + "Cause : " + error.getCause().getMessage() + "\r\n"
+                                + "--------------------------\r\n"
+                                + "Stack trace : " + error.getStackTrace().toString())
+                        .queue();
+                });
+        }
+
+        LemiDbManager.INS.insertGuildSettings(guild);
+        CurrencyTools.guildAddCurrProfs(guild);
+
+        if (BaseListener.getJDA() == null) {
+            System.out.println("null jda instance");
+        }
     }
 
     @Override
@@ -63,6 +96,15 @@ public class GuildListener extends ListenerAdapter{
             .getTextChannelById(Config.get("logs_channel_id"))
             .sendMessage(joinedLogMsg)
 	    .queue();
+
+        LemiDbManager.INS.insertGuildSettings(guild);
+        CurrencyTools.guildAddCurrProfs(guild);
+
+        BaseListener.getJDA().retrieveCommands().queue(
+            (cmds) -> {
+                Lemi.getInstance().updateCmdPrivileges(guild, cmds);
+            }
+        );
     }
 
     @Override

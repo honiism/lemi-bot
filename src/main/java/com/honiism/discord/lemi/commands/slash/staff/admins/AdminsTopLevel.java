@@ -58,6 +58,7 @@ public class AdminsTopLevel extends SlashCmd {
                         new SubcommandGroupData(this.embedGroup.getName(), this.embedGroup.getDesc())
                                 .addSubcommands(this.embedGroup.getSubCmds())
                 )
+                .setDefaultEnabled(false)
         );
 
         setUsage("/admins ((subcommand groups/subcommands))");

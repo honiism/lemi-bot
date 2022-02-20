@@ -27,7 +27,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public interface LemiDbManager {
@@ -52,9 +51,6 @@ public interface LemiDbManager {
     void removeModId(Guild guild, Member member, SlashCommandInteractionEvent event);
     void addModId(Guild guild, Member member, String key, SlashCommandInteractionEvent event);
 
-    // guildlistener
-    void onGuildReady(GuildReadyEvent event);
-
     // slashcmd
     void checkIfBanned(SlashCommandInteractionEvent event);
 
@@ -66,4 +62,5 @@ public interface LemiDbManager {
     boolean isAuthorMod(User author, TextChannel channel);
     boolean isAuthorAdmin(Member member, SlashCommandInteractionEvent event);
     boolean isAuthorMod(Member member, SlashCommandInteractionEvent event);
+    void insertGuildSettings(Guild guild);
 }

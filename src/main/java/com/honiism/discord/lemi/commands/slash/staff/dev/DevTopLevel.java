@@ -63,6 +63,7 @@ public class DevTopLevel extends SlashCmd {
                         new SubcommandGroupData(this.manageItemsGroup.getName(), this.manageItemsGroup.getDesc())
                                 .addSubcommands(this.manageItemsGroup.getSubCmds())
                 )
+                .setDefaultEnabled(false)
         );
 
         setUsage("/dev ((subcommand groups/subcommands))");
