@@ -69,10 +69,6 @@ public class GuildListener extends ListenerAdapter{
 
         LemiDbManager.INS.insertGuildSettings(guild);
         CurrencyTools.guildAddCurrProfs(guild);
-
-        if (BaseListener.getJDA() == null) {
-            System.out.println("null jda instance");
-        }
     }
 
     @Override
