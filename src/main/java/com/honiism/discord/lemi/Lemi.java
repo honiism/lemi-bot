@@ -199,9 +199,9 @@ public class Lemi {
                     .filter(ISlashCmd::isGlobal)
                     .toList();
 
-                log.info(discordCmds.size() + " global commands and " + localCmds.size() + " local commands.");
-
                 handleCmdUpdates(discordCmds, localCmds);
+
+                log.info(discordCmds.size() + " global commands and " + localCmds.size() + " local commands.");
             });
         });
 

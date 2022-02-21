@@ -20,6 +20,7 @@
 package com.honiism.discord.lemi.listeners;
 
 import com.honiism.discord.lemi.Lemi;
+import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -32,6 +33,11 @@ public class SlashCmdListener extends ListenerAdapter {
             event.reply(":no_entry_sign: The bot is currently in debug mode and only whitelisted users can execute commands.").queue();
             return;
         }
+
+        if (!CurrencyTools.userHasCurrProfile(event.getMember()) && !event.getMember().getUser().isBot()) {
+            CurrencyTools.addAllProfiles(event.getMember());
+        }
+        
         Lemi.getInstance().getSlashCmdManager().handle(event);
     }
 }

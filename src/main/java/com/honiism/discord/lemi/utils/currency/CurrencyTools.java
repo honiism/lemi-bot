@@ -174,17 +174,6 @@ public class CurrencyTools {
         return false;
     }
 
-    public static void guildAddCurrProfs(Guild guild) {
-        guild.loadMembers()
-            .onSuccess((memberList) -> {
-                memberList.stream()
-                    .filter(m -> !LemiDbBalManager.INS.userHasCurrProfile(m) && !m.getUser().isBot())
-                    .forEach(m -> {
-                        CurrencyTools.addAllProfiles(m);
-                    });
-            });
-    }
-
     public static void addItemToUser(String userId, String itemName, long amountToAdd) {
         LemiDbBalManager.INS.addItemToUser(userId, itemName, amountToAdd);
     }

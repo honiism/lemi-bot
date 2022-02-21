@@ -22,7 +22,6 @@ package com.honiism.discord.lemi.listeners;
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.database.managers.LemiDbManager;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,41 +33,14 @@ import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildTimeoutEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class GuildListener extends ListenerAdapter{
+public class GuildListener extends ListenerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(GuildListener.class);
 
     @Override
     public void onGuildReady(GuildReadyEvent event) {
         Guild guild = event.getGuild();
-        Long guildId = guild.getIdLong();
-
-        if (guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))) {
-            guild.loadMembers()
-                .onSuccess((memberList) -> {
-                    log.info("Successfully loaded members for Honey's Picnic server.");
-                    
-                    guild.getTextChannelById(Config.get("logs_channel_id"))
-                        .sendMessage("Successfully loaded members for Honey's Picnic server.")
-                        .queue();
-                })
-                .onError((error) -> {
-                    log.error("Failed to load members for Honey's Picnic server.", error);
-
-                    guild.getTextChannelById(Config.get("logs_channel_id"))
-                        .sendMessage("Failed to load members for Honey's Picnic server.\r\n"
-                                + "--------------------------\r\n"
-                                + "Message : " + error.getMessage() + "\r\n"
-                                + "--------------------------\r\n"
-                                + "Cause : " + error.getCause().getMessage() + "\r\n"
-                                + "--------------------------\r\n"
-                                + "Stack trace : " + error.getStackTrace().toString())
-                        .queue();
-                });
-        }
-
         LemiDbManager.INS.insertGuildSettings(guild);
-        CurrencyTools.guildAddCurrProfs(guild);
     }
 
     @Override
@@ -76,29 +48,34 @@ public class GuildListener extends ListenerAdapter{
         Guild guild = event.getGuild();
         Long guildId = guild.getIdLong();
 
-        if (guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))) {
-            return;
-        }
-
-        String joinedLogMsg = "--------------------------\r\n"
+        if (!guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))) {
+            String joinedLogMsg = "--------------------------\r\n"
                 +  "**LEMI JOINED A SERVER!**\r\n"
                 + "**Guild id :** " + guild.getIdLong() + "\r\n"
                 + "**Guild name :** " + guild.getName() + "\r\n";
 
-        log.info(joinedLogMsg.toString());
+            log.info(joinedLogMsg.toString());
 
-        Lemi.getInstance().getShardManager()
-            .getGuildById(Config.get("honeys_sweets_id"))
-            .getTextChannelById(Config.get("logs_channel_id"))
-            .sendMessage(joinedLogMsg)
-	    .queue();
+            Lemi.getInstance().getShardManager()
+                .getGuildById(Config.get("honeys_sweets_id"))
+                .getTextChannelById(Config.get("logs_channel_id"))
+                .sendMessage(joinedLogMsg)
+	        .queue();
+        }
 
         LemiDbManager.INS.insertGuildSettings(guild);
-        CurrencyTools.guildAddCurrProfs(guild);
 
         BaseListener.getJDA().retrieveCommands().queue(
-            (cmds) -> {
-                Lemi.getInstance().updateCmdPrivileges(guild, cmds);
+            (globalCmds) -> {
+                Lemi.getInstance().updateCmdPrivileges(guild, globalCmds);
+            }
+        );
+
+        guild.retrieveCommands().queue(
+            (guildCmds) -> {
+                if (guildCmds.isEmpty() || guildCmds != null) {
+                    Lemi.getInstance().updateCmdPrivileges(guild, guildCmds);
+                }
             }
         );
     }

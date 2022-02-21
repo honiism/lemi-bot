@@ -21,6 +21,7 @@ package com.honiism.discord.lemi.listeners;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
+import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class MessageListener extends ListenerAdapter {
 
         String message = event.getMessage().getContentRaw();
 
-        log.info(author.getAsTag() + "(" + author.getIdLong() + "): \"" + message + "\"");
+        log.info("{DM} " + author.getAsTag() + "(" + author.getIdLong() + "): \"" + message + "\"");
         	
         Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
             .getTextChannelById(Config.get("logs_channel_id"))
@@ -67,6 +68,10 @@ public class MessageListener extends ListenerAdapter {
         
         if (member == null || member.getUser().isBot() || event.isWebhookMessage()) {
             return;
+        }
+
+        if (!CurrencyTools.userHasCurrProfile(member)) {
+            CurrencyTools.addAllProfiles(member);
         }
 
         String raw = event.getMessage().getContentRaw();
