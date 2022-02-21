@@ -19,7 +19,6 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.admins;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
@@ -36,6 +35,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class ResetCurrData extends SlashCmd {
@@ -44,19 +44,18 @@ public class ResetCurrData extends SlashCmd {
     private long timeDelayed;
 
     public ResetCurrData() {
-        this.name = "resetcurrdata";
-        this.desc = "Reset a user's currency data.";
-        this.usage = "/admins resetcurrdata <user>";
-        this.category = CommandCategory.ADMINS;
-        this.userCategory = UserCategory.ADMINS;
-        this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.options = Arrays.asList(
-                new OptionData(OptionType.USER,
-                            "user",
-                            "The user you want to reset.",
-                            true)
+        setCommandData(Commands.slash("resetcurrdata", "Reset a user's currency data.")
+                .addOptions(
+                        new OptionData(OptionType.USER, "user", "The user you want to reset.", true)
+                )
         );
+
+        setUsage("/admins resetcurrdata <user>");
+        setCategory(CommandCategory.ADMINS);
+        setUserCategory(UserCategory.ADMINS);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setGlobal(true);
     }
 
     @Override

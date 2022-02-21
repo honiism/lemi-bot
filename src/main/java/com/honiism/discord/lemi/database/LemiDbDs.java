@@ -32,7 +32,6 @@ import java.util.List;
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.database.managers.LemiDbManager;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -44,7 +43,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
@@ -449,24 +447,19 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getAdminIds(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    public List<String> getAdminIds() {
         List<String> adminIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT admin_ids FROM admin_mod_ids")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.sendMessage(":blueberries: Fetching all the admin ids...").queue();
-
                 while (rs.next()) {
                     if (rs.getString("admin_ids").equals("0")) {
                         continue;
                     }
                     adminIds.add(rs.getString("admin_ids"));
                 }
-
-                hook.editOriginal(":grapes: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -476,17 +469,6 @@ public class LemiDbDs implements LemiDbManager {
                     + "\r\n");
 
             e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "fetch all the admin ids. :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
             
             Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
         	.getTextChannelById(Config.get("logs_channel_id"))
@@ -506,24 +488,19 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getAdminKeys(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    public List<String> getAdminKeys() {
         List<String> adminKeys = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT staff_key FROM admin_mod_ids")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.editOriginal(":cherry_blossom: Fetching all the admin keys...").queue();
-
                 while (rs.next()) {
                     if (!rs.getString("staff_key").endsWith("admin")) {
                         continue;
                     }
                     adminKeys.add(rs.getString("staff_key"));
                 }
-
-                hook.editOriginal(":sunflower: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -533,17 +510,6 @@ public class LemiDbDs implements LemiDbManager {
                     + "\r\n");
 
             e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "fetch all the admin keys. :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
             
             Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
         	.getTextChannelById(Config.get("logs_channel_id"))
@@ -766,24 +732,19 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getModIds(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    public List<String> getModIds() {
         List<String> modIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT mod_ids FROM admin_mod_ids")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.sendMessage(":cherry_blossom: Fetching all the mod ids...").queue();
-
                 while (rs.next()) {
                     if (rs.getString("mod_ids").equals("0")) {
                         continue;
                     }
                     modIds.add(rs.getString("mod_ids"));
                 }
-
-                hook.editOriginal(":grapes: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -794,19 +755,6 @@ public class LemiDbDs implements LemiDbManager {
                     + "\r\n");
 
             e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "Something went wrong while trying to "
-                    + "fetch all the mod ids.\r\n"
-                    + " : commands.staff.developer.ModifyMods\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
             
             Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
         	.getTextChannelById(Config.get("logs_channel_id"))
@@ -828,24 +776,19 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getModKeys(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    public List<String> getModKeys() {
         List<String> modKeys = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT staff_key FROM admin_mod_ids")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.editOriginal(":cherries: Fetching all the mod keys...").queue();
-
                 while (rs.next()) {
                     if (!rs.getString("staff_key").endsWith("mod")) {
                         continue;
                     }
                     modKeys.add(rs.getString("staff_key"));
                 }
-
-                hook.editOriginal(":sunflower: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -856,18 +799,6 @@ public class LemiDbDs implements LemiDbManager {
                     + "\r\n");
 
             e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "fetch all the mod keys. :no_entry:**\r\n"
-                    + " : commands.staff.developer.ModifyMods\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
             
             Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
         	.getTextChannelById(Config.get("logs_channel_id"))
@@ -1095,104 +1026,59 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public void onGuildReady(GuildReadyEvent event) {
-        Guild guild = event.getGuild();
-        Long guildId = guild.getIdLong();
+    public void insertGuildSettings(Guild guild) {
+        try (Connection conn = getConnection();
+                PreparedStatement selectStatement =
+                    conn.prepareStatement("SELECT guild_id FROM guild_settings WHERE guild_id = ?")) {
 
-        if (guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))) {
-            guild.loadMembers()
-                .onSuccess((memberList) -> {
-                    log.info("Successfully loaded members for Honey's Picnic server.");
-                    
-                    guild.getTextChannelById(Config.get("logs_channel_id"))
-                        .sendMessage("Successfully loaded members for Honey's Picnic server.")
-                        .queue();
-
-                    CurrencyTools.onGuildReadyAddProf(guild);
-
-                    try (Connection conn = getConnection();
-                            PreparedStatement selectStatement =
-                                conn.prepareStatement("SELECT guild_id FROM guild_settings WHERE guild_id = ?")) {
-
-                        selectStatement.setString(1, Config.get("honeys_sweets_id"));
+            selectStatement.setLong(1, guild.getIdLong());
                         
-                        try (ResultSet rs = selectStatement.executeQuery()) {
-                            if (rs.next()) {
-                                return;
-                            }
-                        }
+            try (ResultSet rs = selectStatement.executeQuery()) {
+                if (rs.next()) {
+                    return;
+                }
+            }
 
-                        try (PreparedStatement insertStatement =
-    		                conn.prepareStatement("INSERT INTO guild_settings (guild_id) VALUES(?)")) {
-                            insertStatement.setString(1, Config.get("honeys_sweets_id"));
+            try (PreparedStatement insertStatement =
+    	            conn.prepareStatement("INSERT INTO guild_settings (guild_id) VALUES(?)")) {
+                insertStatement.setLong(1, guild.getIdLong());
                         
-                            int result = insertStatement.executeUpdate();
+                int result = insertStatement.executeUpdate();
+                Guild honeysSweetsGuild = Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_sweets_id"));
 
-                            if (result != 0) {
-                                log.info("Successfully registered settings.");
+                if (result != 0) {
+                    log.info("Successfully registered settings for " + guild.getName() + "(" + guild.getIdLong() + ").");
                                 
-                                guild.getTextChannelById(Config.get("logs_channel_id"))
-                                    .sendMessage("Successfully registered settings.")
-                                    .queue();
-                            } else {
-                                log.info("Had problems while registering settings.");
-                                
-                                guild.getTextChannelById(Config.get("logs_channel_id"))
-                                    .sendMessage("Had problems while registering settings.")
-                                    .queue();
-                            }
-                        }
-                        
-                    } catch (SQLException e) {
-                        
-                    }
-                })
-                .onError((error) -> {
-                    log.error("Failed to load members for Honey's Picnic server.", error);
-
-                    guild.getTextChannelById(Config.get("logs_channel_id"))
-                        .sendMessage("Failed to load members for Honey's Picnic server.\r\n"
-                                + "--------------------------\r\n"
-                                + "Message : " + error.getMessage() + "\r\n"
-                                + "--------------------------\r\n"
-                                + "Cause : " + error.getCause().getMessage() + "\r\n"
-                                + "--------------------------\r\n"
-                                + "Stack trace : " + error.getStackTrace().toString())
+                    honeysSweetsGuild.getTextChannelById(Config.get("logs_channel_id"))
+                        .sendMessage("Successfully registered settings for " + guild.getName() + "(" + guild.getIdLong() + ").")
                         .queue();
-                });
-        }
+                } else {
+                    log.info("Had problems while registering settings for " + guild.getName() + "(" + guild.getIdLong() + ").");
+                                
+                    honeysSweetsGuild.getTextChannelById(Config.get("logs_channel_id"))
+                        .sendMessage("Had problems while registering settings for " + guild.getName() + "(" + guild.getIdLong() + ").")
+                        .queue();
+                }
+            }
+                        
+        } catch (SQLException e) {}
     }
 
     @Override
-    public void onSlashCommand(SlashCommandInteractionEvent event) {
-        event.deferReply().queue();
-        
+    public void checkIfBanned(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         Guild guild = event.getGuild();
         Member member = event.getMember();
-                    
-        if (guild == null || member.getUser().isBot()) {
-            return;
-        }
-
-        Long guildId = guild.getIdLong();
-
-        if (!guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))
-                && !guildId.equals(Long.parseLong(Config.get("test_server")))) {
-            guild.leave().queue();
-            return;
-        }
             
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
-                    conn.prepareStatement("SELECT * FROM banned_users WHERE user_id = ?")) {
+                    conn.prepareStatement("SELECT reason FROM banned_users WHERE user_id = ?")) {
             
             selectStatement.setLong(1, member.getIdLong());
             
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
                     String reason = rs.getString("reason");
-            
                     hook.sendMessage("Sorry, you're banned from using Lemi for : " + reason).queue();
                     return;
                 }

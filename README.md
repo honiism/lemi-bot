@@ -45,7 +45,7 @@
 | --- | --- |
 | /currency help | View the help guide for this command. |
 | /currency balance `<user>` | Shows the balance of a user. |
-| /currency bankrob | Attempt to bankrob (You can win double but at the same time you can also go in debt). |
+| /currency bankrob | Attempt to bankrob. |
 | /currency beg | Try out your chances! You can get small, maybe rare items. |
 | /currency cook | Let's see if your cooking skills can handle this! |
 | /currency inventory `<user>` | Shows the inventory of a user. |

@@ -29,22 +29,32 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
 public interface ISlashCmd {
     
     void executeAction(SlashCommandInteractionEvent event);
+    SlashCommandData getCommandData();
+    void setCommandData(SlashCommandData commandData);
     String getName();
     String getDesc();
+    void setGlobal(boolean isGlobal);
+    boolean isGlobal();
+    void setCategory(CommandCategory category);
     CommandCategory getCategory();
+    void setUserCategory(UserCategory userCategory);
     UserCategory getUserCategory();
     String getCategoryString();
     String getUserCategoryString();
+    void setUserPerms(Permission[] userPermissions);
     Permission[] getUserPerms();
+    void setBotPerms(Permission[] botPermissions);
     Permission[] getBotPerms();
     String getUserPermsString();
     String getBotPermsString();
+    void setUsage(String usage);
     String getUsage();
     List<OptionData> getOptions();
     List<SubcommandData> getSubCmds();

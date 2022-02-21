@@ -19,23 +19,25 @@
 
 package com.honiism.discord.lemi.listeners;
 
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmdManager;
-import com.honiism.discord.lemi.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.Lemi;
+import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class SlashCmdListener extends ListenerAdapter {
-    
-    private SlashCmdManager slashManager;
-
-    public SlashCmdListener() {
-        slashManager = new SlashCmdManager();
-    }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        LemiDbManager.INS.onSlashCommand(event);
-        slashManager.handle(event);
+        if (Lemi.getInstance().isDebug() && !Lemi.getInstance().isWhitelisted(event.getMember().getIdLong())) {
+            event.reply(":no_entry_sign: The bot is currently in debug mode and only whitelisted users can execute commands.").queue();
+            return;
+        }
+
+        if (!CurrencyTools.userHasCurrProfile(event.getMember()) && !event.getMember().getUser().isBot()) {
+            CurrencyTools.addAllProfiles(event.getMember());
+        }
+        
+        Lemi.getInstance().getSlashCmdManager().handle(event);
     }
 }

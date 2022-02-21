@@ -19,7 +19,6 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.dev;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
@@ -34,6 +33,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class ManageItems extends SlashCmd {
@@ -42,20 +42,22 @@ public class ManageItems extends SlashCmd {
     private long timeDelayed;
 
     public ManageItems() {
-        this.name = "manageitems";
-        this.desc = "Add/remove items to/from the database.";
-        this.usage = "/manageitems ((subcommands))";
-        this.category = CommandCategory.DEV;
-        this.userCategory = UserCategory.DEV;
-        this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(
-                new SubcommandData("add", "Add a new item to the database.")
-                        .addOption(OptionType.STRING, "item_name", "The name of the item to add.", true),
+        setCommandData(Commands.slash("manageitems", "Add/remove items to/from the database.")
+                .addSubcommands(
+                        new SubcommandData("add", "Add a new item to the database.")
+                                .addOption(OptionType.STRING, "item_name", "The name of the item to add.", true),
 
-                new SubcommandData("remove", "Remove an existing item from the database.")
-                        .addOption(OptionType.STRING, "item_name", "The name of the item to remove.", true)
+                        new SubcommandData("remove", "Remove an existing item from the database.")
+                                .addOption(OptionType.STRING, "item_name", "The name of the item to remove.", true)
+                )
         );
+
+        setUsage("/manageitems ((subcommands))");
+        setCategory(CommandCategory.DEV);
+        setUserCategory(UserCategory.DEV);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setGlobal(true);
     }
 
     @Override

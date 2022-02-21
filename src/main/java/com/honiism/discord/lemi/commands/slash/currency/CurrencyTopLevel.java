@@ -19,14 +19,13 @@
 
 package com.honiism.discord.lemi.commands.slash.currency;
 
-import java.util.Arrays;
-
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class CurrencyTopLevel extends SlashCmd {
@@ -45,26 +44,28 @@ public class CurrencyTopLevel extends SlashCmd {
         this.begCmd = begCmd;
         this.cookCmd = cookCmd;
 
-        this.name = "currency";
-        this.desc = "Commands for the currency category.";
-        this.usage = "/currency ((subcommand groups/subcommands))";
-        this.category = CommandCategory.CURRENCY;
-        this.userCategory = UserCategory.USERS;
-        this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.subCmds = Arrays.asList(
-                new SubcommandData(this.balanceCmd.getName(), this.balanceCmd.getDesc())
-                        .addOptions(this.balanceCmd.getOptions()),
+        setCommandData(Commands.slash("currency", "Commands for the currency category.")
+                .addSubcommands(
+                        new SubcommandData(this.balanceCmd.getName(), this.balanceCmd.getDesc())
+                                .addOptions(this.balanceCmd.getOptions()),
 
-                new SubcommandData(this.inventoryCmd.getName(), this.inventoryCmd.getDesc())
-                        .addOptions(this.inventoryCmd.getOptions()),
+                        new SubcommandData(this.inventoryCmd.getName(), this.inventoryCmd.getDesc())
+                                .addOptions(this.inventoryCmd.getOptions()),
 
-                new SubcommandData(this.bankrobCmd.getName(), this.bankrobCmd.getDesc()),
+                        new SubcommandData(this.bankrobCmd.getName(), this.bankrobCmd.getDesc()),
 
-                new SubcommandData(this.begCmd.getName(), this.begCmd.getDesc()),
+                        new SubcommandData(this.begCmd.getName(), this.begCmd.getDesc()),
 
-                new SubcommandData(this.cookCmd.getName(), this.cookCmd.getDesc())
+                        new SubcommandData(this.cookCmd.getName(), this.cookCmd.getDesc())
+                )
         );
+
+        setUsage("/currency ((subcommand groups/subcommands))");
+        setCategory(CommandCategory.CURRENCY);
+        setUserCategory(UserCategory.USERS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setGlobal(true);
     }
 
     @Override

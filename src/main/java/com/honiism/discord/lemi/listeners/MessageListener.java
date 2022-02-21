@@ -21,14 +21,13 @@ package com.honiism.discord.lemi.listeners;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
+import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import me.duncte123.botcommons.BotCommons;
 import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -56,7 +55,7 @@ public class MessageListener extends ListenerAdapter {
 
         String message = event.getMessage().getContentRaw();
 
-        log.info(author.getAsTag() + "(" + author.getIdLong() + "): \"" + message + "\"");
+        log.info("{DM} " + author.getAsTag() + "(" + author.getIdLong() + "): \"" + message + "\"");
         	
         Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
             .getTextChannelById(Config.get("logs_channel_id"))
@@ -66,17 +65,13 @@ public class MessageListener extends ListenerAdapter {
 
     private void onGuildMessageReceived(MessageReceivedEvent event) {
         Member member = event.getMember();
-        Guild guild = event.getGuild();
-        Long guildId = guild.getIdLong();
-
-        if (!guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))
-                && !guildId.equals(Long.parseLong(Config.get("test_server")))) {
-            guild.leave().queue();
+        
+        if (member == null || member.getUser().isBot() || event.isWebhookMessage()) {
             return;
         }
-        
-        if (member.getUser().isBot() || event.isWebhookMessage()) {
-            return;
+
+        if (!CurrencyTools.userHasCurrProfile(member)) {
+            CurrencyTools.addAllProfiles(member);
         }
 
         String raw = event.getMessage().getContentRaw();
@@ -91,8 +86,7 @@ public class MessageListener extends ListenerAdapter {
         	.sendMessage(member.getAsMention() + " **received emergency shutdown request. :bell:**")
         	.queue();
         	
-            Lemi.getInstance().getShardManager().shutdown();
-            BotCommons.shutdown(Lemi.getInstance().getShardManager());
+            Lemi.getInstance().shutdown();
         }
     }
 }

@@ -27,7 +27,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public interface LemiDbManager {
@@ -41,22 +40,19 @@ public interface LemiDbManager {
     void removeUserId(Member member, SlashCommandInteractionEvent event);
 
     // modifyadmins
-    List<String> getAdminIds(SlashCommandInteractionEvent event);
-    List<String> getAdminKeys(SlashCommandInteractionEvent event);
+    List<String> getAdminIds();
+    List<String> getAdminKeys();
     void removeAdminId(Guild guild, Member member, SlashCommandInteractionEvent event);
     void addAdminId(Guild guild, Member member, String key, SlashCommandInteractionEvent event);
 
     // modifymods
-    List<String> getModIds(SlashCommandInteractionEvent event);
-    List<String> getModKeys(SlashCommandInteractionEvent event);
+    List<String> getModIds();
+    List<String> getModKeys();
     void removeModId(Guild guild, Member member, SlashCommandInteractionEvent event);
     void addModId(Guild guild, Member member, String key, SlashCommandInteractionEvent event);
 
-    // guildlistener
-    void onGuildReady(GuildReadyEvent event);
-
-    // slashcmdlistener
-    void onSlashCommand(SlashCommandInteractionEvent event);
+    // slashcmd
+    void checkIfBanned(SlashCommandInteractionEvent event);
 
     // currencytools
     String getBalName(String guildId);
@@ -66,4 +62,5 @@ public interface LemiDbManager {
     boolean isAuthorMod(User author, TextChannel channel);
     boolean isAuthorAdmin(Member member, SlashCommandInteractionEvent event);
     boolean isAuthorMod(Member member, SlashCommandInteractionEvent event);
+    void insertGuildSettings(Guild guild);
 }

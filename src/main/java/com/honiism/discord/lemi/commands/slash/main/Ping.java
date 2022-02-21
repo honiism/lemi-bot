@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public class Ping extends SlashCmd {
 
@@ -40,13 +41,13 @@ public class Ping extends SlashCmd {
     private long timeDelayed;
 
     public Ping() {
-        this.name = "ping";
-        this.desc = "Shows the current pings for Lemi.";
-        this.usage = "/ping";
-        this.category = CommandCategory.MAIN;
-        this.userCategory = UserCategory.USERS;
-        this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
+        setCommandData(Commands.slash("ping", "Shows the current pings for Lemi."));
+        setUsage("/ping");
+        setCategory(CommandCategory.MAIN);
+        setUserCategory(UserCategory.USERS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setGlobal(true);
     }
 
     @Override

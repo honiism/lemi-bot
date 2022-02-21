@@ -19,14 +19,13 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.dev;
 
-import java.util.Arrays;
-
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
@@ -46,30 +45,33 @@ public class DevTopLevel extends SlashCmd {
         this.shutdownCmd = shutdownCmd;
         this.manageItemsGroup = manageItemsGroup;
 
-        this.name = "dev";
-        this.desc = "Commands for the developer of Lemi the discord bot.";
-        this.usage = "/dev ((subcommand groups/subcommands))";
-        this.category = CommandCategory.DEV;
-        this.userCategory = UserCategory.DEV;
-        this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(
-                new SubcommandData(this.shutdownCmd.getName(), this.shutdownCmd.getDesc())
-                        .addOptions(this.shutdownCmd.getOptions()),
+        setCommandData(Commands.slash("dev", "Commands for the developer of Lemi the discord bot.")
+                .addSubcommands(
+                        new SubcommandData(this.shutdownCmd.getName(), this.shutdownCmd.getDesc())
+                                .addOptions(this.shutdownCmd.getOptions()),
                                      
-                new SubcommandData(this.compileCmd.getName(), this.compileCmd.getDesc())
-                        .addOptions(this.compileCmd.getOptions())
-        );
-        this.subCmdGroups = Arrays.asList(
-                new SubcommandGroupData(this.modifyAdminsGroup.getName(), this.modifyAdminsGroup.getDesc())
-                        .addSubcommands(this.modifyAdminsGroup.getSubCmds()),
+                        new SubcommandData(this.compileCmd.getName(), this.compileCmd.getDesc())
+                                .addOptions(this.compileCmd.getOptions())
+                )
+                .addSubcommandGroups(
+                        new SubcommandGroupData(this.modifyAdminsGroup.getName(), this.modifyAdminsGroup.getDesc())
+                                .addSubcommands(this.modifyAdminsGroup.getSubCmds()),
 
-                new SubcommandGroupData(this.modifyModsGroup.getName(), this.modifyModsGroup.getDesc())
-                        .addSubcommands(this.modifyModsGroup.getSubCmds()),
+                        new SubcommandGroupData(this.modifyModsGroup.getName(), this.modifyModsGroup.getDesc())
+                                .addSubcommands(this.modifyModsGroup.getSubCmds()),
 
-                new SubcommandGroupData(this.manageItemsGroup.getName(), this.manageItemsGroup.getDesc())
-                        .addSubcommands(this.manageItemsGroup.getSubCmds())
+                        new SubcommandGroupData(this.manageItemsGroup.getName(), this.manageItemsGroup.getDesc())
+                                .addSubcommands(this.manageItemsGroup.getSubCmds())
+                )
+                .setDefaultEnabled(false)
         );
+
+        setUsage("/dev ((subcommand groups/subcommands))");
+        setCategory(CommandCategory.DEV);
+        setUserCategory(UserCategory.DEV);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setGlobal(true);
     }
 
     @Override

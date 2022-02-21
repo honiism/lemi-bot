@@ -20,7 +20,6 @@
 package com.honiism.discord.lemi.commands.slash.staff.mods;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +40,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class ShardStatus extends SlashCmd {
@@ -49,19 +49,18 @@ public class ShardStatus extends SlashCmd {
     private long timeDelayed;
 
     public ShardStatus() {
-        this.name = "shardstatus";
-        this.desc = "View the status of all shards.";
-        this.usage = "/mods shardstatus [page number]";
-        this.category = CommandCategory.MODS;
-        this.userCategory = UserCategory.MODS;
-        this.userPermissions = new Permission[] {Permission.MESSAGE_MANAGE};
-        this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(
-                new OptionData(OptionType.INTEGER,
-                            "page",
-                            "The page number for the shard status you want to see.",
-                            false)
+        setCommandData(Commands.slash("shardstatus", "View the status of all shards.")
+                .addOptions(
+                        new OptionData(OptionType.INTEGER, "page", "The page number for the shard status you want to see.", false)
+                )
         );
+
+        setUsage("/mods shardstatus [page number]");
+        setCategory(CommandCategory.MODS);
+        setUserCategory(UserCategory.MODS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setGlobal(true);
     }
 
     @Override

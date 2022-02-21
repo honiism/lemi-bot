@@ -19,7 +19,6 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.mods;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
@@ -35,6 +34,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class AddCurrProfile extends SlashCmd {
@@ -43,19 +43,18 @@ public class AddCurrProfile extends SlashCmd {
     private long timeDelayed;
 
     public AddCurrProfile() {
-        this.name = "addcurrprofile";
-        this.desc = "Add a currency profile for members that doesn't have one.";
-        this.usage = "/mods addcurrprofile <user>";
-        this.category = CommandCategory.MODS;
-        this.userCategory = UserCategory.MODS;
-        this.userPermissions = new Permission[] {Permission.MESSAGE_MANAGE};
-        this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(
-                new OptionData(OptionType.USER,
-                            "user",
-                            "User you'd like to give a currency profile.",
-                            true)
+        setCommandData(Commands.slash("addcurrprofile", "Add a currency profile for members that doesn't have one.")
+                .addOptions(
+                        new OptionData(OptionType.USER, "user", "User you'd like to give a currency profile.", true)
+                )
         );
+
+        setUsage("/mods addcurrprofile <user>");
+        setCategory(CommandCategory.MODS);
+        setUserCategory(UserCategory.MODS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setGlobal(true);
     }
 
     @Override
