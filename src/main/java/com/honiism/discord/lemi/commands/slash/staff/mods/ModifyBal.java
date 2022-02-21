@@ -19,7 +19,6 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.mods;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
@@ -36,6 +35,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class ModifyBal extends SlashCmd {
@@ -44,28 +44,24 @@ public class ModifyBal extends SlashCmd {
     private long timeDelayed;
 
     public ModifyBal() {
-        this.name = "modifybal";
-        this.desc = "Add or remove some currency from a user.";
-        this.usage = "/mods modifybal ((subcommands))";
-        this.category = CommandCategory.MODS;
-        this.userCategory = UserCategory.MODS;
-        this.userPermissions = new Permission[] {Permission.MESSAGE_MANAGE};
-        this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.subCmds = Arrays.asList(
-                new SubcommandData("add", "Add some currency to a user.")
-                        .addOption(OptionType.USER, "user", "The user you'd like to add some currency to.", true)
-                        .addOption(OptionType.INTEGER, "amount",
-                                "The amount of currency you'd like to add.'",
-                                true),
+        setCommandData(Commands.slash("modifybal", "Add or remove some currency from a user.")
+                .addSubcommands(
+                        new SubcommandData("add", "Add some currency to a user.")
+                                .addOption(OptionType.USER, "user", "The user you'd like to add some currency to.", true)
+                                .addOption(OptionType.INTEGER, "amount", "The amount of currency you'd like to add.'", true),
   
-                new SubcommandData("remove", "Remove some currency from a user.")
-                        .addOption(OptionType.USER, "user",
-                                "The user you'd like to remove some currency from.",
-                                true)
-                        .addOption(OptionType.INTEGER, "amount",
-                                "The amount of currency you'd like to remove.",
-                                true)
+                        new SubcommandData("remove", "Remove some currency from a user.")
+                                .addOption(OptionType.USER, "user", "The user you'd like to remove some currency from.", true)
+                                .addOption(OptionType.INTEGER, "amount", "The amount of currency you'd like to remove.", true)
+                )
         );
+
+        setUsage("/mods modifybal ((subcommands))");
+        setCategory(CommandCategory.MODS);
+        setUserCategory(UserCategory.MODS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setGlobal(true);
     }
 
     @Override

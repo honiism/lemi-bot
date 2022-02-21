@@ -20,7 +20,6 @@
 package com.honiism.discord.lemi.commands.slash.staff.dev;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +41,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class ModifyMods extends SlashCmd {
@@ -50,23 +50,25 @@ public class ModifyMods extends SlashCmd {
     private long timeDelayed;
 
     public ModifyMods() {
-        this.name = "modifymods";
-        this.desc = "Add/remove/view user(s) to/from the moderator database.";
-        this.usage = "/modifymods ((subcommands))";
-        this.category = CommandCategory.DEV;
-        this.userCategory = UserCategory.DEV;
-        this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(
-                new SubcommandData("add", "Add a user to the official moderator list.")
-                        .addOption(OptionType.USER, "user", "The user you want to add.", true)
-                        .addOption(OptionType.STRING, "key", "The key that will be assigned for this user.", true),
+        setCommandData(Commands.slash("modifymods", "Add/remove/view user(s) to/from the moderator database.")
+                .addSubcommands(
+                        new SubcommandData("add", "Add a user to the official moderator list.")
+                                .addOption(OptionType.USER, "user", "The user you want to add.", true)
+                                .addOption(OptionType.STRING, "key", "The key that will be assigned for this user.", true),
 
-                new SubcommandData("remove", "Remove a user from the official moderator list.")
-                        .addOption(OptionType.USER, "user", "The user you want to remove.", true),
+                        new SubcommandData("remove", "Remove a user from the official moderator list.")
+                                .addOption(OptionType.USER, "user", "The user you want to remove.", true),
 
-                new SubcommandData("view", "View all details from the official moderator list.")
+                        new SubcommandData("view", "View all details from the official moderator list.")
+                )
         );
+
+        setUsage("/dev modifymods ((subcommands))");
+        setCategory(CommandCategory.DEV);
+        setUserCategory(UserCategory.DEV);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setGlobal(true);
     }
     
     @Override
@@ -135,8 +137,8 @@ public class ModifyMods extends SlashCmd {
     private void viewAllIds(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         List<String> modDetails = new ArrayList<>();
-        List<String> modIds = LemiDbManager.INS.getModIds(event);
-        List<String> modKeys = LemiDbManager.INS.getModKeys(event);
+        List<String> modIds = LemiDbManager.INS.getModIds();
+        List<String> modKeys = LemiDbManager.INS.getModKeys();
 
         for (int i = 0; i < modIds.size(); i++) {
             modDetails.add("<@" + modIds.get(i) + "> `" 

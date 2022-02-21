@@ -22,7 +22,6 @@ package com.honiism.discord.lemi.commands.slash.currency;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.honiism.discord.lemi.utils.currency.CurrencyTools;
@@ -36,6 +35,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Balance extends SlashCmd {
@@ -44,19 +44,18 @@ public class Balance extends SlashCmd {
     private long timeDelayed;
 
     public Balance() {
-        this.name = "balance";
-        this.desc = "Shows the balance of a user.";
-        this.usage = "/currency balance <user>";
-        this.category = CommandCategory.CURRENCY;
-        this.userCategory = UserCategory.USERS;
-        this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.options = Arrays.asList(
-                new OptionData(OptionType.USER,
-                            "user",
-                            "The user you want to see the balance of.",
-                            true)
+        setCommandData(Commands.slash("balance", "Shows the balance of a user.")
+                .addOptions(
+                        new OptionData(OptionType.USER, "user", "The user you want to see the balance of.", true)
+                )
         );
+        
+        setUsage("/currency balance <user>");
+        setCategory(CommandCategory.CURRENCY);
+        setUserCategory(UserCategory.USERS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setGlobal(true);
     }
 
     @Override

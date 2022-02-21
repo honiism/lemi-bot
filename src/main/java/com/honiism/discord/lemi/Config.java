@@ -22,9 +22,13 @@ package com.honiism.discord.lemi;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class Config {
-    private static final Dotenv dotenv = Dotenv.load();
+    private static final Dotenv DOTENV = Dotenv.load();
 
     public static String get(String key) {
-        return dotenv.get(key.toUpperCase());
+        return DOTENV.get(key.toUpperCase());
+    }
+
+    public static long getLong(String key) {
+        return Long.valueOf(DOTENV.get(key.toUpperCase()));
     }
 }

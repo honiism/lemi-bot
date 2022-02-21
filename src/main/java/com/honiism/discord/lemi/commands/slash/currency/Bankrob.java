@@ -36,6 +36,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public class Bankrob extends SlashCmd {
 
@@ -43,13 +44,13 @@ public class Bankrob extends SlashCmd {
     private long timeDelayed;
 
     public Bankrob() {
-        this.name = "bankrob";
-        this.desc = "Attempt to bankrob (You can win double but at the same time you can also go in debt).";
-        this.usage = "/currency bankrob";
-        this.category = CommandCategory.CURRENCY;
-        this.userCategory = UserCategory.USERS;
-        this.userPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
-        this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
+        setCommandData(Commands.slash("bankrob", "Attempt to bankrob."));
+        setUsage("/currency bankrob");
+        setCategory(CommandCategory.CURRENCY);
+        setUserCategory(UserCategory.USERS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setGlobal(true);
     }
 
     @Override

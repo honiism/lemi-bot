@@ -33,13 +33,14 @@ import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildTimeoutEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class GuildListener extends ListenerAdapter{
+public class GuildListener extends ListenerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(GuildListener.class);
 
     @Override
     public void onGuildReady(GuildReadyEvent event) {
-        LemiDbManager.INS.onGuildReady(event);
+        Guild guild = event.getGuild();
+        LemiDbManager.INS.insertGuildSettings(guild);
     }
 
     @Override
@@ -47,43 +48,36 @@ public class GuildListener extends ListenerAdapter{
         Guild guild = event.getGuild();
         Long guildId = guild.getIdLong();
 
-        if (guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))
-                || guildId.equals(Long.parseLong(Config.get("test_server")))) {
-            return;
+        if (!guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))) {
+            String joinedLogMsg = "--------------------------\r\n"
+                +  "**LEMI JOINED A SERVER!**\r\n"
+                + "**Guild id :** " + guild.getIdLong() + "\r\n"
+                + "**Guild name :** " + guild.getName() + "\r\n";
+
+            log.info(joinedLogMsg.toString());
+
+            Lemi.getInstance().getShardManager()
+                .getGuildById(Config.get("honeys_sweets_id"))
+                .getTextChannelById(Config.get("logs_channel_id"))
+                .sendMessage(joinedLogMsg)
+	        .queue();
         }
 
-        StringBuilder bannedJoinLog = new StringBuilder();
+        LemiDbManager.INS.insertGuildSettings(guild);
 
-        bannedJoinLog.append("--------------------------\r\n"
-                + "**LEMI JOINED A SERVER THAT'S NOT IN THE WHITELIST! :warning:**\r\n" 
-                + "**Guild id :** " + guild.getIdLong() + "\r\n"
-                + "**Guild name :** " + guild.getName() + "\r\n");
+        BaseListener.getJDA().retrieveCommands().queue(
+            (globalCmds) -> {
+                Lemi.getInstance().updateCmdPrivileges(guild, globalCmds);
+            }
+        );
 
-        guild.retrieveOwner()
-            .queue(
-                (owner) -> {
-                    bannedJoinLog.append("**Guild owner id :** " + owner.getIdLong() + "\r\n"
-                            + "**Guild owner tag :** " + owner.getUser().getAsMention() + "\r\n"
-                            + "LEAVING IN **5** SECONDS\r\n"
-                            + "--------------------------");
-                },
-                (empty) -> {
-                    bannedJoinLog.append("**Guild owner id :** null\r\n"
-                            + "**Guild owner tag :** null\r\n"
-                            + "LEAVING IN **5** SECONDS\r\n"
-                            + "--------------------------");
+        guild.retrieveCommands().queue(
+            (guildCmds) -> {
+                if (guildCmds.isEmpty() || guildCmds != null) {
+                    Lemi.getInstance().updateCmdPrivileges(guild, guildCmds);
                 }
-            );
-
-        log.info(bannedJoinLog.toString());
-
-        Lemi.getInstance().getShardManager()
-            .getGuildById(Config.get("honeys_sweets_id"))
-            .getTextChannelById(Config.get("logs_channel_id"))
-            .sendMessage(bannedJoinLog.toString())
-	    .queue();
-
-        guild.leave().queue();
+            }
+        );
     }
 
     @Override
@@ -95,33 +89,17 @@ public class GuildListener extends ListenerAdapter{
             return;
         }
 
-        StringBuilder bannedLeaveLog = new StringBuilder();
-
-        bannedLeaveLog.append("--------------------------\r\n"
-                + "**LEMI JUST LEFT A SERVER THAT'S NOT IN THE WHITELIST! :warning:**\r\n" 
+        String leaveLogMsg = "--------------------------\r\n"
+                +  "**LEMI LEFT A SERVER!**\r\n"
                 + "**Guild id :** " + guild.getIdLong() + "\r\n"
-                + "**Guild name :** " + guild.getName() + "\r\n");
+                + "**Guild name :** " + guild.getName() + "\r\n";
 
-        guild.retrieveOwner()
-            .queue(
-                (owner) -> {
-                    bannedLeaveLog.append("**Guild owner id :** " + owner.getIdLong() + "\r\n"
-                            + "**Guild owner tag :** " + owner.getUser().getAsMention() + "\r\n"
-                            + "--------------------------");
-                },
-                (empty) -> {
-                    bannedLeaveLog.append("**Guild owner id : ** null\r\n"
-                            + "**Guild owner tag :** null\r\n"
-                            + "--------------------------");
-                }
-            );
-
-        log.info(bannedLeaveLog.toString());
+        log.info(leaveLogMsg.toString());
 
         Lemi.getInstance().getShardManager()
             .getGuildById(Config.get("honeys_sweets_id"))
             .getTextChannelById(Config.get("logs_channel_id"))
-            .sendMessage(bannedLeaveLog.toString())
+            .sendMessage(leaveLogMsg)
 	    .queue();
     }
 

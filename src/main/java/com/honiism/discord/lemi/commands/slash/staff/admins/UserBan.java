@@ -20,7 +20,6 @@
 package com.honiism.discord.lemi.commands.slash.staff.admins;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +40,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class UserBan extends SlashCmd {
@@ -49,23 +49,25 @@ public class UserBan extends SlashCmd {
     private long timeDelayed;
 
     public UserBan() {
-        this.name = "userban";
-        this.desc = "Bans a user from using Lemi bot.";
-        this.usage = "/userban ((subcommands))";
-        this.category = CommandCategory.ADMINS;
-        this.userCategory = UserCategory.ADMINS;
-        this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(
-                new SubcommandData("add", "Ban a user from using Lemi.")
-                        .addOption(OptionType.USER, "user", "The user you want to ban.", true)
-                        .addOption(OptionType.STRING, "reason", "The reason why they're getting banned.", true),
+        setCommandData(Commands.slash("userban", "Bans a user from using Lemi bot.")
+                .addSubcommands(
+                        new SubcommandData("add", "Ban a user from using Lemi.")
+                                .addOption(OptionType.USER, "user", "The user you want to ban.", true)
+                                .addOption(OptionType.STRING, "reason", "The reason why they're getting banned.", true),
 
-                new SubcommandData("remove", "Unban a previously banned user.")
-                        .addOption(OptionType.USER, "user", "The user you want to unban.", true),
+                        new SubcommandData("remove", "Unban a previously banned user.")
+                                .addOption(OptionType.USER, "user", "The user you want to unban.", true),
 
-                new SubcommandData("view", "View all details from the ban list.")
+                        new SubcommandData("view", "View all details from the ban list.")
+                )
         );
+
+        setUsage("/userban ((subcommands))");
+        setCategory(CommandCategory.ADMINS);
+        setUserCategory(UserCategory.ADMINS);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setGlobal(true);
     }
 
     @Override

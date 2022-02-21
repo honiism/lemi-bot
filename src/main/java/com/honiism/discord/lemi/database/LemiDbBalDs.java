@@ -32,7 +32,6 @@ import java.util.List;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.slash.currency.objects.items.Items;
 import com.honiism.discord.lemi.database.managers.LemiDbBalManager;
-import com.honiism.discord.lemi.listeners.BaseListener;
 import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -381,7 +380,7 @@ public class LemiDbBalDs implements LemiDbBalManager {
         log.info("Altered table to add " + itemId + " to the database, shutting down.");
         hook.sendMessage(":seedling: Altered table to add " + itemId + " to the database, shutting down.").queue();
         
-        Lemi.getInstance().shutdown(BaseListener.getJDA());
+        Lemi.getInstance().shutdown();
     }
 
     @Override
@@ -397,6 +396,6 @@ public class LemiDbBalDs implements LemiDbBalManager {
         log.info("Altered table to remove " + itemId + " from the database, shutting down.");
         hook.sendMessage(":grapes: Altered table to remove " + itemId + " from the database, shutting down.").queue();
 
-        Lemi.getInstance().shutdown(BaseListener.getJDA());
+        Lemi.getInstance().shutdown();
     }
 }

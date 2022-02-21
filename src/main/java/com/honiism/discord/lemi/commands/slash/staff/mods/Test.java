@@ -36,6 +36,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public class Test extends SlashCmd {
 
@@ -44,13 +45,13 @@ public class Test extends SlashCmd {
     private long timeDelayed;
 
     public Test() {
-        this.name = "test";
-        this.desc = "Test if Lemi is responding to commands correctly.";
-        this.usage = "/mods test";
-        this.category = CommandCategory.MODS;
-        this.userCategory = UserCategory.MODS;
-        this.userPermissions = new Permission[] {Permission.MESSAGE_MANAGE};
-        this.botPermissions = new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
+        setCommandData(Commands.slash("test", "Test if Lemi is responding to commands correctly."));
+        setUsage("/mods test");
+        setCategory(CommandCategory.MODS);
+        setUserCategory(UserCategory.MODS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setGlobal(true);
     }
 
     @Override

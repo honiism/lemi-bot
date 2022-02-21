@@ -19,7 +19,6 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.admins;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
@@ -36,6 +35,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class Embed extends SlashCmd {
@@ -44,24 +44,26 @@ public class Embed extends SlashCmd {
     private long timeDelayed;
 
     public Embed() {
-        this.name = "embed";
-        this.desc = "Add, remove or show an embed you created.";
-        this.usage = "/mods embed ((subcommands))";
-        this.category = CommandCategory.MODS;
-        this.userCategory = UserCategory.MODS;
-        this.userPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.botPermissions = new Permission[] {Permission.ADMINISTRATOR};
-        this.subCmds = Arrays.asList(
-                new SubcommandData("create", "Create a custom embed."),
-  
-                new SubcommandData("remove", "Remove an existing embed.")
-                        .addOption(OptionType.STRING, "embed_id", "The id of an embed you want to remove.", true),
+        setCommandData(Commands.slash("embed", "Add, remove or show an embed you created.")
+                .addSubcommands(
+                        new SubcommandData("create", "Create a custom embed."),
 
-                new SubcommandData("list", "Show all the existing embeds."),
+                        new SubcommandData("remove", "Remove an existing embed.")
+                                .addOption(OptionType.STRING, "embed_id", "The id of an embed you want to remove.", true),
 
-                new SubcommandData("show", "Show an existing embed.")
-                        .addOption(OptionType.STRING, "embed_id", "The embed you want to show.", true)
+                        new SubcommandData("list", "Show all the existing embeds."),
+
+                        new SubcommandData("show", "Show an existing embed.")
+                                .addOption(OptionType.STRING, "embed_id", "The embed you want to show.", true)
+                )
         );
+
+        setUsage("/mods embed ((subcommands))");
+        setCategory(CommandCategory.ADMINS);
+        setUserCategory(UserCategory.ADMINS);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setGlobal(false);
     }
 
     @Override
