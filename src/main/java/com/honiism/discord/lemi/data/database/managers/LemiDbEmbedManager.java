@@ -40,6 +40,6 @@ public interface LemiDbEmbedManager {
     void deleteCustomEmbed(InteractionHook hook, String embedId);
     void assignUniqueId(InteractionHook hook, String specialKey, Map<String, String> embedProperties);
     void saveCreatedEmbed(InteractionHook hook, String messageContent, String embedId,
-            Map<String, String> embedProperties, Map<String, Integer> embedColor);
+                          Map<String, String> embedProperties, Map<String, Integer> embedColor);
     void saveCreatedEmbed(InteractionHook hook, String embedId, Map<String, String> embedProperties, Map<String, Integer> embedColor);
 }
