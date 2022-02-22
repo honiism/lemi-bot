@@ -55,16 +55,22 @@ public class CurrencyTools {
         return LemiDbManager.INS.getBalName(guildId);
     }
 
-    public static long getUserbal(String userId) {
+    public static long getUserBal(String userId) {
         return LemiDbBalManager.INS.getUserBal(userId); 
     }
 
     public static void addBalToUser(String userId, long balToAdd) {
-        LemiDbBalManager.INS.addBalToUser(userId, balToAdd);
+        long userBal = getUserBal(userId);
+        long balAfterAdd = userBal + balToAdd;
+
+        updateUserBal(userId, balAfterAdd);
     }
 
     public static void removeBalFromUser(String userId, long balToRemove) {
-        LemiDbBalManager.INS.removeBalFromUser(userId, balToRemove);
+        long userBal = getUserBal(userId);
+        long balAfterRemove = userBal - balToRemove;
+
+        updateUserBal(userId, balAfterRemove);
     }
 
     public static void updateUserBal(String userId, long balToUpdate) {
@@ -175,7 +181,10 @@ public class CurrencyTools {
     }
 
     public static void addItemToUser(String userId, String itemName, long amountToAdd) {
-        LemiDbBalManager.INS.addItemToUser(userId, itemName, amountToAdd);
+        long userItemAmount = getItemFromUserInv(userId, itemName);
+        long itemAfterAdd = userItemAmount + amountToAdd;
+
+        updateItemUser(userId, itemName, itemAfterAdd);
     }
 
     public static void updateItemUser(String userId, String itemName, long amountToUpdate) {
@@ -183,7 +192,10 @@ public class CurrencyTools {
     }
 
     public static void removeItemFromUser(String userId, String itemName, long amountToRemove) {
-        LemiDbBalManager.INS.removeItemFromUser(userId, itemName, amountToRemove);
+        long userItemAmount = getItemFromUserInv(userId, itemName);
+        long itemAfterRemove = userItemAmount - amountToRemove;
+        
+        updateItemUser(userId, itemName, itemAfterRemove);
     }
 
     public static void removeAllItems(String userId, Guild guild) {
@@ -234,7 +246,7 @@ public class CurrencyTools {
         LemiDbBalManager.INS.removeItemFromDb(itemId, hook);
     }
 
-    public static void addItemsToDb() {
-        LemiDbBalManager.INS.addItemsToDb();
+    public static void createInvDb() {
+        LemiDbBalManager.INS.createInvDb();
     }
 }

@@ -73,7 +73,7 @@ public class Bankrob extends SlashCmd {
 
             Guild guild = event.getGuild();
 
-            if (CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) < 10000) {
+            if (CurrencyTools.getUserBal(String.valueOf(author.getIdLong())) < 10000) {
                 hook.sendMessage(":blossom: You need at least 10,000 " 
                         + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + ".")
                     .queue();
@@ -131,7 +131,7 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + Tools.getRandomEntry(resultMessages) + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) 
+                + "> :sunflower: You now have " + CurrencyTools.getUserBal(String.valueOf(author.getIdLong())) 
                 + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
@@ -143,7 +143,7 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + "You wake up from the dream, you gained nothing." + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong()))
+                + "> :sunflower: You now have " + CurrencyTools.getUserBal(String.valueOf(author.getIdLong()))
                 + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
@@ -171,7 +171,7 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + Tools.getRandomEntry(resultMessages) + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) 
+                + "> :sunflower: You now have " + CurrencyTools.getUserBal(String.valueOf(author.getIdLong())) 
                 + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();

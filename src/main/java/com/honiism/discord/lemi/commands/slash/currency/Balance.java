@@ -86,7 +86,7 @@ public class Balance extends SlashCmd {
             EmbedBuilder userBal = new EmbedBuilder();
 
             Guild guild = event.getGuild();
-            long bal = CurrencyTools.getUserbal(String.valueOf(member.getIdLong()));
+            long bal = CurrencyTools.getUserBal(String.valueOf(member.getIdLong()));
 
             userBal.setDescription("‧₊੭ :cherry_blossom: " + member.getAsMention() + "'s balance ♡ ⋆｡˚\r\n"
                     + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"

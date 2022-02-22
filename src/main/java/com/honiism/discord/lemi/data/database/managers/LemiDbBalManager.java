@@ -35,18 +35,14 @@ public interface LemiDbBalManager {
     void addUserCurrProfile(Member member);
     void addUserInvProfile(Member member);
     long getUserBal(String userId);
-    void addBalToUser(String userId, long balToAdd);
-    void removeBalFromUser(String userId, long balToRemove);
     void updateUserBal(String userId, long balToUpdate);
     List<String> getOwnedItems(String userId);
     long getItemFromUserInv(String userId, String itemName);
     boolean checkIfItemExists(String itemName);
-    void addItemToUser(String userId, String itemName, long amountToAdd);
-    void removeItemFromUser(String userId, String itemName, long amountToRemove);
     void updateItemUser(String userId, String itemName, long amountToUpdate);
     void removeAllItems(String userId, Guild guild);
     void removeCurrData(String userId, Guild guild);
     void addNewItemToDb(String itemId, InteractionHook hook);
     void removeItemFromDb(String itemId, InteractionHook hook);
-    void addItemsToDb();
+    void createInvDb();
 }

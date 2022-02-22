@@ -105,23 +105,23 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void addItemsToDb() {
-        try (Statement statement = getConnection().createStatement()) {
-            List<String> queries = new ArrayList<String>();
+    public void createInvDb() {
+        List<String> queries = new ArrayList<String>();
 
-            for (Items item : CurrencyTools.getItems()) {
-                queries.add(item.getId() + " INTEGER NOT NULL DEFAULT '0'");
-            }
+        for (Items item : CurrencyTools.getItems()) {
+            queries.add(item.getId() + " INTEGER NOT NULL DEFAULT '0'");
+        }
 
-            String query = "CREATE TABLE IF NOT EXISTS user_inv ("
-                    + "user_id VARCHAR(20) NOT NULL DEFAULT '0',"
-                    + String.join(",", queries)
-                    + ");";
+        String query = "CREATE TABLE IF NOT EXISTS user_inv ("
+                + "user_id VARCHAR(20) NOT NULL DEFAULT '0',"
+                + String.join(",", queries)
+                + ");";
 
-            statement.execute(query);
-
+        try (PreparedStatement createInvDbStatement = getConnection().prepareStatement(query)) {
+            createInvDbStatement.execute(query);
             log.info("user_inv table initialised");
             log.info("added items to database.");
+
         } catch (SQLException e) {
             log.error("\r\nSomething went wrong while trying to "
                     + "create / connect to database tables\r\n"
@@ -134,9 +134,8 @@ public class LemiDbBalDs implements LemiDbBalManager {
     
     @Override
     public boolean userHasCurrProfile(Member member) {
-        try (Connection conn = getConnection();
-                PreparedStatement selectStatement =
-                        conn.prepareStatement("SELECT user_id FROM user_balance WHERE user_id = ?")) {
+        try (PreparedStatement selectStatement =
+                getConnection().prepareStatement("SELECT user_id FROM user_balance WHERE user_id = ?")) {
             selectStatement.setLong(1, member.getIdLong());
 
             try (ResultSet rs = selectStatement.executeQuery()) {
@@ -153,9 +152,8 @@ public class LemiDbBalDs implements LemiDbBalManager {
     
     @Override
     public void addUserCurrProfile(Member member) {
-        try (Connection conn = getConnection();
-                PreparedStatement insertStatement =
-                        conn.prepareStatement("INSERT INTO user_balance(user_id) VALUES(?)")) {
+        try (PreparedStatement insertStatement =
+                getConnection().prepareStatement("INSERT INTO user_balance(user_id) VALUES(?)")) {
             insertStatement.setLong(1, member.getIdLong());
             insertStatement.executeUpdate();
         } catch (SQLException e) {
@@ -165,9 +163,8 @@ public class LemiDbBalDs implements LemiDbBalManager {
     
     @Override
     public void addUserInvProfile(Member member) {
-        try (Connection conn = getConnection();
-                PreparedStatement insertStatement =
-                        conn.prepareStatement("INSERT INTO user_inv(user_id) VALUES(?)")) {
+        try (PreparedStatement insertStatement =
+                getConnection().prepareStatement("INSERT INTO user_inv(user_id) VALUES(?)")) {
             insertStatement.setLong(1, member.getIdLong());
             insertStatement.executeUpdate();
         } catch (SQLException e) {
@@ -177,9 +174,8 @@ public class LemiDbBalDs implements LemiDbBalManager {
 
     @Override
     public long getUserBal(String userId) {
-        try (Connection conn = getConnection();
-                PreparedStatement selectStatement =
-                        conn.prepareStatement("SELECT wallet FROM user_balance WHERE user_id = ?")) {
+        try (PreparedStatement selectStatement =
+                getConnection().prepareStatement("SELECT wallet FROM user_balance WHERE user_id = ?")) {
             selectStatement.setString(1, userId);
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
@@ -194,26 +190,9 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
     
     @Override
-    public void addBalToUser(String userId, long balanceToAdd) {
-        long userBal = getUserBal(userId);
-        long balAfterAdd = userBal + balanceToAdd;
-
-        updateUserBal(userId, balAfterAdd);
-    }
-
-    @Override
-    public void removeBalFromUser(String userId, long balanceToRemove) {
-        long userBal = getUserBal(userId);
-        long balAfterRemove = userBal - balanceToRemove;
-
-        updateUserBal(userId, balAfterRemove);
-    }
-    
-    @Override
     public void updateUserBal(String userId, long balanceToUpdate) {
-        try (Connection conn = getConnection();
-                PreparedStatement updateStatement =
-    	                conn.prepareStatement("UPDATE user_balance SET wallet = ? WHERE user_id = ?")) {
+        try (PreparedStatement updateStatement =
+    	        getConnection().prepareStatement("UPDATE user_balance SET wallet = ? WHERE user_id = ?")) {
     	    updateStatement.setLong(1, balanceToUpdate);
             updateStatement.setString(2, userId);
             updateStatement.executeUpdate();
@@ -227,9 +206,8 @@ public class LemiDbBalDs implements LemiDbBalManager {
         List<String> ownedItems = new ArrayList<>();
 
         for (Items item : CurrencyTools.getItems()) {
-            try (Connection conn = getConnection();
-                    PreparedStatement selectStatement =
-                        conn.prepareStatement("SELECT * FROM user_inv WHERE user_id = ?")) {
+            try (PreparedStatement selectStatement =
+                    getConnection().prepareStatement("SELECT * FROM user_inv WHERE user_id = ?")) {
 
                 selectStatement.setString(1, userId);
 
@@ -255,9 +233,8 @@ public class LemiDbBalDs implements LemiDbBalManager {
     public long getItemFromUserInv(String userId, String itemName) {
         String itemId = itemName.replaceAll(" ", "_");
         
-        try (Connection conn = getConnection();
-                PreparedStatement selectStatement =
-                        conn.prepareStatement("SELECT " + itemId + " FROM user_inv WHERE user_id = ?")) {
+        try (PreparedStatement selectStatement =
+                getConnection().prepareStatement("SELECT " + itemId + " FROM user_inv WHERE user_id = ?")) {
             selectStatement.setString(1, userId);
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
@@ -275,9 +252,8 @@ public class LemiDbBalDs implements LemiDbBalManager {
     public boolean checkIfItemExists(String itemName) {
         String itemId = itemName.replaceAll(" ", "_");
 
-        try (Connection conn = getConnection();
-                PreparedStatement selectStatement =
-                        conn.prepareStatement("SELECT " + itemId + " FROM user_inv")) {
+        try (PreparedStatement selectStatement =
+                getConnection().prepareStatement("SELECT " + itemId + " FROM user_inv")) {
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
                     return true;
@@ -291,20 +267,11 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void addItemToUser(String userId, String itemName, long amountToAdd) {
-        long userItemAmount = getItemFromUserInv(userId, itemName);
-        long itemAfterAdd = userItemAmount + amountToAdd;
-
-        updateItemUser(userId, itemName, itemAfterAdd);
-    }
-
-    @Override
     public void updateItemUser(String userId, String itemName, long amountToUpdate) {
         String itemId = itemName.replaceAll(" ", "_");
 
-        try (Connection conn = getConnection();
-                PreparedStatement updateStatement =
-    	                conn.prepareStatement("UPDATE user_inv SET " + itemId + " = ? WHERE user_id = ?")) {
+        try (PreparedStatement updateStatement =
+    	        getConnection().prepareStatement("UPDATE user_inv SET " + itemId + " = ? WHERE user_id = ?")) {
     	    updateStatement.setLong(1, amountToUpdate);
             updateStatement.setString(2, userId);
             updateStatement.executeUpdate();
@@ -314,18 +281,10 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void removeItemFromUser(String userId, String itemName, long amountToRemove) {
-        long userItemAmount = getItemFromUserInv(userId, itemName);
-        long itemAfterRemove = userItemAmount - amountToRemove;
-        
-        updateItemUser(userId, itemName, itemAfterRemove);
-    }
-
-    @Override
     public void removeAllItems(String userId, Guild guild) {
-        try (Connection conn = getConnection();
-                PreparedStatement updateStatement =
-    	                conn.prepareStatement("DELETE FROM user_inv WHERE user_id = " + userId)) {
+        try (PreparedStatement updateStatement =
+    	        getConnection().prepareStatement("DELETE FROM user_inv WHERE user_id = ?")) {
+            updateStatement.setString(1, userId);
             updateStatement.executeUpdate();
     	} catch (SQLException e) {
             e.printStackTrace();        
@@ -346,9 +305,9 @@ public class LemiDbBalDs implements LemiDbBalManager {
 
     @Override
     public void removeCurrData(String userId, Guild guild) {
-        try (Connection conn = getConnection();
-                PreparedStatement updateStatement =
-    	                conn.prepareStatement("DELETE FROM user_balance WHERE user_id = " + userId)) {
+        try (PreparedStatement updateStatement =
+    	        getConnection().prepareStatement("DELETE FROM user_balance WHERE user_id = ?")) {
+            updateStatement.setString(1, userId);
             updateStatement.executeUpdate();
     	} catch (SQLException e) {
             e.printStackTrace();        
@@ -369,9 +328,8 @@ public class LemiDbBalDs implements LemiDbBalManager {
 
     @Override
     public void addNewItemToDb(String itemId, InteractionHook hook) {
-        try (Connection conn = getConnection();
-                PreparedStatement updateStatement =
-    	                conn.prepareStatement("ALTER TABLE user_inv ADD COLUMN " + itemId + " INTEGER NOT NULL DEFAULT '0'")) {
+        try (PreparedStatement updateStatement =
+    	        getConnection().prepareStatement("ALTER TABLE user_inv ADD COLUMN " + itemId + " INTEGER NOT NULL DEFAULT '0'")) {
             updateStatement.execute();
     	} catch (SQLException e) {
             e.printStackTrace();        
@@ -385,9 +343,8 @@ public class LemiDbBalDs implements LemiDbBalManager {
 
     @Override
     public void removeItemFromDb(String itemId, InteractionHook hook) {
-        try (Connection conn = getConnection();
-                PreparedStatement updateStatement =
-    	                conn.prepareStatement("ALTER TABLE user_inv DROP COLUMN " + itemId)) {
+        try (PreparedStatement updateStatement =
+    	        getConnection().prepareStatement("ALTER TABLE user_inv DROP COLUMN " + itemId)) {
             updateStatement.execute();
     	} catch (SQLException e) {
             e.printStackTrace();        

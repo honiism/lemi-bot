@@ -108,7 +108,7 @@ public class ModifyBal extends SlashCmd {
                             + ", you have received " + addAmount 
                             + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + " from " 
                             + author.getAsMention() + "!\r\n"
-                            + ":blueberries: You now have " + CurrencyTools.getUserbal(String.valueOf(memberToAddCurr.getIdLong()))
+                            + ":blueberries: You now have " + CurrencyTools.getUserBal(String.valueOf(memberToAddCurr.getIdLong()))
                             + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + ".")
                         .queue();
                     break;
@@ -135,7 +135,7 @@ public class ModifyBal extends SlashCmd {
                             + ", " + author.getAsMention()
                             + " has taken " + removeAmount + " " 
                             + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + " from " + "you" + "!\r\n"
-                            + ":blueberries: You now have " + CurrencyTools.getUserbal(String.valueOf(memberToRemoveCurr.getIdLong()))
+                            + ":blueberries: You now have " + CurrencyTools.getUserBal(String.valueOf(memberToRemoveCurr.getIdLong()))
                             + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + ".")
                         .queue();
             }
