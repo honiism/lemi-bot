@@ -17,7 +17,7 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.database;
+package com.honiism.discord.lemi.data.database;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.List;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

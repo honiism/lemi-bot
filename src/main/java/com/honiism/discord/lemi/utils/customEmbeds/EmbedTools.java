@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.database.managers.LemiDbEmbedManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;

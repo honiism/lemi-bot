@@ -21,7 +21,7 @@ package com.honiism.discord.lemi.listeners;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

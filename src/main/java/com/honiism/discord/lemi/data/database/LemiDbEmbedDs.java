@@ -17,7 +17,7 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.database;
+package com.honiism.discord.lemi.data.database;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.database.managers.LemiDbEmbedManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.honiism.discord.lemi.utils.paginator.Paginator;

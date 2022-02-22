@@ -17,11 +17,11 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.database.managers;
+package com.honiism.discord.lemi.data.database.managers;
 
 import java.util.Map;
 
-import com.honiism.discord.lemi.database.LemiDbEmbedDs;
+import com.honiism.discord.lemi.data.database.LemiDbEmbedDs;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;

@@ -25,8 +25,8 @@ import java.util.List;
 import com.honiism.discord.lemi.commands.slash.currency.objects.items.Items;
 import com.honiism.discord.lemi.commands.slash.currency.objects.items.handler.EventType;
 import com.honiism.discord.lemi.commands.slash.currency.objects.items.handler.ItemType;
-import com.honiism.discord.lemi.database.managers.LemiDbBalManager;
-import com.honiism.discord.lemi.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

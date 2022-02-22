@@ -59,7 +59,7 @@ public class BaseListener extends ListenerAdapter {
             
         } catch (NullPointerException ignored) { }
 
-        for (Guild guild : getJDA().getGuilds()) {
+        for (Guild guild : Lemi.getInstance().getShardManager().getGuilds()) {
             getJDA().retrieveCommands().queue(
                 (cmds) -> {
                     Lemi.getInstance().updateCmdPrivileges(guild, cmds);

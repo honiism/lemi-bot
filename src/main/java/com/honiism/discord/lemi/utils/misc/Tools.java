@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.honiism.discord.lemi.Config;
-import com.honiism.discord.lemi.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 
 import me.duncte123.botcommons.StringUtils;
