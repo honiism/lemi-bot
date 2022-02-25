@@ -118,7 +118,7 @@ public class LemiDbBalDs implements LemiDbBalManager {
                 + ");";
 
         try (PreparedStatement createInvDbStatement = getConnection().prepareStatement(query)) {
-            createInvDbStatement.execute(query);
+            createInvDbStatement.execute();
             log.info("user_inv table initialised");
             log.info("added items to database.");
 

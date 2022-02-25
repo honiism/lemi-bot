@@ -1227,7 +1227,7 @@ public class LemiDbDs implements LemiDbManager {
     
             e.printStackTrace();
     
-            event.reply("--------------------------\r\n" 
+            event.getHook().sendMessage("--------------------------\r\n" 
                     +"\r\n**Something went wrong while trying to "
                     + "run isAuthorAdmin :no_entry:**\r\n"
                     + "Error : SQLException\r\n"
@@ -1264,7 +1264,7 @@ public class LemiDbDs implements LemiDbManager {
     
                 e.printStackTrace();
     
-                event.reply("--------------------------\r\n" 
+                event.getHook().sendMessage("--------------------------\r\n" 
                         +"\r\n**Something went wrong while trying to"
                         + " run isAuthorMod :no_entry:**\r\n"
                         + "Error : SQLException\r\n"
