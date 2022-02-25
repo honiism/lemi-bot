@@ -40,7 +40,6 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 public abstract class SlashCmd implements ISlashCmd {
 
     private SlashCommandData commandData;
-    private boolean isGlobal = true;
     private String usage = "";
     private CommandCategory category = CommandCategory.MAIN;
     private UserCategory userCategory = UserCategory.USERS;
@@ -109,16 +108,6 @@ public abstract class SlashCmd implements ISlashCmd {
     @Override
     public String getName() {
         return getCommandData().getName();
-    }
-
-    @Override
-    public void setGlobal(boolean isGlobal) {
-        this.isGlobal = isGlobal;
-    }
-
-    @Override
-    public boolean isGlobal() {
-        return isGlobal;
     }
 
     @Override
