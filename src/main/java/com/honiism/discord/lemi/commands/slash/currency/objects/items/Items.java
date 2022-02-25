@@ -882,7 +882,7 @@ public abstract class Items implements ItemInterface {
 
         if (disappearAfterUsage()) {
             useAction(hook);
-            CurrencyTools.removeItemFromUser(String.valueOf(hook.getInteraction().getUser().getIdLong()), getName(), 1);
+            CurrencyTools.removeItemFromUser(hook.getInteraction().getUser().getIdLong(), getName(), 1);
             return;
         }
 

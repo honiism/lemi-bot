@@ -108,7 +108,7 @@ public class ModifyItem extends SlashCmd {
                         return;
                     }
             
-                    CurrencyTools.addItemToUser(String.valueOf(memberAdd.getIdLong()), itemNameToAdd, addAmount);
+                    CurrencyTools.addItemToUser(memberAdd.getIdLong(), itemNameToAdd, addAmount);
             
                     hook.sendMessage(":oden: " 
                             + memberAdd.getAsMention() 
@@ -116,7 +116,7 @@ public class ModifyItem extends SlashCmd {
                             + " " + itemNameToAdd + " from " 
                             + author.getAsMention() + "!\r\n"
                             + ":blueberries: You now have " 
-                            + CurrencyTools.getItemFromUserInv(String.valueOf(memberAdd.getIdLong()), itemNameToAdd)
+                            + CurrencyTools.getItemFromUserInv(memberAdd.getIdLong(), itemNameToAdd)
                             + " " + itemNameToAdd + ".")
                         .queue();
                     break;
@@ -143,12 +143,12 @@ public class ModifyItem extends SlashCmd {
                         return;
                     }
 
-                    if (CurrencyTools.getItemFromUserInv(String.valueOf(memberRemove.getIdLong()), itemNameToRemove) < removeAmount) {
+                    if (CurrencyTools.getItemFromUserInv(memberRemove.getIdLong(), itemNameToRemove) < removeAmount) {
                         hook.sendMessage(":hibiscus: You cannot take more than what they have.").queue();
                         return;
                     }
 
-                    CurrencyTools.removeItemFromUser(String.valueOf(memberRemove.getIdLong()), itemNameToRemove, removeAmount);
+                    CurrencyTools.removeItemFromUser(memberRemove.getIdLong(), itemNameToRemove, removeAmount);
             
                     hook.sendMessage(":oden: " 
                             + memberRemove.getAsMention() 
@@ -156,7 +156,7 @@ public class ModifyItem extends SlashCmd {
                             + " has taken " + removeAmount + " " + itemNameToRemove + " from " 
                             + "you" + "!\r\n"
                             + ":blueberries: You now have " 
-                            + CurrencyTools.getItemFromUserInv(String.valueOf(memberRemove.getIdLong()), itemNameToRemove)
+                            + CurrencyTools.getItemFromUserInv(memberRemove.getIdLong(), itemNameToRemove)
                             + " " + itemNameToRemove + ".")
                         .queue();
             }

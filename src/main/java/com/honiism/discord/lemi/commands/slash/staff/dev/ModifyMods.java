@@ -137,7 +137,7 @@ public class ModifyMods extends SlashCmd {
     private void viewAllIds(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         List<String> modDetails = new ArrayList<>();
-        List<String> modIds = LemiDbManager.INS.getModIds();
+        List<Long> modIds = LemiDbManager.INS.getModIds();
         List<String> modKeys = LemiDbManager.INS.getModKeys();
 
         for (int i = 0; i < modIds.size(); i++) {

@@ -26,7 +26,7 @@ import com.honiism.discord.lemi.commands.slash.currency.objects.items.Items;
 import com.honiism.discord.lemi.commands.slash.currency.objects.items.handler.EventType;
 import com.honiism.discord.lemi.commands.slash.currency.objects.items.handler.ItemType;
 import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
-import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -51,37 +51,37 @@ public class CurrencyTools {
         LemiDbBalManager.INS.addUserInvProfile(member);
     }
 
-    public static String getBalName(String guildId) {
-        return LemiDbManager.INS.getBalName(guildId);
+    public static String getBalName() {
+        return CustomEmojis.BALANCE;
     }
 
-    public static long getUserBal(String userId) {
+    public static long getUserBal(Long userId) {
         return LemiDbBalManager.INS.getUserBal(userId); 
     }
 
-    public static void addBalToUser(String userId, long balToAdd) {
+    public static void addBalToUser(Long userId, long balToAdd) {
         long userBal = getUserBal(userId);
         long balAfterAdd = userBal + balToAdd;
 
         updateUserBal(userId, balAfterAdd);
     }
 
-    public static void removeBalFromUser(String userId, long balToRemove) {
+    public static void removeBalFromUser(Long userId, long balToRemove) {
         long userBal = getUserBal(userId);
         long balAfterRemove = userBal - balToRemove;
 
         updateUserBal(userId, balAfterRemove);
     }
 
-    public static void updateUserBal(String userId, long balToUpdate) {
+    public static void updateUserBal(Long userId, long balToUpdate) {
         LemiDbBalManager.INS.updateUserBal(userId, balToUpdate);
     }
 
-    public static List<String> getOwnedItems(String userId) {
+    public static List<String> getOwnedItems(Long userId) {
         return LemiDbBalManager.INS.getOwnedItems(userId);
     }
 
-    public static long getItemFromUserInv(String userId, String itemName) {
+    public static long getItemFromUserInv(Long userId, String itemName) {
         return LemiDbBalManager.INS.getItemFromUserInv(userId, itemName);
     }
 
@@ -171,7 +171,7 @@ public class CurrencyTools {
         return eventItemsByType;
     }
 
-    public static boolean userHasItem(String userId, String itemName) {
+    public static boolean userHasItem(Long userId, String itemName) {
         for (String ownedItemData : CurrencyTools.getOwnedItems(userId)) {
             if (ownedItemData.contains(itemName)) {
                 return true;
@@ -180,33 +180,33 @@ public class CurrencyTools {
         return false;
     }
 
-    public static void addItemToUser(String userId, String itemName, long amountToAdd) {
+    public static void addItemToUser(Long userId, String itemName, long amountToAdd) {
         long userItemAmount = getItemFromUserInv(userId, itemName);
         long itemAfterAdd = userItemAmount + amountToAdd;
 
         updateItemUser(userId, itemName, itemAfterAdd);
     }
 
-    public static void updateItemUser(String userId, String itemName, long amountToUpdate) {
+    public static void updateItemUser(Long userId, String itemName, long amountToUpdate) {
         LemiDbBalManager.INS.updateItemUser(userId, itemName, amountToUpdate);
     }
 
-    public static void removeItemFromUser(String userId, String itemName, long amountToRemove) {
+    public static void removeItemFromUser(Long userId, String itemName, long amountToRemove) {
         long userItemAmount = getItemFromUserInv(userId, itemName);
         long itemAfterRemove = userItemAmount - amountToRemove;
         
         updateItemUser(userId, itemName, itemAfterRemove);
     }
 
-    public static void removeAllItems(String userId, Guild guild) {
+    public static void removeAllItems(Long userId, Guild guild) {
         LemiDbBalManager.INS.removeAllItems(userId, guild);
     }
 
-    public static void removeCurrData(String userId, Guild guild) {
+    public static void removeCurrData(Long userId, Guild guild) {
         LemiDbBalManager.INS.removeCurrData(userId, guild);
     }
 
-    public static void removeUserData(String userId, Guild guild) {
+    public static void removeUserData(Long userId, Guild guild) {
         removeAllItems(userId, guild);
         removeCurrData(userId, guild);
     }

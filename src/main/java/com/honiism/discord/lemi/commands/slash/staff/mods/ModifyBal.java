@@ -29,7 +29,6 @@ import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -83,7 +82,6 @@ public class ModifyBal extends SlashCmd {
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
             String subCmdName = event.getSubcommandName();
-            Guild guild = event.getGuild();
 
             switch (subCmdName) {
                 case "add":
@@ -101,15 +99,15 @@ public class ModifyBal extends SlashCmd {
                         return;
                     }
             
-                    CurrencyTools.addBalToUser(String.valueOf(memberToAddCurr.getIdLong()), addAmount);
+                    CurrencyTools.addBalToUser(memberToAddCurr.getIdLong(), addAmount);
             
                     hook.sendMessage(":cherry_blossom: " 
                             + memberToAddCurr.getAsMention() 
                             + ", you have received " + addAmount 
-                            + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + " from " 
+                            + " " + CurrencyTools.getBalName() + " from " 
                             + author.getAsMention() + "!\r\n"
-                            + ":blueberries: You now have " + CurrencyTools.getUserBal(String.valueOf(memberToAddCurr.getIdLong()))
-                            + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + ".")
+                            + ":blueberries: You now have " + CurrencyTools.getUserBal(memberToAddCurr.getIdLong())
+                            + " " + CurrencyTools.getBalName() + ".")
                         .queue();
                     break;
 
@@ -128,15 +126,15 @@ public class ModifyBal extends SlashCmd {
                         return;
                     }
             
-                    CurrencyTools.removeBalFromUser(String.valueOf(memberToRemoveCurr.getIdLong()), removeAmount);
+                    CurrencyTools.removeBalFromUser(memberToRemoveCurr.getIdLong(), removeAmount);
             
                     hook.sendMessage(":cherry_blossom: " 
                             + memberToRemoveCurr.getAsMention() 
                             + ", " + author.getAsMention()
                             + " has taken " + removeAmount + " " 
-                            + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + " from " + "you" + "!\r\n"
-                            + ":blueberries: You now have " + CurrencyTools.getUserBal(String.valueOf(memberToRemoveCurr.getIdLong()))
-                            + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + ".")
+                            + CurrencyTools.getBalName() + " from " + "you" + "!\r\n"
+                            + ":blueberries: You now have " + CurrencyTools.getUserBal(memberToRemoveCurr.getIdLong())
+                            + " " + CurrencyTools.getBalName() + ".")
                         .queue();
             }
         } else {

@@ -141,8 +141,7 @@ public class Tools {
         }
         
         if (stringBuilder.indexOf("%server_currency%") != -1) {
-            temp = replaceAllSb(stringBuilder, "%server_currency%",
-                    CurrencyTools.getBalName(String.valueOf(guild.getIdLong()))).toString();
+            temp = replaceAllSb(stringBuilder, "%server_currency%", CurrencyTools.getBalName()).toString();
 
             stringBuilder.setLength(0);
             stringBuilder.append(temp);
@@ -511,8 +510,7 @@ public class Tools {
             return "No aliases available!";
         }
     
-        String modifiedAliases = Arrays.stream(aliases)
-            .collect(Collectors.joining(","));
+        String modifiedAliases = Arrays.stream(aliases).collect(Collectors.joining(","));
 
         return StringUtils.replaceLast(modifiedAliases, ", ", " and ");
     }

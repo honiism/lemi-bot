@@ -29,7 +29,6 @@ import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -85,12 +84,11 @@ public class Balance extends SlashCmd {
 
             EmbedBuilder userBal = new EmbedBuilder();
 
-            Guild guild = event.getGuild();
-            long bal = CurrencyTools.getUserBal(String.valueOf(member.getIdLong()));
+            long bal = CurrencyTools.getUserBal(member.getIdLong());
 
             userBal.setDescription("‧₊੭ :cherry_blossom: " + member.getAsMention() + "'s balance ♡ ⋆｡˚\r\n"
                     + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                    + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + " " + bal)
+                    + CurrencyTools.getBalName() + " " + bal)
                 .setColor(0xffd1dc)
                 .setThumbnail(member.getUser().getAvatarUrl())
                 .setAuthor(member.getUser().getAsTag(), null, member.getUser().getAvatarUrl());

@@ -34,28 +34,25 @@ public interface LemiDbManager {
 
     // userban
     List<String> getReasons(SlashCommandInteractionEvent event);
-    List<String> getAuthorIds(SlashCommandInteractionEvent event);
-    List<String> getUserIds(SlashCommandInteractionEvent event);
+    List<Long> getAuthorIds(SlashCommandInteractionEvent event);
+    List<Long> getUserIds(SlashCommandInteractionEvent event);
     void addUserId(Member member, String reason, SlashCommandInteractionEvent event);
     void removeUserId(Member member, SlashCommandInteractionEvent event);
 
     // modifyadmins
-    List<String> getAdminIds();
+    List<Long> getAdminIds();
     List<String> getAdminKeys();
     void removeAdminId(Guild guild, Member member, SlashCommandInteractionEvent event);
     void addAdminId(Guild guild, Member member, String key, SlashCommandInteractionEvent event);
 
     // modifymods
-    List<String> getModIds();
+    List<Long> getModIds();
     List<String> getModKeys();
     void removeModId(Guild guild, Member member, SlashCommandInteractionEvent event);
     void addModId(Guild guild, Member member, String key, SlashCommandInteractionEvent event);
 
     // slashcmd
     void checkIfBanned(SlashCommandInteractionEvent event);
-
-    // currencytools
-    String getBalName(String guildId);
 
     // tools
     boolean isAuthorAdmin(User author, TextChannel channel);

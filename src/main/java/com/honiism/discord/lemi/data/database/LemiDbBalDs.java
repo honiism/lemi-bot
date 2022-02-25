@@ -173,10 +173,10 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public long getUserBal(String userId) {
+    public long getUserBal(Long userId) {
         try (PreparedStatement selectStatement =
                 getConnection().prepareStatement("SELECT wallet FROM user_balance WHERE user_id = ?")) {
-            selectStatement.setString(1, userId);
+            selectStatement.setLong(1, userId);
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
                     return rs.getLong("wallet");
@@ -190,11 +190,11 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
     
     @Override
-    public void updateUserBal(String userId, long balanceToUpdate) {
+    public void updateUserBal(Long userId, long balanceToUpdate) {
         try (PreparedStatement updateStatement =
     	        getConnection().prepareStatement("UPDATE user_balance SET wallet = ? WHERE user_id = ?")) {
     	    updateStatement.setLong(1, balanceToUpdate);
-            updateStatement.setString(2, userId);
+            updateStatement.setLong(2, userId);
             updateStatement.executeUpdate();
     	} catch (SQLException e) {
             e.printStackTrace();        
@@ -202,14 +202,14 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public List<String> getOwnedItems(String userId) {
+    public List<String> getOwnedItems(Long userId) {
         List<String> ownedItems = new ArrayList<>();
 
         for (Items item : CurrencyTools.getItems()) {
             try (PreparedStatement selectStatement =
                     getConnection().prepareStatement("SELECT * FROM user_inv WHERE user_id = ?")) {
 
-                selectStatement.setString(1, userId);
+                selectStatement.setLong(1, userId);
 
                 try (ResultSet rs = selectStatement.executeQuery()) {
                     if (rs.next()) {
@@ -230,12 +230,12 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public long getItemFromUserInv(String userId, String itemName) {
+    public long getItemFromUserInv(Long userId, String itemName) {
         String itemId = itemName.replaceAll(" ", "_");
         
         try (PreparedStatement selectStatement =
                 getConnection().prepareStatement("SELECT " + itemId + " FROM user_inv WHERE user_id = ?")) {
-            selectStatement.setString(1, userId);
+            selectStatement.setLong(1, userId);
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
                     return rs.getLong(itemId);
@@ -267,13 +267,13 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void updateItemUser(String userId, String itemName, long amountToUpdate) {
+    public void updateItemUser(Long userId, String itemName, long amountToUpdate) {
         String itemId = itemName.replaceAll(" ", "_");
 
         try (PreparedStatement updateStatement =
     	        getConnection().prepareStatement("UPDATE user_inv SET " + itemId + " = ? WHERE user_id = ?")) {
     	    updateStatement.setLong(1, amountToUpdate);
-            updateStatement.setString(2, userId);
+            updateStatement.setLong(2, userId);
             updateStatement.executeUpdate();
     	} catch (SQLException e) {
             e.printStackTrace();        
@@ -281,10 +281,10 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void removeAllItems(String userId, Guild guild) {
+    public void removeAllItems(Long userId, Guild guild) {
         try (PreparedStatement updateStatement =
     	        getConnection().prepareStatement("DELETE FROM user_inv WHERE user_id = ?")) {
-            updateStatement.setString(1, userId);
+            updateStatement.setLong(1, userId);
             updateStatement.executeUpdate();
     	} catch (SQLException e) {
             e.printStackTrace();        
@@ -304,10 +304,10 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void removeCurrData(String userId, Guild guild) {
+    public void removeCurrData(Long userId, Guild guild) {
         try (PreparedStatement updateStatement =
     	        getConnection().prepareStatement("DELETE FROM user_balance WHERE user_id = ?")) {
-            updateStatement.setString(1, userId);
+            updateStatement.setLong(1, userId);
             updateStatement.executeUpdate();
     	} catch (SQLException e) {
             e.printStackTrace();        

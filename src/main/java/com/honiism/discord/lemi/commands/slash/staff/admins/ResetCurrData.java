@@ -84,7 +84,7 @@ public class ResetCurrData extends SlashCmd {
                 return;
             }
 
-            CurrencyTools.removeUserData(String.valueOf(member.getIdLong()), guild);
+            CurrencyTools.removeUserData(member.getIdLong(), guild);
 
             hook.sendMessage(":tulip: Successfully reset the user's data.").queue();
 

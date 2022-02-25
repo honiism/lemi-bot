@@ -134,8 +134,8 @@ public class UserBan extends SlashCmd {
     private void viewAllBans(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         List<String> banDetails = new ArrayList<>();
-        List<String> authorIds = LemiDbManager.INS.getAuthorIds(event);
-        List<String> bannedUserIds = LemiDbManager.INS.getUserIds(event);
+        List<Long> authorIds = LemiDbManager.INS.getAuthorIds(event);
+        List<Long> bannedUserIds = LemiDbManager.INS.getUserIds(event);
         List<String> reasons = LemiDbManager.INS.getReasons(event);
 
         for (int i = 0; i < bannedUserIds.size(); i++) {

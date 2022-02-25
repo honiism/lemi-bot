@@ -137,7 +137,7 @@ public class ModifyAdmins extends SlashCmd {
     private void viewAllIds(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         List<String> adminDetails = new ArrayList<>();
-        List<String> adminIds = LemiDbManager.INS.getAdminIds();
+        List<Long> adminIds = LemiDbManager.INS.getAdminIds();
         List<String> adminKeys = LemiDbManager.INS.getAdminKeys();
 
         for (int i = 0; i < adminIds.size(); i++) {

@@ -25,15 +25,15 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 public class EmbedUtils {
-    public static final int DEFAULT_COLOR = 0xffd1dc;
+    private static final int DEFAULT_COLOR = 0xffd1dc;
 
-    public static final int SUCCESS_COLOR = 0x3EB489;
-    public static final int ERROR_COLOR = 0xc30a06;
-    public static final int WARNING_COLOR = 0xFFEA17;
+    private static final int SUCCESS_COLOR = 0x3EB489;
+    private static final int ERROR_COLOR = 0xc30a06;
+    private static final int WARNING_COLOR = 0xFFEA17;
 
-    public static final String SUCCESS_UNICODE = Emojis.CHECK_MARK;
-    public static final String ERROR_UNICODE = Emojis.CROSS_MARK;
-    public static final String WARNING_UNICODE = Emojis.EXCLAMATION_MARK;
+    private static final String SUCCESS_UNICODE = Emojis.CHECK_MARK;
+    private static final String ERROR_UNICODE = Emojis.CROSS_MARK;
+    private static final String WARNING_UNICODE = Emojis.EXCLAMATION_MARK;
 
     public static MessageEmbed getSimpleEmbed(CharSequence content) {
         return new EmbedBuilder()

@@ -88,8 +88,8 @@ public class LemiDbDs implements LemiDbManager {
             // guild_settings
             statement.execute("CREATE TABLE IF NOT EXISTS guild_settings ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "guild_id VARCHAR(20) NOT NULL DEFAULT '0',"
-                    + "balance_name VARCHAR(20) NOT NULL DEFAULT '<:coin_hs_nosteal:932137408282103818>'"
+                    + "guild_id VARCHAR(20) NOT NULL,"
+                    + "dj_role_id VARCHAR(20) NOT NULL DEFAULT '0'"
                     + ");"
             );
     
@@ -189,9 +189,9 @@ public class LemiDbDs implements LemiDbManager {
     }
 
     @Override
-    public List<String> getAuthorIds(SlashCommandInteractionEvent event) {
+    public List<Long> getAuthorIds(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        List<String> authorIds = new ArrayList<>();
+        List<Long> authorIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT author_id FROM banned_users")) {
@@ -200,7 +200,7 @@ public class LemiDbDs implements LemiDbManager {
                 hook.sendMessage(":cherry_blossom: Fetching all the author (admin) ids...").queue();
 
                 while (rs.next()) {
-                    authorIds.add(rs.getString("author_id"));
+                    authorIds.add(rs.getLong("author_id"));
                 }
 
                 hook.editOriginal(":grapes: Fetching complete.").queue();
@@ -245,9 +245,9 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getUserIds(SlashCommandInteractionEvent event) {
+    public List<Long> getUserIds(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        List<String> userIds = new ArrayList<>();
+        List<Long> userIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT user_id FROM banned_users")) {
@@ -256,7 +256,7 @@ public class LemiDbDs implements LemiDbManager {
                 hook.editOriginal(":cherry_blossom: Fetching all the user ids...").queue();
 
                 while (rs.next()) {
-                    userIds.add(rs.getString("user_id"));
+                    userIds.add(rs.getLong("user_id"));
                 }
 
                 hook.editOriginal(":grapes: Fetching complete.").queue();
@@ -447,18 +447,18 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getAdminIds() {
-        List<String> adminIds = new ArrayList<>();
+    public List<Long> getAdminIds() {
+        List<Long> adminIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT admin_ids FROM admin_mod_ids")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
                 while (rs.next()) {
-                    if (rs.getString("admin_ids").equals("0")) {
+                    if (rs.getLong("admin_ids") == 0) {
                         continue;
                     }
-                    adminIds.add(rs.getString("admin_ids"));
+                    adminIds.add(rs.getLong("admin_ids"));
                 }
             }
 
@@ -732,18 +732,18 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getModIds() {
-        List<String> modIds = new ArrayList<>();
+    public List<Long> getModIds() {
+        List<Long> modIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT mod_ids FROM admin_mod_ids")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
                 while (rs.next()) {
-                    if (rs.getString("mod_ids").equals("0")) {
+                    if (rs.getLong("mod_ids") == 0) {
                         continue;
                     }
-                    modIds.add(rs.getString("mod_ids"));
+                    modIds.add(rs.getLong("mod_ids"));
                 }
             }
 
@@ -1110,25 +1110,6 @@ public class LemiDbDs implements LemiDbManager {
                         + "```")
                 .queue();
         }
-    }
-
-    @Override
-    public String getBalName(String guildId) {
-        try (Connection conn = getConnection();
-                PreparedStatement selectStatement =
-                        conn.prepareStatement("SELECT balance_name FROM guild_settings WHERE guild_id = ?")) {
-            selectStatement.setString(1, guildId);
-            
-            try (ResultSet rs = selectStatement.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("balance_name");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
 
     @Override

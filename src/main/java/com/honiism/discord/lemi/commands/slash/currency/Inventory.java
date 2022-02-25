@@ -95,7 +95,7 @@ public class Inventory extends SlashCmd {
                 return;
             }
 
-            if (Tools.isEmpty(CurrencyTools.getOwnedItems(String.valueOf(member.getIdLong())))) {
+            if (Tools.isEmpty(CurrencyTools.getOwnedItems(member.getIdLong()))) {
                 hook.editOriginal(":fish_cake: This user has no items! Sadge :(").queue();
                 return;
             }
@@ -104,7 +104,7 @@ public class Inventory extends SlashCmd {
                 .setEventWaiter(Lemi.getInstance().getEventWaiter())
                 .setItemsPerPage(10)
                 .setTimeout(1, TimeUnit.MINUTES)
-                .setItems(CurrencyTools.getOwnedItems(String.valueOf(member.getIdLong())))
+                .setItems(CurrencyTools.getOwnedItems(member.getIdLong()))
                 .useNumberedItems(true)
                 .useTimestamp(true)
                 .addAllowedUsers(author.getIdLong())
