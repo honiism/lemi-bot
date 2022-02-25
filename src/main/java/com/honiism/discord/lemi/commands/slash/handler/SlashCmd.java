@@ -24,7 +24,6 @@ import java.util.List;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
@@ -50,8 +49,6 @@ public abstract class SlashCmd implements ISlashCmd {
 
     @Override
     public void executeAction(SlashCommandInteractionEvent event) {
-        LemiDbManager.INS.checkIfBanned(event);
-
         InteractionHook hook = event.getHook();
 
         if (getUserCategory().equals(UserCategory.DEV) 

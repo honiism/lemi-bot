@@ -48,36 +48,25 @@ public class GuildListener extends ListenerAdapter {
         Guild guild = event.getGuild();
         Long guildId = guild.getIdLong();
 
-        if (!guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))) {
-            String joinedLogMsg = "--------------------------\r\n"
+        if (guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))
+                || guildId.equals(Long.parseLong(Config.get("test_server")))) {
+            return;
+        }
+
+        String joinedLogMsg = "--------------------------\r\n"
                 +  "**LEMI JOINED A SERVER!**\r\n"
                 + "**Guild id :** " + guild.getIdLong() + "\r\n"
                 + "**Guild name :** " + guild.getName() + "\r\n";
 
-            log.info(joinedLogMsg.toString());
+        log.info(joinedLogMsg.toString());
 
-            Lemi.getInstance().getShardManager()
-                .getGuildById(Config.get("honeys_sweets_id"))
-                .getTextChannelById(Config.get("logs_channel_id"))
-                .sendMessage(joinedLogMsg)
-	        .queue();
-        }
+        Lemi.getInstance().getShardManager()
+            .getGuildById(Config.get("honeys_sweets_id"))
+            .getTextChannelById(Config.get("logs_channel_id"))
+            .sendMessage(joinedLogMsg)
+	    .queue();
 
-        LemiDbManager.INS.insertGuildSettings(guild);
-
-        BaseListener.getJDA().retrieveCommands().queue(
-            (globalCmds) -> {
-                Lemi.getInstance().updateCmdPrivileges(guild, globalCmds);
-            }
-        );
-
-        guild.retrieveCommands().queue(
-            (guildCmds) -> {
-                if (guildCmds.isEmpty() || guildCmds != null) {
-                    Lemi.getInstance().updateCmdPrivileges(guild, guildCmds);
-                }
-            }
-        );
+        guild.leave().queue();
     }
 
     @Override

@@ -20,7 +20,9 @@
 package com.honiism.discord.lemi.listeners;
 
 import com.honiism.discord.lemi.Lemi;
+import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.currency.CurrencyTools;
+import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -29,10 +31,18 @@ public class SlashCmdListener extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        if (Lemi.getInstance().isDebug() && !Lemi.getInstance().isWhitelisted(event.getMember().getIdLong())) {
-            event.reply(":no_entry_sign: The bot is currently in debug mode and only whitelisted users can execute commands.").queue();
+        if (Lemi.getInstance().isDebug() && !Tools.isAuthorMod(event.getMember(), event)) {
+            event.getHook().sendMessage(":no_entry_sign: The bot is currently in debug mode and only whitelisted users can execute commands.").queue();
             return;
         }
+
+        event.deferReply().queue();
+
+        if (!event.isFromGuild() || event.getMember().getUser().isBot()) {
+            return;
+        }
+
+        LemiDbManager.INS.checkIfBanned(event);
 
         if (!CurrencyTools.userHasCurrProfile(event.getMember()) && !event.getMember().getUser().isBot()) {
             CurrencyTools.addAllProfiles(event.getMember());

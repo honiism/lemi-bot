@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -65,6 +66,14 @@ public class MessageListener extends ListenerAdapter {
 
     private void onGuildMessageReceived(MessageReceivedEvent event) {
         Member member = event.getMember();
+        Guild guild = event.getGuild();
+        Long guildId = guild.getIdLong();
+
+        if (!guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))
+                && !guildId.equals(Long.parseLong(Config.get("test_server")))) {
+            guild.leave().queue();
+            return;
+        }
         
         if (member == null || member.getUser().isBot() || event.isWebhookMessage()) {
             return;
