@@ -80,7 +80,7 @@ public class ModsTopLevel extends SlashCmd {
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override

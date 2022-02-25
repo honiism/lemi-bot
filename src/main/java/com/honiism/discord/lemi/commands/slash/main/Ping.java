@@ -47,7 +47,7 @@ public class Ping extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override

@@ -75,7 +75,7 @@ public class Compile extends SlashCmd {
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        setGlobal(true);
+        
     }
 
     @Override

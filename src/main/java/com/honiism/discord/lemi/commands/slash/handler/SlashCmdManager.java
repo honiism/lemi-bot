@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -66,8 +67,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 
 public class SlashCmdManager {
 
@@ -159,28 +160,18 @@ public class SlashCmdManager {
         allSlashCmds.add(modsTopLevelCmd);
         allSlashCmds.add(currencyTopLevelCmd);
 
-        CommandListUpdateAction commands = Lemi.getInstance().getShardManager()
+        List<CommandData> cmdsToAdd = commandsMap.values().stream().map(ISlashCmd::getCommandData).collect(Collectors.toList());
+
+        Lemi.getInstance().getShardManager()
             .getGuildById(Config.get("honeys_sweets_id"))
-            .updateCommands();
-
-        commands.addCommands(
-                devTopLevelCmd.getCommandData(),
-                adminsTopLevelCmd.getCommandData(),
-                modsTopLevelCmd.getCommandData(),
-
-                currencyTopLevelCmd.getCommandData(),
-
-                helpCmd.getCommandData(),
-                pingCmd.getCommandData(),
-                donateCmd.getCommandData()
-        );
-
-        commands.queue((cmds) -> {
-            updateCmdPrivileges(
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id")),
-                    cmds
-            );
-        });
+            .updateCommands()
+            .addCommands(cmdsToAdd)
+            .queue((cmds) -> {
+                updateCmdPrivileges(
+                        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id")),
+                        cmds
+                );
+            });
     }
 
     private void updateCmdPrivileges(Guild guild, List<Command> cmds) {
