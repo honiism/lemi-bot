@@ -94,16 +94,32 @@ public class GuildListener extends ListenerAdapter {
 
     @Override
     public void onGuildTimeout(GuildTimeoutEvent event) {
-        String logMessage = "A guild has failed to load and timeout.\r\n"
+        if (event.getGuildIdLong() == Config.getLong("honeys_sweets_id")) {
+            BaseListener.getJDA().retrieveUserById(Config.getLong("dev_id")).queue(
+                (dev) -> {
+                    dev.openPrivateChannel().queue(
+                        (channel) -> {
+                            channel.sendMessage("HONEY'S SWEETS GUILD HAS FAILED TO LOAD!").queue();
+                            log.error("HONEY'S SWEETS GUILD HAS FAILED TO LOAD!");
+                        },
+                        (error) -> {
+                            log.error("HONEY'S SWEETS GUILD HAS FAILED TO LOAD!");
+                        }
+                    );
+                }
+            );
+        } else {
+            String logMessage = "A guild has failed to load and timeout.\r\n"
                 + "Guild id : " + event.getGuildId() + "\r\n"
                 + "Response number : " + event.getResponseNumber();
 
-        log.error(logMessage);
+            log.error(logMessage);
         
-        Lemi.getInstance().getShardManager()
-            .getGuildById(Config.get("honeys_sweets_id"))
-            .getTextChannelById(Config.get("logs_channel_id"))
-            .sendMessage(logMessage)
-	    .queue();
+            Lemi.getInstance().getShardManager()
+                .getGuildById(Config.get("honeys_sweets_id"))
+                .getTextChannelById(Config.get("logs_channel_id"))
+                .sendMessage(logMessage)
+	        .queue();   
+        }
     }
 }
