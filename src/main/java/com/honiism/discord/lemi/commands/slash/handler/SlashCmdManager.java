@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.slash.staff.admins.Embed;
@@ -74,13 +72,14 @@ public class SlashCmdManager {
 
     private static final Logger log = LoggerFactory.getLogger(SlashCmdManager.class);
 
-    private static Multimap<CommandCategory, ISlashCmd> cmdsByCategory = ArrayListMultimap.create();
+    private static Map<CommandCategory, List<ISlashCmd>> cmdsByCategory = new HashMap<>();
     
     private List<ISlashCmd> allSlashCmds = new ArrayList<>();
     private Map<String, ISlashCmd> commandsMap = new HashMap<>();
 
     public void initialize() {
         registerAllCmds();
+        updateCmdCategory();
     }
 
     public void registerAllCmds() {
@@ -128,8 +127,6 @@ public class SlashCmdManager {
 
         // currency
         registerCmd(currencyTopLevelCmd);
-
-        updateCmdCategory();
 
         allSlashCmds.add(shutdownCmd);
         allSlashCmds.add(helpCmd);
@@ -228,8 +225,13 @@ public class SlashCmdManager {
     }
 
     private void updateCmdCategory() {
-        for (ISlashCmd cmd : commandsMap.values()) {
-            cmdsByCategory.put(cmd.getCategory(), cmd);
+        for (CommandCategory category : CommandCategory.values()) {
+            cmdsByCategory.put(category,
+                    commandsMap.values()
+                        .stream()
+                        .filter(cmd -> cmd.getCategory().equals(category))
+                        .collect(Collectors.toList())
+            );
         }
         log.info("Updated all commands according to it's categories.");
     }
