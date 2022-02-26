@@ -50,7 +50,7 @@ public class Inventory extends SlashCmd {
     public Inventory() {
         setCommandData(Commands.slash("inventory", "Shows the inventory of a user.")
                 .addOptions(
-                        new OptionData(OptionType.USER, "user", "The user you want to see the inventory of.", true),
+                        new OptionData(OptionType.USER, "user", "The user you want to see the inventory of.", false),
                         new OptionData(OptionType.INTEGER, "page", "Page of the help menu.", false)
                 )
         );
@@ -81,19 +81,7 @@ public class Inventory extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            OptionMapping helpOption = event.getOption("help");
-
-            if (helpOption != null && helpOption.getAsBoolean()) {
-                hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                return;
-            }
-
-            Member member = event.getOption("user").getAsMember();
-
-            if (member == null) {
-                hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
-                return;
-            }
+            Member member = event.getOption("user", event.getMember(), OptionMapping::getAsMember);
 
             if (Tools.isEmpty(CurrencyTools.getOwnedItems(member.getIdLong()))) {
                 hook.editOriginal(":fish_cake: This user has no items! Sadge :(").queue();
@@ -110,18 +98,12 @@ public class Inventory extends SlashCmd {
                 .addAllowedUsers(author.getIdLong())
                 .setEmbedDesc("‧₊੭ :tulip: " + member.getAsMention() + "'s inventory ♡ ⋆｡˚")
                 .setColor(0xffd1dc)
-                .setThumbnail(member.getUser().getAvatarUrl());
+                .setThumbnail(member.getUser().getEffectiveAvatarUrl());
 
-            int page = 1;
-
-            if (event.getOption("page") != null) {
-                page = (int) event.getOption("page").getAsLong();
-            }
-
-            int finalPage = page;
+            int page = event.getOption("page", 1, OptionMapping::getAsInt);
 
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":snowflake: Loaded!"))
-                .queue(message -> builder.build().paginate(message, finalPage));
+                .queue(message -> builder.build().paginate(message, page));
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
                 

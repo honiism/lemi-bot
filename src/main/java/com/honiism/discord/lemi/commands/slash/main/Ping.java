@@ -85,7 +85,7 @@ public class Ping extends SlashCmd {
                         .addField("**Total shards**" + CustomEmojis.PINK_DASH,  
                                 "`" + Lemi.getInstance().getShardManager().getShardsTotal() + "`",
                                 false)
-                        .setThumbnail(event.getGuild().getSelfMember().getUser().getAvatarUrl())
+                        .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
                         .setColor(0xffd1dc);
 
                     hook.sendMessageEmbeds(pingEmbed.build()).queue();

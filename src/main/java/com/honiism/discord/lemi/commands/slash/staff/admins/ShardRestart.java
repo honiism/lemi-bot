@@ -50,9 +50,7 @@ public class ShardRestart extends SlashCmd {
     public ShardRestart() {
         setCommandData(Commands.slash("shardrestart", "Restart a shard if it gets stuck.")
                 .addOptions(
-                        new OptionData(OptionType.INTEGER, "shard_id",
-                                "The shard id to restart (Skip this option to reset all the shards).",
-                                false)
+                        new OptionData(OptionType.INTEGER, "shard_id", "The shard id to restart", false)
                 )
         );
 
@@ -82,9 +80,9 @@ public class ShardRestart extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            OptionMapping shardIdOption = event.getOption("shard_id");
+            Integer shardId = event.getOption("shard_id", OptionMapping::getAsInt);
 
-            if (shardIdOption == null) {
+            if (shardId == null) {
                 log.info(author.getIdLong() + " is restarting all the shards.");
 
                 hook.sendMessage(":tulip: Restarting all the shards, see you in a bit :).").queue();
@@ -98,17 +96,17 @@ public class ShardRestart extends SlashCmd {
                         }
                     );
                         
-            } else if (shardIdOption != null && shardIdOption.getAsLong() < Lemi.getInstance().getShardManager().getShardsTotal()) {
-                log.info(author.getIdLong() + " is restarting the shard(" + shardIdOption.getAsLong() +").");
+            } else if (shardId != null && shardId < Lemi.getInstance().getShardManager().getShardsTotal()) {
+                log.info(author.getIdLong() + " is restarting the shard(" + shardId +").");
                 
-                hook.sendMessage(":tulip: Restarting the shard(" + shardIdOption.getAsLong() + "), see you in a bit :).").queue();
+                hook.sendMessage(":tulip: Restarting the shard(" + shardId + "), see you in a bit :).").queue();
 
                 Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
                     .getTextChannelById(Config.get("logs_channel_id"))
-                    .sendMessage(author.getAsMention() + " is restarting the shard(" + shardIdOption.getAsLong() +").")
+                    .sendMessage(author.getAsMention() + " is restarting the shard(" + shardId +").")
                     .queue(
                         (success) -> {
-                            Lemi.getInstance().getShardManager().restart((int) shardIdOption.getAsLong());
+                            Lemi.getInstance().getShardManager().restart(shardId);
                         }
                     );
             }

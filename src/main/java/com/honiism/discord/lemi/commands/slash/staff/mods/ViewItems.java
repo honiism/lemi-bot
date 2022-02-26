@@ -39,6 +39,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -102,16 +103,10 @@ public class ViewItems extends SlashCmd {
                 .setColor(0xffd1dc)
                 .setTimeout(1, TimeUnit.MINUTES);
 
-            int page = 1;
-
-            if (event.getOption("page") != null) {
-                page = (int) event.getOption("page").getAsLong();
-            }
-
-            int finalPage = page;
+            int page = event.getOption("page", 1, OptionMapping::getAsInt);
 
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":seedling: Loading..."))
-                .queue(message -> builder.build().paginate(message, finalPage));
+                .queue(message -> builder.build().paginate(message, page));
                 
         } else {
             String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);

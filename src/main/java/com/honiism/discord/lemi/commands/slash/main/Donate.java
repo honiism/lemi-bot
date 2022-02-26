@@ -71,7 +71,7 @@ public class Donate extends SlashCmd {
                                 + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
                                 + "Click [here](https://www.paypal.me/artbyhoneyz) to donate!")
                 .setFooter("Thanks for the support! ꒱ੈ♡˳")
-                .setThumbnail(event.getGuild().getSelfMember().getUser().getAvatarUrl())
+                .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
 
             hook.sendMessageEmbeds(donateEmbed.build())

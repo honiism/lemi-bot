@@ -57,6 +57,7 @@ import com.honiism.discord.lemi.commands.slash.staff.mods.ModsTopLevel;
 import com.honiism.discord.lemi.commands.slash.staff.mods.ShardStatus;
 import com.honiism.discord.lemi.commands.slash.staff.mods.Test;
 import com.honiism.discord.lemi.commands.slash.staff.mods.ViewItems;
+import com.honiism.discord.lemi.utils.misc.Tools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -259,7 +260,7 @@ public class SlashCmdManager {
     public List<String> getCmdNamesByCategory(Collection<ISlashCmd> cmdsByCategory) {
         List<String> cmdNames = new ArrayList<>();
 
-        if (cmdsByCategory.isEmpty()) {
+        if (Tools.isEmpty(cmdNames)) {
             cmdNames.add("No commands for this category yet.");
             return cmdNames;
         }

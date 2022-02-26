@@ -34,6 +34,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -76,7 +77,7 @@ public class ResetCurrData extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Member member = event.getOption("user").getAsMember();
+            Member member = event.getOption("user", OptionMapping::getAsMember);
             Guild guild = event.getGuild();
 
             if (member == null) {

@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -45,7 +46,7 @@ public class Balance extends SlashCmd {
     public Balance() {
         setCommandData(Commands.slash("balance", "Shows the balance of a user.")
                 .addOptions(
-                        new OptionData(OptionType.USER, "user", "The user you want to see the balance of.", true)
+                        new OptionData(OptionType.USER, "user", "The user you want to see the balance of.", false)
                 )
         );
         
@@ -75,23 +76,17 @@ public class Balance extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Member member = event.getOption("user").getAsMember();
-
-            if (member == null) {
-                hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
-                return;
-            }
-
+            Member member = event.getOption("user", event.getMember(), OptionMapping::getAsMember);
             EmbedBuilder userBal = new EmbedBuilder();
-
+            
             long bal = CurrencyTools.getUserBal(member.getIdLong());
 
             userBal.setDescription("‧₊੭ :cherry_blossom: " + member.getAsMention() + "'s balance ♡ ⋆｡˚\r\n"
                     + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
                     + CurrencyTools.getBalName() + " " + bal)
                 .setColor(0xffd1dc)
-                .setThumbnail(member.getUser().getAvatarUrl())
-                .setAuthor(member.getUser().getAsTag(), null, member.getUser().getAvatarUrl());
+                .setThumbnail(member.getUser().getEffectiveAvatarUrl())
+                .setAuthor(member.getUser().getAsTag(), null, member.getUser().getEffectiveAvatarUrl());
 
             hook.sendMessageEmbeds(userBal.build()).queue();
         } else {

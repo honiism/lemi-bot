@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -79,7 +80,7 @@ public class ManageItems extends SlashCmd {
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
             String subCmdName = event.getSubcommandName();
-            String itemName = event.getOption("item_name").getAsString();
+            String itemName = event.getOption("item_name", OptionMapping::getAsString);
 
             switch (subCmdName) {
                 case "add":
@@ -88,7 +89,7 @@ public class ManageItems extends SlashCmd {
                         return;
                     }
 
-                    if (CurrencyTools.getItemsByName(itemName).get(0) == null) {
+                    if (Tools.isEmpty(CurrencyTools.getItemsByName(itemName))) {
                         hook.sendMessage(":sunflower: You haven't added this item in the internal list manually.").queue();
                         return;
                     }

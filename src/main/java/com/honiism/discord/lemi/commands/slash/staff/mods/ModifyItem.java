@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -87,21 +88,21 @@ public class ModifyItem extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
-                    int addAmount = (int) event.getOption("amount").getAsLong();
+                    long addAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
                     if (addAmount < 0 || addAmount == 0) {
                         hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of item.").queue();
                         return;
                     }
 
-                    String itemNameToAdd = event.getOption("item_name").getAsString();
+                    String itemNameToAdd = event.getOption("item_name", OptionMapping::getAsString);
 
                     if (!CurrencyTools.checkIfItemExists(itemNameToAdd)) {
                         hook.sendMessage(":tea: That item does not exist.").queue();
                         return;
                     }
 
-                    Member memberAdd = event.getOption("user").getAsMember();
+                    Member memberAdd = event.getOption("user", OptionMapping::getAsMember);
 
                     if (memberAdd == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
@@ -122,21 +123,21 @@ public class ModifyItem extends SlashCmd {
                     break;
 
                 case "remove":
-                    int removeAmount = (int) event.getOption("amount").getAsLong();
+                    long removeAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
                     if (removeAmount < 0 || removeAmount == 0) {
                         hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of items").queue();
                         return;
                     }
 
-                    String itemNameToRemove = event.getOption("item_name").getAsString();
+                    String itemNameToRemove = event.getOption("item_name", OptionMapping::getAsString);
 
                     if (!CurrencyTools.checkIfItemExists(itemNameToRemove)) {
                         hook.sendMessage(":tea: That item does not exist.").queue();
                         return;
                     }
 
-                    Member memberRemove = event.getOption("user").getAsMember();
+                    Member memberRemove = event.getOption("user", OptionMapping::getAsMember);
 
                     if (memberRemove == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();

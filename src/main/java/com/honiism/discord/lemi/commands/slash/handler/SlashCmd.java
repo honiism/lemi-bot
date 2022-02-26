@@ -70,7 +70,7 @@ public abstract class SlashCmd implements ISlashCmd {
                 .setDescription(":cherries: **WAIT!**\r\n"
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + ":sunflower:" + event.getMember().getAsMention() + "\r\n"
                         + "> You don't have the " + getUserPermsString())
-                .setThumbnail(event.getUser().getAvatarUrl())
+                .setThumbnail(event.getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
             
             hook.sendMessageEmbeds(needUserPermsMsg.build()).queue();
@@ -83,7 +83,7 @@ public abstract class SlashCmd implements ISlashCmd {
                 .setDescription(":cherries: **WAIT!**\r\n"
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + event.getMember().getAsMention() + "\r\n" 
                         + getBotPermsString())
-                .setThumbnail(event.getGuild().getSelfMember().getUser().getAvatarUrl())
+                .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
 
             hook.sendMessageEmbeds(needUserPermsMsg.build()).queue();
@@ -231,7 +231,7 @@ public abstract class SlashCmd implements ISlashCmd {
                     "`" + getUserPermsString() + "`", false)
             .addField(":cake: **Bot permissions needed**" + CustomEmojis.PINK_DASH,
                     "`" + getBotPermsString() + "`", false)
-            .setThumbnail(event.getGuild().getSelfMember().getUser().getAvatarUrl())
+            .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
             .setColor(0xffd1dc);
 
         return helpEmbed.build();
@@ -260,7 +260,7 @@ public abstract class SlashCmd implements ISlashCmd {
                     "`" + getUserPermsString() + "`", false)
             .addField(":cake: **Bot permissions needed**" + CustomEmojis.PINK_DASH,
                     "`" + getBotPermsString() + "`", false)
-            .setThumbnail(event.getGuild().getSelfMember().getUser().getAvatarUrl())
+            .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
             .setColor(0xffd1dc);
 
         return helpEmbed;

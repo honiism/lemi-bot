@@ -40,6 +40,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -94,8 +95,8 @@ public class ModifyAdmins extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
-                    Member memberToAdd = event.getOption("user").getAsMember();
-                    String keyToAdd = event.getOption("key").getAsString();
+                    Member memberToAdd = event.getOption("user", OptionMapping::getAsMember);
+                    String keyToAdd = event.getOption("key", OptionMapping::getAsString);
 
                     if (memberToAdd == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
@@ -106,7 +107,7 @@ public class ModifyAdmins extends SlashCmd {
                     break;
 
                 case "remove":
-                    Member memberToRemove = event.getOption("user").getAsMember();
+                    Member memberToRemove = event.getOption("user", OptionMapping::getAsMember);
 
                     if (memberToRemove == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();

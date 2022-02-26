@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -85,14 +86,14 @@ public class ModifyBal extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
-                    int addAmount = (int) event.getOption("amount").getAsLong();
+                    long addAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
                     if (addAmount < 0 || addAmount == 0) {
                         hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of currency.").queue();
                         return;
                     } 
                         
-                    Member memberToAddCurr = event.getOption("user").getAsMember();
+                    Member memberToAddCurr = event.getOption("user", OptionMapping::getAsMember);
 
                     if (memberToAddCurr == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
@@ -112,14 +113,14 @@ public class ModifyBal extends SlashCmd {
                     break;
 
                 case "remove":
-                    int removeAmount = (int) event.getOption("amount").getAsLong();
+                    long removeAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
                     if (removeAmount < 0 || removeAmount == 0) {
                         hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of currency.").queue();
                         return;
                     } 
                         
-                    Member memberToRemoveCurr = event.getOption("user").getAsMember();
+                    Member memberToRemoveCurr = event.getOption("user", OptionMapping::getAsMember);
 
                     if (memberToRemoveCurr == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();

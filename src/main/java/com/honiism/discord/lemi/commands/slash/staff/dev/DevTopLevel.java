@@ -80,7 +80,7 @@ public class DevTopLevel extends SlashCmd {
         String subCmdName = event.getSubcommandName();
 
         if (subCmdGroupName != null) {
-            switch (subCmdName) {
+            switch (subCmdGroupName) {
                 case "modifyadmins":
                     this.modifyAdminsGroup.action(event);
                     break;
