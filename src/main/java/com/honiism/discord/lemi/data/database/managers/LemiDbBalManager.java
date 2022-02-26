@@ -24,16 +24,15 @@ import java.util.List;
 import com.honiism.discord.lemi.data.database.LemiDbBalDs;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public interface LemiDbBalManager {
     LemiDbBalManager INS = new LemiDbBalDs();
 
     // currency
-    boolean userHasCurrProfile(Member member);
-    void addUserCurrProfile(Member member);
-    void addUserInvProfile(Member member);
+    boolean userHasCurrProfile(long userId);
+    void addUserCurrProfile(long userId);
+    void addUserInvProfile(long userId);
     long getUserBal(Long userId);
     void updateUserBal(Long userId, long balToUpdate);
     List<String> getOwnedItems(Long userId);

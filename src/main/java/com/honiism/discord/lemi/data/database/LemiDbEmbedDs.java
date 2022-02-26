@@ -55,24 +55,24 @@ import net.dv8tion.jda.internal.JDAImpl;
 public class LemiDbEmbedDs implements LemiDbEmbedManager {
     
     private static final Logger log = LoggerFactory.getLogger(LemiDbEmbedDs.class);
-    private HikariDataSource ds;
+    private final HikariDataSource dataSource;
 
     public LemiDbEmbedDs() {
         try {
-            File lemiDBFile = new File("LemiEmbedDB.db");
+            File lemiDBFile = new File("LemiEmbedDb.db");
 
             if (!lemiDBFile.exists()) {
                 if (lemiDBFile.createNewFile()) {
-                    log.info("Created a database file (LemiEmbedDB.db)");
+                    log.info("Created a database file (LemiEmbedDb.db)");
                 } else {
                     log.error("Failed to create a database file.");
                 }
             } else {
-                log.info("Connected to LemiEmbedDB.db database file.");
+                log.info("Connected to LemiEmbedDb.db database file.");
             }
         } catch (IOException e) {
             log.error("\r\nSomething unexpected went wrong while trying to "
-                    + "connect / create LemiEmbedDB.db file\r\n"
+                    + "connect / create LemiEmbedDb.db file\r\n"
                     + "Error : IOException\r\n"
                     + "\r\n");
 
@@ -81,15 +81,14 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
 
         HikariConfig config = new HikariConfig();
 
-        config.setJdbcUrl("jdbc:sqlite:LemiEmbedDB.db");
-	config.setConnectionTestQuery("SELECT 1");
-	config.addDataSourceProperty("cachePrepStmts", "true");
-	config.addDataSourceProperty("prepStmtCacheSize", "250");
-	config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        config.setMaximumPoolSize(20);
+        config.setJdbcUrl("jdbc:sqlite:LemiEmbedDb.db");
+        config.setConnectionTestQuery("SELECT 1");
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.setConnectionTimeout(300000);
-	
-        ds = new HikariDataSource(config);
+
+        dataSource = new HikariDataSource(config);
 
         try (Statement statement = getConnection().createStatement()) {
             // saved_embeds
@@ -114,7 +113,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
     }
 
     private Connection getConnection() throws SQLException {
-	return ds.getConnection();
+	return dataSource.getConnection();
     }
 
     @Override

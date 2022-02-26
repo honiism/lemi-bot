@@ -123,7 +123,7 @@ public class ModifyItem extends SlashCmd {
                     break;
 
                 case "remove":
-                    long removeAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
+                    long removeAmount = event.getOption("amount", OptionMapping::getAsLong);
 
                     if (removeAmount < 0 || removeAmount == 0) {
                         hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of items").queue();

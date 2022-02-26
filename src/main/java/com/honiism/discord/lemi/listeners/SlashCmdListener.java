@@ -31,12 +31,14 @@ public class SlashCmdListener extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
+
         if (Lemi.getInstance().isDebug() && !Tools.isAuthorMod(event.getMember(), event)) {
-            event.getHook().sendMessage(":no_entry_sign: The bot is currently in debug mode and only whitelisted users can execute commands.").queue();
+            event.getHook().sendMessage(":no_entry_sign: "
+                    + "The bot is currently in debug mode and only whitelisted users can execute commands.")
+                .queue();
             return;
         }
-
-        event.deferReply().queue();
 
         if (!event.isFromGuild() || event.getMember().getUser().isBot()) {
             return;
@@ -44,10 +46,10 @@ public class SlashCmdListener extends ListenerAdapter {
 
         LemiDbManager.INS.checkIfBanned(event);
 
-        if (!CurrencyTools.userHasCurrProfile(event.getMember()) && !event.getMember().getUser().isBot()) {
-            CurrencyTools.addAllProfiles(event.getMember());
+        if (!CurrencyTools.userHasCurrProfile(event.getMember().getIdLong())) {
+            CurrencyTools.addAllProfiles(event.getMember().getIdLong());    
         }
-        
+
         Lemi.getInstance().getSlashCmdManager().handle(event);
     }
 }

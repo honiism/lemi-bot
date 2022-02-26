@@ -29,26 +29,25 @@ import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public class CurrencyTools {
 
-    public static boolean userHasCurrProfile(Member member) {
-        return LemiDbBalManager.INS.userHasCurrProfile(member);
+    public static boolean userHasCurrProfile(long userId) {
+        return LemiDbBalManager.INS.userHasCurrProfile(userId);
     }
 
-    public static void addAllProfiles(Member member) {
-        addUserCurrProfile(member);
-        addUserInvProfile(member);
+    public static void addAllProfiles(long userId) {
+        addUserCurrProfile(userId);
+        addUserInvProfile(userId);
     }
 
-    public static void addUserCurrProfile(Member member) {
-        LemiDbBalManager.INS.addUserCurrProfile(member);
+    public static void addUserCurrProfile(long userId) {
+        LemiDbBalManager.INS.addUserCurrProfile(userId);
     }
 
-    public static void addUserInvProfile(Member member) {
-        LemiDbBalManager.INS.addUserInvProfile(member);
+    public static void addUserInvProfile(long userId) {
+        LemiDbBalManager.INS.addUserInvProfile(userId);
     }
 
     public static String getBalName() {
@@ -56,10 +55,17 @@ public class CurrencyTools {
     }
 
     public static long getUserBal(Long userId) {
+        if (!userHasCurrProfile(userId)) {
+            addAllProfiles(userId);
+        }
         return LemiDbBalManager.INS.getUserBal(userId); 
     }
 
     public static void addBalToUser(Long userId, long balToAdd) {
+        if (!userHasCurrProfile(userId)) {
+            addAllProfiles(userId);
+        }
+        
         long userBal = getUserBal(userId);
         long balAfterAdd = userBal + balToAdd;
 
@@ -67,6 +73,10 @@ public class CurrencyTools {
     }
 
     public static void removeBalFromUser(Long userId, long balToRemove) {
+        if (!userHasCurrProfile(userId)) {
+            addAllProfiles(userId);
+        }
+
         long userBal = getUserBal(userId);
         long balAfterRemove = userBal - balToRemove;
 
@@ -78,10 +88,16 @@ public class CurrencyTools {
     }
 
     public static List<String> getOwnedItems(Long userId) {
+        if (!userHasCurrProfile(userId)) {
+            addAllProfiles(userId);
+        }
         return LemiDbBalManager.INS.getOwnedItems(userId);
     }
 
     public static long getItemFromUserInv(Long userId, String itemName) {
+        if (!userHasCurrProfile(userId)) {
+            addAllProfiles(userId);
+        }
         return LemiDbBalManager.INS.getItemFromUserInv(userId, itemName);
     }
 
@@ -172,15 +188,21 @@ public class CurrencyTools {
     }
 
     public static boolean userHasItem(Long userId, String itemName) {
-        for (String ownedItemData : CurrencyTools.getOwnedItems(userId)) {
-            if (ownedItemData.contains(itemName)) {
-                return true;
-            }
+        if (!userHasCurrProfile(userId)) {
+            addAllProfiles(userId);
+        }
+
+        if (CurrencyTools.getOwnedItems(userId).contains(itemName)) {
+            return true;
         }
         return false;
     }
 
     public static void addItemToUser(Long userId, String itemName, long amountToAdd) {
+        if (!userHasCurrProfile(userId)) {
+            addAllProfiles(userId);
+        }
+
         long userItemAmount = getItemFromUserInv(userId, itemName);
         long itemAfterAdd = userItemAmount + amountToAdd;
 
@@ -192,6 +214,10 @@ public class CurrencyTools {
     }
 
     public static void removeItemFromUser(Long userId, String itemName, long amountToRemove) {
+        if (!userHasCurrProfile(userId)) {
+            addAllProfiles(userId);
+        }
+
         long userItemAmount = getItemFromUserInv(userId, itemName);
         long itemAfterRemove = userItemAmount - amountToRemove;
         

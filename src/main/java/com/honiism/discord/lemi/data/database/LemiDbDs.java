@@ -50,24 +50,24 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 public class LemiDbDs implements LemiDbManager {
     
     private static final Logger log = LoggerFactory.getLogger(LemiDbDs.class);
-    private HikariDataSource ds;
+    private final HikariDataSource dataSource;
 
     public LemiDbDs() {
         try {
-            File lemiDBFile = new File("LemiDB.db");
+            File lemiDBFile = new File("LemiDb.db");
 
             if (!lemiDBFile.exists()) {
                 if (lemiDBFile.createNewFile()) {
-                    log.info("Created a database file (LemiDB.db)");
+                    log.info("Created a database file (LemiDb.db)");
                 } else {
                     log.error("Failed to create a database file.");
                 }
             } else {
-                log.info("Connected to LemiDB.db database file.");
+                log.info("Connected to LemiDb.db database file.");
             }
         } catch (IOException e) {
             log.error("\r\nSomething unexpected went wrong while trying to "
-                    + "connect / create LemiDB.db file\r\n"
+                    + "connect / create LemiDb.db file\r\n"
                     + "Error : IOException\r\n"
                     + "\r\n");
 
@@ -75,16 +75,15 @@ public class LemiDbDs implements LemiDbManager {
         }
 
         HikariConfig config = new HikariConfig();
-        
-        config.setJdbcUrl("jdbc:sqlite:LemiDB.db");
-	config.setConnectionTestQuery("SELECT 1");
-	config.addDataSourceProperty("cachePrepStmts", "true");
-	config.addDataSourceProperty("prepStmtCacheSize", "250");
-	config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        config.setMaximumPoolSize(20);
+
+        config.setJdbcUrl("jdbc:sqlite:LemiDb.db");
+        config.setConnectionTestQuery("SELECT 1");
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.setConnectionTimeout(300000);
-	
-        ds = new HikariDataSource(config);
+
+        dataSource = new HikariDataSource(config);
 
         try (Statement statement = getConnection().createStatement()) {
             // guild_settings
@@ -131,7 +130,7 @@ public class LemiDbDs implements LemiDbManager {
     }
 
     private Connection getConnection() throws SQLException {
-	return ds.getConnection();
+	return dataSource.getConnection();
     }
 
     @Override

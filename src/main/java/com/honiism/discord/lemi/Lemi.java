@@ -59,7 +59,7 @@ public class Lemi {
     private final SlashCmdManager slashCmdManager;
 
     private boolean shuttingDown = false;
-    private boolean debug = true;
+    private boolean debug = false;
     
     public Lemi() throws LoginException {
         instance = this;

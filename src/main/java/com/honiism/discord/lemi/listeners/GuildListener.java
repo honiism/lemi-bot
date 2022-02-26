@@ -48,8 +48,8 @@ public class GuildListener extends ListenerAdapter {
         Guild guild = event.getGuild();
         Long guildId = guild.getIdLong();
 
-        if (guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))
-                || guildId.equals(Long.parseLong(Config.get("test_server")))) {
+        if (guildId.equals(Config.getLong("honeys_sweets_id"))
+                || guildId.equals(Config.getLong("test_server"))) {
             return;
         }
 
