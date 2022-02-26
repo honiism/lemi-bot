@@ -81,6 +81,8 @@ public class LemiDbDs implements LemiDbManager {
 	config.addDataSourceProperty("cachePrepStmts", "true");
 	config.addDataSourceProperty("prepStmtCacheSize", "250");
 	config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.setMaximumPoolSize(20);
+        config.setConnectionTimeout(300000);
 	
         ds = new HikariDataSource(config);
 
@@ -133,7 +135,7 @@ public class LemiDbDs implements LemiDbManager {
     }
 
     @Override
-    public List<String> getReasons(SlashCommandInteractionEvent event) {
+    public List<String> getBannedReasons(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         List<String> reasons = new ArrayList<>();
 
@@ -141,13 +143,9 @@ public class LemiDbDs implements LemiDbManager {
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT reason FROM banned_users")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.editOriginal(":cherry_blossom: Fetching all the reasons...").queue();
-
                 while (rs.next()) {
                     reasons.add(rs.getString("reason"));
                 }
-
-                hook.editOriginal(":grapes: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -189,7 +187,7 @@ public class LemiDbDs implements LemiDbManager {
     }
 
     @Override
-    public List<Long> getAuthorIds(SlashCommandInteractionEvent event) {
+    public List<Long> getBannerAuthorIds(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         List<Long> authorIds = new ArrayList<>();
 
@@ -197,13 +195,9 @@ public class LemiDbDs implements LemiDbManager {
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT author_id FROM banned_users")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.sendMessage(":cherry_blossom: Fetching all the author (admin) ids...").queue();
-
                 while (rs.next()) {
                     authorIds.add(rs.getLong("author_id"));
                 }
-
-                hook.editOriginal(":grapes: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -245,7 +239,7 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<Long> getUserIds(SlashCommandInteractionEvent event) {
+    public List<Long> getBannedUserIds(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         List<Long> userIds = new ArrayList<>();
 
@@ -253,13 +247,9 @@ public class LemiDbDs implements LemiDbManager {
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT user_id FROM banned_users")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.editOriginal(":cherry_blossom: Fetching all the user ids...").queue();
-
                 while (rs.next()) {
                     userIds.add(rs.getLong("user_id"));
                 }
-
-                hook.editOriginal(":grapes: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -301,7 +291,7 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public void addUserId(Member member, String reason, SlashCommandInteractionEvent event) {
+    public void addBannedUserId(Member member, String reason, SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
 
         try (Connection conn = getConnection();
@@ -318,10 +308,11 @@ public class LemiDbDs implements LemiDbManager {
             }
 
             try (PreparedStatement insertStatement =
-    		    conn.prepareStatement("INSERT INTO banned_users(user_id, reason) VALUES(?, ?)")) {
+    		    conn.prepareStatement("INSERT INTO banned_users(author_id, user_id, reason) VALUES(?, ?, ?)")) {
 
-    	        insertStatement.setLong(1, member.getIdLong());
-                insertStatement.setString(2, reason);
+                insertStatement.setLong(1, event.getMember().getIdLong());
+    	        insertStatement.setLong(2, member.getIdLong());
+                insertStatement.setString(3, reason);
 
                 int result = insertStatement.executeUpdate();
 
@@ -375,7 +366,7 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public void removeUserId(Member member, SlashCommandInteractionEvent event) {
+    public void removeBannedUserId(Member member, SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
 
         try (Connection conn = getConnection();
@@ -496,7 +487,7 @@ public class LemiDbDs implements LemiDbManager {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
                 while (rs.next()) {
-                    if (!rs.getString("staff_key").endsWith("admin")) {
+                    if (!rs.getString("staff_key").contains("admin")) {
                         continue;
                     }
                     adminKeys.add(rs.getString("staff_key"));
@@ -784,7 +775,7 @@ public class LemiDbDs implements LemiDbManager {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
                 while (rs.next()) {
-                    if (!rs.getString("staff_key").endsWith("mod")) {
+                    if (!rs.getString("staff_key").contains("mod")) {
                         continue;
                     }
                     modKeys.add(rs.getString("staff_key"));

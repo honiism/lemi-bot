@@ -77,6 +77,8 @@ public class LemiDbBalDs implements LemiDbBalManager {
 	config.addDataSourceProperty("cachePrepStmts", "true");
 	config.addDataSourceProperty("prepStmtCacheSize", "250");
 	config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.setMaximumPoolSize(20);
+        config.setConnectionTimeout(300000);
 	
         ds = new HikariDataSource(config);
 
@@ -259,9 +261,7 @@ public class LemiDbBalDs implements LemiDbBalManager {
                     return true;
                 }
             }
-        } catch (SQLException e) {
-            log.info("ignored exception from checkIfItemExists");
-        }
+        } catch (SQLException e) {}
         
         return false;
     }
@@ -290,17 +290,13 @@ public class LemiDbBalDs implements LemiDbBalManager {
             e.printStackTrace();        
         }
 
-        if (guild.getMemberById(userId) == null) {
-            guild.retrieveMemberById(userId)
-                .queue(
-                    (member) -> {
-                        CurrencyTools.addUserInvProfile(member);
-                    },
-                    (empty) -> {}
-                );
-        } else {
-            CurrencyTools.addUserInvProfile(guild.getMemberById(userId));
-        }
+        guild.retrieveMemberById(userId)
+            .queue(
+                (member) -> {
+                    CurrencyTools.addUserInvProfile(member);
+                },
+                (empty) -> {}
+            );
     }
 
     @Override
@@ -313,17 +309,13 @@ public class LemiDbBalDs implements LemiDbBalManager {
             e.printStackTrace();        
         }
 
-        if (guild.getMemberById(userId) == null) {
-            guild.retrieveMemberById(userId)
-                .queue(
-                    (member) -> {
-                        CurrencyTools.addUserCurrProfile(member);
-                    },
-                    (empty) -> {}
-                );
-        } else {
-            CurrencyTools.addUserCurrProfile(guild.getMemberById(userId));
-        }
+        guild.retrieveMemberById(userId)
+            .queue(
+                (member) -> {
+                    CurrencyTools.addUserCurrProfile(member);
+                },
+                (empty) -> {}
+            );
     }
 
     @Override

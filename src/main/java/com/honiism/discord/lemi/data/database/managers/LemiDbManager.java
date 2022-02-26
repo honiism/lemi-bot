@@ -33,11 +33,11 @@ public interface LemiDbManager {
     LemiDbManager INS = new LemiDbDs();
 
     // userban
-    List<String> getReasons(SlashCommandInteractionEvent event);
-    List<Long> getAuthorIds(SlashCommandInteractionEvent event);
-    List<Long> getUserIds(SlashCommandInteractionEvent event);
-    void addUserId(Member member, String reason, SlashCommandInteractionEvent event);
-    void removeUserId(Member member, SlashCommandInteractionEvent event);
+    List<String> getBannedReasons(SlashCommandInteractionEvent event);
+    List<Long> getBannerAuthorIds(SlashCommandInteractionEvent event);
+    List<Long> getBannedUserIds(SlashCommandInteractionEvent event);
+    void addBannedUserId(Member member, String reason, SlashCommandInteractionEvent event);
+    void removeBannedUserId(Member member, SlashCommandInteractionEvent event);
 
     // modifyadmins
     List<Long> getAdminIds();

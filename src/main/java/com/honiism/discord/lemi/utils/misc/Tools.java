@@ -85,7 +85,7 @@ public class Tools {
         }
         
         if (stringBuilder.indexOf("%user_avatar%") != -1) {
-            temp = replaceAllSb(stringBuilder, "%user_avatar%", member.getUser().getAvatarUrl()).toString();
+            temp = replaceAllSb(stringBuilder, "%user_avatar%", member.getUser().getEffectiveAvatarUrl()).toString();
 
             stringBuilder.setLength(0);
             stringBuilder.append(temp);
@@ -490,7 +490,7 @@ public class Tools {
     @SuppressWarnings("rawtypes")
     public static boolean isEmpty(Collection... collections) {
         for (Collection collection : collections) {
-            if (null == collection || collection.isEmpty()) {
+            if (collection == null || collection.isEmpty()) {
                 return true;
             }
         }
