@@ -38,13 +38,13 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
-public class ModifyItem extends SlashCmd {
+public class ModifyInv extends SlashCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
-    public ModifyItem() {
-        setCommandData(Commands.slash("modifyitem", "Add or remove some items from a user.")
+    public ModifyInv() {
+        setCommandData(Commands.slash("modifyinv", "Add or remove some items from a user's inventory.")
                 .addSubcommands(
                         new SubcommandData("add", "Add some items to a user.")
                                 .addOption(OptionType.USER, "user", "The user you'd like to give some items to.", true)
@@ -58,7 +58,7 @@ public class ModifyItem extends SlashCmd {
                 )
         );
 
-        setUsage("/mods modifyitem ((subcommands))");
+        setUsage("/mods modifyInv ((subcommands))");
         setCategory(CommandCategory.MODS);
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});

@@ -52,7 +52,7 @@ import com.honiism.discord.lemi.commands.slash.staff.dev.Shutdown;
 import com.honiism.discord.lemi.commands.slash.staff.mods.AddCurrProfile;
 import com.honiism.discord.lemi.commands.slash.staff.mods.GuildList;
 import com.honiism.discord.lemi.commands.slash.staff.mods.ModifyBal;
-import com.honiism.discord.lemi.commands.slash.staff.mods.ModifyItem;
+import com.honiism.discord.lemi.commands.slash.staff.mods.ModifyInv;
 import com.honiism.discord.lemi.commands.slash.staff.mods.ModsTopLevel;
 import com.honiism.discord.lemi.commands.slash.staff.mods.ShardStatus;
 import com.honiism.discord.lemi.commands.slash.staff.mods.Test;
@@ -101,7 +101,7 @@ public class SlashCmdManager {
         Balance balanceCmd = new Balance();
         ModifyBal modifyBalCmd = new ModifyBal();
         Inventory inventoryCmd = new Inventory();
-        ModifyItem modifyItemCmd = new ModifyItem();
+        ModifyInv modifyInvCmd = new ModifyInv();
         ResetCurrData resetCurrDataCmd = new ResetCurrData();
         Bankrob bankrobCmd = new Bankrob();
         Beg begCmd = new Beg();
@@ -112,7 +112,7 @@ public class SlashCmdManager {
         DevTopLevel devTopLevelCmd = new DevTopLevel(modifyAdminsCmd, modifyModsCmd, shutdownCmd, compileCmd, manageItemsCmd);
         AdminsTopLevel adminsTopLevelCmd = new AdminsTopLevel(userBanCmd, shardRestartCmd, embedCmd, resetCurrDataCmd);
         ModsTopLevel modsTopLevelCmd = new ModsTopLevel(testCmd, guildListCmd, shardStatusCmd,
-                addCurrProfileCmd, modifyBalCmd, modifyItemCmd, viewItemsCmd);
+                addCurrProfileCmd, modifyBalCmd, modifyInvCmd, viewItemsCmd);
         CurrencyTopLevel currencyTopLevelCmd = new CurrencyTopLevel(balanceCmd, inventoryCmd, bankrobCmd, begCmd,
                 cookCmd);
 
@@ -146,7 +146,7 @@ public class SlashCmdManager {
         allSlashCmds.add(balanceCmd);
         allSlashCmds.add(modifyBalCmd);
         allSlashCmds.add(inventoryCmd);
-        allSlashCmds.add(modifyItemCmd);
+        allSlashCmds.add(modifyInvCmd);
         allSlashCmds.add(resetCurrDataCmd);
         allSlashCmds.add(bankrobCmd);
         allSlashCmds.add(begCmd);
