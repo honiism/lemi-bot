@@ -42,7 +42,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class ShardStatus extends SlashCmd {
 
@@ -51,9 +50,7 @@ public class ShardStatus extends SlashCmd {
 
     public ShardStatus() {
         setCommandData(Commands.slash("shardstatus", "View the status of all shards.")
-                .addOptions(
-                        new OptionData(OptionType.INTEGER, "page", "The page number for the shard status you want to see.", false)
-                )
+                .addOption(OptionType.INTEGER, "page", "The page number for the shard status you want to see.", false)
         );
 
         setUsage("/mods shardstatus [page number]");

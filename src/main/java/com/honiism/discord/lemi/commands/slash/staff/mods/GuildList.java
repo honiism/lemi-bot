@@ -42,7 +42,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.MiscUtil;
 
 public class GuildList extends SlashCmd {
@@ -52,9 +51,7 @@ public class GuildList extends SlashCmd {
 
     public GuildList() {
         setCommandData(Commands.slash("guildlist", "View the list of guilds that Lemi is in.")
-                .addOptions(
-                        new OptionData(OptionType.INTEGER, "page", "The page number for the guild list you want to see.", false)
-                )
+                .addOption(OptionType.INTEGER, "page", "The page number for the guild list you want to see.", false)
         );
 
         setUsage("/mods guildlist [page number]");

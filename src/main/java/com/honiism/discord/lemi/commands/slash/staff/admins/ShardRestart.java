@@ -39,7 +39,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class ShardRestart extends SlashCmd {
 
@@ -49,9 +48,7 @@ public class ShardRestart extends SlashCmd {
 
     public ShardRestart() {
         setCommandData(Commands.slash("shardrestart", "Restart a shard if it gets stuck.")
-                .addOptions(
-                        new OptionData(OptionType.INTEGER, "shard_id", "The shard id to restart", false)
-                )
+                .addOption(OptionType.INTEGER, "shard_id", "The shard id to restart", false)
         );
 
         setUsage("/admins shardrestart [shard id]");

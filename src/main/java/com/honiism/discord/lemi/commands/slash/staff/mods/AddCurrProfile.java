@@ -36,7 +36,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class AddCurrProfile extends SlashCmd {
 
@@ -45,9 +44,7 @@ public class AddCurrProfile extends SlashCmd {
 
     public AddCurrProfile() {
         setCommandData(Commands.slash("addcurrprofile", "Add a currency profile for members that doesn't have one.")
-                .addOptions(
-                        new OptionData(OptionType.USER, "user", "User you'd like to give a currency profile.", true)
-                )
+                .addOption(OptionType.USER, "user", "User you'd like to give a currency profile.", true)
         );
 
         setUsage("/mods addcurrprofile <user>");

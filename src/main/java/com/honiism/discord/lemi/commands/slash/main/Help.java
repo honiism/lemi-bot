@@ -43,7 +43,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Help extends SlashCmd {
 
@@ -52,10 +51,8 @@ public class Help extends SlashCmd {
 
     public Help() {
         setCommandData(Commands.slash("help", "Shows information about Lemi.")
-                .addOptions(
-                        new OptionData(OptionType.INTEGER, "page", "Page of the help menu.", false),
-                        new OptionData(OptionType.STRING, "command_name", "The name of command/category.", false)
-                )
+                .addOption(OptionType.INTEGER, "page", "Page of the help menu.", false)
+                .addOption(OptionType.STRING, "command_name", "The name of command/category.", false)
         );
         
         setUsage("/help [page number]");

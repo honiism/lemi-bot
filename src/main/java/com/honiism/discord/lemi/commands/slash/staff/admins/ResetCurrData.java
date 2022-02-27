@@ -37,7 +37,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class ResetCurrData extends SlashCmd {
 
@@ -46,9 +45,7 @@ public class ResetCurrData extends SlashCmd {
 
     public ResetCurrData() {
         setCommandData(Commands.slash("resetcurrdata", "Reset a user's currency data.")
-                .addOptions(
-                        new OptionData(OptionType.USER, "user", "The user you want to reset.", true)
-                )
+                .addOption(OptionType.USER, "user", "The user you want to reset.", true)
         );
 
         setUsage("/admins resetcurrdata <user>");

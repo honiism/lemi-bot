@@ -36,7 +36,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Balance extends SlashCmd {
 
@@ -45,9 +44,7 @@ public class Balance extends SlashCmd {
 
     public Balance() {
         setCommandData(Commands.slash("balance", "Shows the balance of a user.")
-                .addOptions(
-                        new OptionData(OptionType.USER, "user", "The user you want to see the balance of.", false)
-                )
+                .addOption(OptionType.USER, "user", "The user you want to see the balance of.", false)
         );
         
         setUsage("/currency balance <user>");

@@ -40,7 +40,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Inventory extends SlashCmd {
 
@@ -49,10 +48,8 @@ public class Inventory extends SlashCmd {
 
     public Inventory() {
         setCommandData(Commands.slash("inventory", "Shows the inventory of a user.")
-                .addOptions(
-                        new OptionData(OptionType.USER, "user", "The user you want to see the inventory of.", false),
-                        new OptionData(OptionType.INTEGER, "page", "Page of the help menu.", false)
-                )
+                .addOption(OptionType.USER, "user", "The user you want to see the inventory of.", false)
+                .addOption(OptionType.INTEGER, "page", "Page of the help menu.", false)
         );
         
         setUsage("/currency inventory <user>");

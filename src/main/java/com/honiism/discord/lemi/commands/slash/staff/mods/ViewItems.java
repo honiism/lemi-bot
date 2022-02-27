@@ -42,7 +42,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class ViewItems extends SlashCmd {
 
@@ -51,9 +50,7 @@ public class ViewItems extends SlashCmd {
 
     public ViewItems() {
         setCommandData(Commands.slash("viewitems", "View the currently available items in the internal list.")
-                .addOptions(
-                        new OptionData(OptionType.INTEGER, "page", "The page number for the items list you want to see.", false)
-                )
+                .addOption(OptionType.INTEGER, "page", "The page number for the items list you want to see.", false)
         );
 
         setUsage("/mods viewitems [page number]");

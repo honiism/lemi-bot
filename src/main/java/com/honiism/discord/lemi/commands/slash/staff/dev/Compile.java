@@ -52,7 +52,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Compile extends SlashCmd {
 
@@ -62,11 +61,9 @@ public class Compile extends SlashCmd {
 
     public Compile() {
         setCommandData(Commands.slash("compile", "Compile code using Lemi's core system.")
-                .addOptions(
-                        new OptionData(OptionType.STRING, "language", "Language you want to use to code.", true),
-                        new OptionData(OptionType.STRING, "version_index", "The version index of the language to use.", true),
-                        new OptionData(OptionType.STRING, "input", "Input for the code if needed for execution.", false)
-                )
+                .addOption(OptionType.STRING, "language", "Language you want to use to code.", true)
+                .addOption(OptionType.STRING, "version_index", "The version index of the language to use.", true)
+                .addOption(OptionType.STRING, "input", "Input for the code if needed for execution.", false)
         );
 
         setUsage("/dev compile <language> <version_index> [input]");
