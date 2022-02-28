@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.database.managers.LemiDbEmbedManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -34,19 +34,12 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public class EmbedTools {
 
-    private IEmbedListener embedListener;
-    private Map<String, String> embedProperties = new HashMap<String, String>();
-    private Map<String, Integer> embedColor = new HashMap<String, Integer>();
+    private static IEmbedListener embedListener;
+    private static Map<String, String> embedProperties = new HashMap<String, String>();
   
     public void registerEmbedListener(IEmbedListener embedListener) {
-        this.embedListener = embedListener;
+        EmbedTools.embedListener = embedListener;
     }
-
-    public String[] editableFields = new String[] {
-            "embed-id", "author-name", "author-avatar", "title", "description",
-            "color", "image", "thumbnail", "footer-text", "footer-icon",
-            "timestamp", "message-content"
-    };
     
     public void askForId(InteractionHook hook) {
         hook.sendMessage(":blossom: Alright! Type in the **ID** for this embed.\r\n"
@@ -84,15 +77,13 @@ public class EmbedTools {
     }
 
     public void askForTitle(InteractionHook hook) {
-        hook.sendMessage(":tulip: Alright! Type in the **title** for this embed.\r\n"
+        hook.editOriginal(":tulip: Alright! Type in the **title** for this embed.\r\n"
                 + "1. *Keep it simple.*\r\n"
                 + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
                 + "3. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "**-----------**\r\n"
                 + "1. *You need to make your title less than 246 characters (including spaces)*\r\n"
                 + "2. *You only have 2 minutes.*\r\n"
-                + "3. *The image below can help you!*\r\n"
-                + "https://cdn.discordapp.com/attachments/814041366627090463/928103774915026944/embedGuide.png \r\n"
                 + "**-----------**\r\n"
                 + "*You cannot take more than 15 minutes!*\r\n")
             .queue();
@@ -102,38 +93,40 @@ public class EmbedTools {
                 (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
                     && e.isFromGuild()
                     && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id"))
-                    && e.getMessage().getContentRaw().length() < 20,
+                    && e.getMessage().getContentRaw().length() < 246,
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.sendMessage(":sunflower: Interaction cancelled.").queue();
+                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
-                    LemiDbEmbedManager.INS.assignUniqueId(hook, e.getMessage().getContentRaw(), embedProperties);
+                    if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
+                        embedProperties.put("title", null);
+                    } else {
+                        embedProperties.put("title", e.getMessage().getContentRaw());
+                    }
 
                     if (embedListener != null) {
-                        embedListener.afterAskingId(hook);
+                        embedListener.afterAskingTitle(hook);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
     public void askForColor(InteractionHook hook) {
-        hook.sendMessage(":crescent_moon: Alright! Type in the **color** for this embed.\r\n"
+        hook.editOriginal(":crescent_moon: Alright! Type in the **color** for this embed.\r\n"
                 + "1. *Please use HEX CODE (starts with #).*\r\n"
                 + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
                 + "3. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "**-----------**\r\n"
-                + "1. *The image below can help you!*\r\n"
-                + "2. *You only have 2 minutes.*\r\n"
-                + "https://cdn.discordapp.com/attachments/814041366627090463/928103774915026944/embedGuide.png")
-            .addEmbeds(new EmbedBuilder()
-                    .setTitle(processTitle(embedProperties.get("title"), hook))
+                + "1. *You only have 2 minutes.*")
+            .setEmbeds(new EmbedBuilder()
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
                     .setDescription("_ _")
                     .build())
             .queue();
@@ -145,15 +138,18 @@ public class EmbedTools {
                     && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id")),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.sendMessage(":sunflower: Interaction cancelled.").queue();
+                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
                     if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
-                        embedColor.put("color", 0xffd1dc);
+                        embedProperties.put("color", "0xffd1dc");
                     } else if (e.getMessage().getContentRaw().startsWith("#")) {
-                        embedColor.put("color", Integer.decode(e.getMessage().getContentRaw().replace("#", "0x")));
+                        int hexCode = Integer.decode(e.getMessage().getContentRaw().replace("#", "0x"));
+                        embedProperties.put("color", String.valueOf(hexCode));
                     }
+
+                    e.getMessage().delete().queue();
 
                     if (embedListener != null) {
                         embedListener.afterAskingColor(hook);
@@ -161,25 +157,24 @@ public class EmbedTools {
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
     public void askForAuthor(InteractionHook hook) {
-        hook.sendMessage(
+        hook.editOriginal(
                 ":seedling: Alright! Type in the **author name & avatar** for this embed.\r\n"
-                        + "1. *Please use this format:* `[name]&[link]` *or* `[text]`*\r\n"
+                        + "1. *Please use this format:* `[name]&[link]` *or* `[name]`*\r\n"
                         + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
                         + "3. *You can type* `skip` *to continue to the next category.*\r\n"
+                        + "4. *Author name must be less than 250 characters.*\r\n*"
                         + "**-----------**\r\n"
-                        + "1. *The image below can help you!*\r\n"
-                        + "2. *You only have 2 minutes.*\r\n"
-                        + "https://cdn.discordapp.com/attachments/814041366627090463/928103774915026944/embedGuide.png")
-            .addEmbeds(new EmbedBuilder()
-                    .setTitle(processTitle(embedProperties.get("title"), hook))
-                    .setColor(embedColor.get("color"))
+                        + "1. *You only have 2 minutes.*")
+            .setEmbeds(new EmbedBuilder()
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setColor(Integer.decode(embedProperties.get("color")))
                     .setDescription("_ _")
                     .build())
             .queue();
@@ -191,44 +186,56 @@ public class EmbedTools {
                     && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id")),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.sendMessage(":sunflower: Interaction cancelled.").queue();
+                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
                     if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
-                        embedColor.put("color", 0xffd1dc);
-                    } else if (e.getMessage().getContentRaw().startsWith("#")) {
-                        embedColor.put("color", Integer.decode(e.getMessage().getContentRaw().replace("#", "0x")));
+                        embedProperties.put("author-name", null);
+                        embedProperties.put("author-avatar", null);
+                    } else if (e.getMessage().getContentRaw().contains("&")) {
+                        String[] authorValues = e.getMessage().getContentRaw().split("&");
+
+                        embedProperties.put("author-name", authorValues[0].trim());
+                        embedProperties.put("author-avatar", authorValues[1].trim());
+                    } else {
+                        embedProperties.put("author-name", e.getMessage().getContentRaw());
+                    }
+
+                    e.getMessage().delete().queue();
+
+                    if (embedProperties.get("author-name").length() < 250) {
+                        hook.editOriginal(":shell: Interaction cancelled! The author name pass the limit of 250 characters")
+                            .queue();
+                        return;
                     }
 
                     if (embedListener != null) {
-                        embedListener.afterAskingColor(hook);
+                        embedListener.afterAskingAuthor(hook);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
     public void askForThumbnail(InteractionHook hook) {
-        hook.sendMessage(":snowflake: Alright! Type in the **thumbnail** for this embed.\r\n"
+        hook.editOriginal(":snowflake: Alright! Type in the **thumbnail** for this embed.\r\n"
                 + "1. *Please use a valid link. You can also use* `%user_avatar%`.\r\n"
                 + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
                 + "3. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "**-----------**\r\n"
-                + "1. *The image below can help you!*\r\n"
-                + "2. *You only have 2 minutes.*\r\n"
-                + "https://cdn.discordapp.com/attachments/814041366627090463/928103774915026944/embedGuide.png")
-            .addEmbeds(new EmbedBuilder()
-                    .setTitle(processTitle(embedProperties.get("title"), hook))
-                    .setColor(embedColor.get("color"))
+                + "1. *You only have 2 minutes.*")
+            .setEmbeds(new EmbedBuilder()
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setColor(Integer.decode(embedProperties.get("color")))
                     .setDescription("_ _")
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processAuthorName(embedProperties.get("author-name"), hook),
+                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), hook),
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processAuthorAvatar(embedProperties.get("author-avatar"), hook))
+                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), hook))
                     .build())
             .queue();
 
@@ -239,7 +246,7 @@ public class EmbedTools {
                     && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id")),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.sendMessage(":sunflower: Interaction cancelled.").queue();
+                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
@@ -249,34 +256,34 @@ public class EmbedTools {
                         embedProperties.put("thumbnail", e.getMessage().getContentRaw());
                     }
 
+                    e.getMessage().delete().queue();
+
                     if (embedListener != null) {
                         embedListener.afterAskingThumbnail(hook);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
     public void askForDesc(InteractionHook hook) {
-        hook.sendMessage(":grapes: Alright! Type in the **description** for this embed.\r\n"
+        hook.editOriginal(":grapes: Alright! Type in the **description** for this embed.\r\n"
                 + "**-----------**\r\n"
                 + "1. *You need to make your title less than 4,000 characters (including spaces)*\r\n"
-                + "2. *The image below can help you!*\r\n"
-                + "3. *You can type* `skip` *to continue to the next category.*\r\n"
-                + "4. *You only have 2 minutes.*\r\n"
-                + "https://cdn.discordapp.com/attachments/814041366627090463/928103774915026944/embedGuide.png")
-            .addEmbeds(new EmbedBuilder()
-                    .setTitle(processTitle(embedProperties.get("title"), hook))
-                    .setColor(embedColor.get("color"))
+                + "2. *You can type* `skip` *to continue to the next category.*\r\n"
+                + "3. *You only have 2 minutes.*")
+            .setEmbeds(new EmbedBuilder()
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setColor(Integer.decode(embedProperties.get("color")))
                     .setDescription("_ _")
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processAuthorName(embedProperties.get("author-name"), hook), 
+                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), hook), 
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processAuthorAvatar(embedProperties.get("author-avatar"), hook))
-                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processThumbnail(embedProperties.get("thumbnail"), hook))
+                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), hook))
+                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), hook))
                     .build())
             .queue();
 
@@ -288,7 +295,7 @@ public class EmbedTools {
                     && e.getMessage().getContentRaw().length() < 4000,
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.sendMessage(":sunflower: Interaction cancelled.").queue();
+                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
@@ -298,34 +305,34 @@ public class EmbedTools {
                         embedProperties.put("description", e.getMessage().getContentRaw());
                     }
 
+                    e.getMessage().delete().queue();
+
                     if (embedListener != null) {
                         embedListener.afterAskingDesc(hook);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
     public void askForImage(InteractionHook hook) {
-        hook.sendMessage(":tulip: Alright! Type in the **image** for this embed.\r\n"
+        hook.editOriginal(":tulip: Alright! Type in the **image** for this embed.\r\n"
                 + "**-----------**\r\n"
                 + "1. *You need to use a valid link or a placeholder.*\r\n"
-                + "2. *The image below can help you!*\r\n"
-                + "3. *You can type* `skip` *to continue to the next category.*\r\n"
-                + "4. *You only have 2 minutes.*\r\n"
-                + "https://cdn.discordapp.com/attachments/814041366627090463/928103774915026944/embedGuide.png")
-            .addEmbeds(new EmbedBuilder()
-                    .setTitle(processTitle(embedProperties.get("title"), hook))
-                    .setColor(embedColor.get("color"))
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processAuthorName(embedProperties.get("author-name"), hook), 
+                + "2. *You can type* `skip` *to continue to the next category.*\r\n"
+                + "3. *You only have 2 minutes.*")
+            .setEmbeds(new EmbedBuilder()
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setColor(Integer.decode(embedProperties.get("color")))
+                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), hook), 
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processAuthorAvatar(embedProperties.get("author-avatar"), hook))
-                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processThumbnail(embedProperties.get("thumbnail"), hook))
-                    .setDescription(embedProperties.get("description") == null ? null : processDesc(embedProperties.get("description"), hook))
+                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), hook))
+                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), hook))
+                    .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), hook))
                     .build())
             .queue();
 
@@ -336,7 +343,7 @@ public class EmbedTools {
                     && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id")),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.sendMessage(":sunflower: Interaction cancelled.").queue();
+                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
@@ -346,36 +353,36 @@ public class EmbedTools {
                         embedProperties.put("image", e.getMessage().getContentRaw());
                     }
 
+                    e.getMessage().delete().queue();
+
                     if (embedListener != null) {
                         embedListener.afterAskingImg(hook);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
     public void askForFooter(InteractionHook hook) {
-        hook.sendMessage(":crescent_moon: Alright! Type in the **footer** for this embed.\r\n"
+        hook.editOriginal(":crescent_moon: Alright! Type in the **footer** for this embed.\r\n"
                 + "**-----------**\r\n"
                 + "1. *You need to use this format:* `[text]&[link]` *or* `[text]`.\r\n"
-                + "2. *The image below can help you!*\r\n"
-                + "3. *You can type* `skip` *to continue to the next category.*\r\n"
-                + "4. *You only have 2 minutes.*\r\n"
-                + "5. *Text must be less than 2,000 characters (including spaces)*\r\n"
-                + "https://cdn.discordapp.com/attachments/814041366627090463/928103774915026944/embedGuide.png")
-            .addEmbeds(new EmbedBuilder()
-                    .setTitle(processTitle(embedProperties.get("title"), hook))
-                    .setColor(embedColor.get("color"))
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processAuthorName(embedProperties.get("author-name"), hook), 
+                + "2. *You can type* `skip` *to continue to the next category.*\r\n"
+                + "3. *You only have 2 minutes.*\r\n"
+                + "4. *Text must be less than 2,000 characters (including spaces)*")
+            .setEmbeds(new EmbedBuilder()
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setColor(Integer.decode(embedProperties.get("color")))
+                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), hook), 
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processAuthorAvatar(embedProperties.get("author-avatar"), hook))
-                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processThumbnail(embedProperties.get("thumbnail"), hook))
-                    .setDescription(embedProperties.get("description") == null ? null : processDesc(embedProperties.get("description"), hook))
-                    .setImage(embedProperties.get("image") == null ? null : processImg(embedProperties.get("image"), hook))
+                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), hook))
+                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), hook))
+                    .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), hook))
+                    .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), hook))
                     .build())
             .queue();
 
@@ -386,7 +393,7 @@ public class EmbedTools {
                     && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id")),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.sendMessage(":sunflower: Interaction cancelled.").queue();
+                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
@@ -394,11 +401,20 @@ public class EmbedTools {
                         embedProperties.put("footer-text", null);
                         embedProperties.put("footer-icon", null);
                     } else if (e.getMessage().getContentRaw().contains("&")) {
-                        String[] footerValuesSplit = e.getMessage().getContentRaw().split("&");
-                        embedProperties.put("footer-text", footerValuesSplit[0]);
-                        embedProperties.put("footer-icon", footerValuesSplit[1]);
+                        String[] footerValues = e.getMessage().getContentRaw().split("&");
+
+                        embedProperties.put("footer-text", footerValues[0].trim());
+                        embedProperties.put("footer-icon", footerValues[1].trim());
                     } else {
                         embedProperties.put("footer-text", e.getMessage().getContentRaw());
+                    }
+
+                    e.getMessage().delete().queue();
+
+                    if (embedProperties.get("footer-text").length() < 2000) {
+                        hook.editOriginal(":shell: Interaction cancelled! The footer text pass the limit of 2,000 characters")
+                            .queue();
+                        return;
                     }
 
                     if (embedListener != null) {
@@ -407,30 +423,29 @@ public class EmbedTools {
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
     public void askForMessageContent(InteractionHook hook) {
-        hook.sendMessage(":seedling: Alright! Type in the **message content** for this embed.\r\n"
+        hook.editOriginal(":seedling: Alright! Type in the **message content** for this embed.\r\n"
                 + "**-----------**\r\n"
                 + "1. *This will appear outside the embed and show as a message.*\r\n"
-                + "2. *The image below can help you!*\r\n"
-                + "3. *You can type* `skip` *to continue.*\r\n"
-                + "4. *You only have 2 minutes.*")
-            .addEmbeds(new EmbedBuilder()
-                    .setTitle(processTitle(embedProperties.get("title"), hook))
-                    .setColor(embedColor.get("color"))
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processAuthorName(embedProperties.get("author-name"), hook), 
+                + "2. *You can type* `skip` *to continue.*\r\n"
+                + "3. *You only have 2 minutes.*")
+            .setEmbeds(new EmbedBuilder()
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setColor(Integer.decode(embedProperties.get("color")))
+                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), hook), 
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processAuthorAvatar(embedProperties.get("author-avatar"), hook))
-                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processThumbnail(embedProperties.get("thumbnail"), hook))
-                    .setDescription(embedProperties.get("description") == null ? null : processDesc(embedProperties.get("description"), hook))
-                    .setImage(embedProperties.get("image") == null ? null : processImg(embedProperties.get("image"), hook))
-                    .setFooter(embedProperties.get("footer-text") == null ? null : processFooterText(embedProperties.get("footer-text"), hook), 
-                            embedProperties.get("footer-icon") == null ? null : processFooterIcon(embedProperties.get("footer-icon"), hook))
+                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), hook))
+                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), hook))
+                    .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), hook))
+                    .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), hook))
+                    .setFooter(embedProperties.get("footer-text") == null ? null : processField(embedProperties.get("footer-text"), hook), 
+                            embedProperties.get("footer-icon") == null ? null : processField(embedProperties.get("footer-icon"), hook))
                     .build())
             .queue();
 
@@ -438,11 +453,10 @@ public class EmbedTools {
                 MessageReceivedEvent.class,
                 (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
                     && e.isFromGuild()
-                    && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id"))
-                    && e.getMessage().getContentRaw().length() < 2000,
+                    && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id")),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.sendMessage(":sunflower: Interaction cancelled.").queue();
+                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
@@ -452,117 +466,44 @@ public class EmbedTools {
                         embedProperties.put("message-content", e.getMessage().getContentRaw());
                     }
 
+                    e.getMessage().delete().queue();
+
                     if (embedListener != null) {
                         embedListener.afterAskingMessageContent(hook);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
-    private String processTitle(String title, InteractionHook hook) {
-        return Tools.processPlaceholders(title,
-            hook.getInteraction().getMember(),
-            hook.getInteraction().getGuild(),
-            hook.getInteraction().getTextChannel()
-        );
-    }
-
-    private String processAuthorName(String authorName, InteractionHook hook) {
-        return Tools.processPlaceholders(authorName,
-            hook.getInteraction().getMember(),
-            hook.getInteraction().getGuild(),
-            hook.getInteraction().getTextChannel()
-        );
-    }
-
-    private String processAuthorAvatar(String authorAvatar, InteractionHook hook) {
-        return Tools.processPlaceholders(authorAvatar,
-            hook.getInteraction().getMember(),
-            hook.getInteraction().getGuild(),
-            hook.getInteraction().getTextChannel()
-        );
-    }
-
-    private String processThumbnail(String thumbnail, InteractionHook hook) {
-        return Tools.processPlaceholders(thumbnail,
-            hook.getInteraction().getMember(),
-            hook.getInteraction().getGuild(),
-            hook.getInteraction().getTextChannel()
-        );
-    }
-
-    private String processDesc(String desc, InteractionHook hook) {
-        return Tools.processPlaceholders(desc,
-            hook.getInteraction().getMember(),
-            hook.getInteraction().getGuild(),
-            hook.getInteraction().getTextChannel()
-        );
-    }
-
-    private String processImg(String img, InteractionHook hook) {
-        return Tools.processPlaceholders(img,
-            hook.getInteraction().getMember(),
-            hook.getInteraction().getGuild(),
-            hook.getInteraction().getTextChannel()
-        );
-    }
-
-    private String processFooterText(String footerText, InteractionHook hook) {
-        return Tools.processPlaceholders(footerText,
-            hook.getInteraction().getMember(),
-            hook.getInteraction().getGuild(),
-            hook.getInteraction().getTextChannel()
-        );
-    }
-
-    private String processFooterIcon(String footerIcon, InteractionHook hook) {
-        return Tools.processPlaceholders(footerIcon,
-            hook.getInteraction().getMember(),
-            hook.getInteraction().getGuild(),
-            hook.getInteraction().getTextChannel()
-        );
-    }
-
-    private String processMessageContent(String messageContent, InteractionHook hook) {
-        return Tools.processPlaceholders(messageContent,
-            hook.getInteraction().getMember(),
-            hook.getInteraction().getGuild(),
-            hook.getInteraction().getTextChannel()
+    private String processField(String field, InteractionHook hook) {
+        return Tools.processPlaceholders(field,
+                hook.getInteraction().getMember(),
+                hook.getInteraction().getGuild(),
+                hook.getInteraction().getTextChannel()
         );
     }
 
     private EmbedBuilder createEmbed(InteractionHook hook) {
         return new EmbedBuilder()
-            .setTitle(processTitle(embedProperties.get("title"), hook))
-            .setColor(embedColor.get("color"))
-            .setAuthor(embedProperties.get("author-name") == null ? null : processAuthorName(embedProperties.get("author-name"), hook), 
+            .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+            .setColor(Integer.decode(embedProperties.get("color")))
+            .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), hook), 
                     null,
-                    embedProperties.get("author-avatar") == null ? null : processAuthorAvatar(embedProperties.get("author-avatar"), hook))
-            .setThumbnail(embedProperties.get("thumbnail") == null ? null : processThumbnail(embedProperties.get("thumbnail"), hook))
-            .setDescription(embedProperties.get("description") == null ? null : processDesc(embedProperties.get("description"), hook))
-            .setImage(embedProperties.get("image") == null ? null : processImg(embedProperties.get("image"), hook))
-            .setFooter(embedProperties.get("footer-text") == null ? null : processFooterText(embedProperties.get("footer-text"), hook), 
-                    embedProperties.get("footer-icon") == null ? null : processFooterIcon(embedProperties.get("footer-icon"), hook));
+                    embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), hook))
+            .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), hook))
+            .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), hook))
+            .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), hook))
+            .setFooter(embedProperties.get("footer-text") == null ? null : processField(embedProperties.get("footer-text"), hook), 
+                    embedProperties.get("footer-icon") == null ? null : processField(embedProperties.get("footer-icon"), hook));
     }
 
     public void sendCreatedEmbed(InteractionHook hook) {
-        if (processMessageContent(embedProperties.get("message-content"), hook) == null) {
-            hook.sendMessageEmbeds(createEmbed(hook).build())
-                .queue((msg) -> {
-                    LemiDbEmbedManager.INS.saveCreatedEmbed(hook, embedProperties.get("embed-id"), embedProperties, embedColor);
-                });
-        } else {
-            hook.sendMessage(processMessageContent(embedProperties.get("message-content"), hook))
-                .addEmbeds(createEmbed(hook).build())
-                .queue((msg) -> {
-                    LemiDbEmbedManager.INS.saveCreatedEmbed(hook, processMessageContent(embedProperties.get("message-content"), hook),
-                            embedProperties.get("embed-id"), embedProperties, embedColor);
-                });
-        }
+        hook.editOriginalEmbeds(createEmbed(hook).build()).queue();
+        LemiDbEmbedManager.INS.saveCreatedEmbed(hook, embedProperties);
     }
 }

@@ -24,6 +24,7 @@ public enum CommandCategory {
     CURRENCY,
     FUN,
     GAMES,
+    IMAGES,
 
     MODS,
     ADMINS,

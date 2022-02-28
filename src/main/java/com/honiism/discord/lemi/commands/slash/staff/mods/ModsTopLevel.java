@@ -35,18 +35,18 @@ public class ModsTopLevel extends SlashCmd {
     private ShardStatus shardStatusCmd;
     private AddCurrProfile addCurrProfileCmd;
     private ModifyBal modifyBalGroup;
-    private ModifyItem modifyItemGroup;
+    private ModifyInv modifyInvGroup;
     private ViewItems viewItemsCmd;
 
     public ModsTopLevel(Test testSubCmd, GuildList guildListCmd, ShardStatus shardStatusCmd,
                         AddCurrProfile addCurrProfileCmd, ModifyBal modifyBalGroup,
-                        ModifyItem modifyItemGroup, ViewItems viewItemsCmd) {
+                        ModifyInv modifyInvGroup, ViewItems viewItemsCmd) {
         this.shardStatusCmd = shardStatusCmd;
         this.testSubCmd = testSubCmd;
         this.guildListCmd = guildListCmd;
         this.addCurrProfileCmd = addCurrProfileCmd;
         this.modifyBalGroup = modifyBalGroup;
-        this.modifyItemGroup = modifyItemGroup;
+        this.modifyInvGroup = modifyInvGroup;
         this.viewItemsCmd = viewItemsCmd;
 
         setCommandData(Commands.slash("mods", "Commands for the moderators of Lemi the discord bot.")
@@ -69,8 +69,8 @@ public class ModsTopLevel extends SlashCmd {
                         new SubcommandGroupData(this.modifyBalGroup.getName(), this.modifyBalGroup.getDesc())
                                 .addSubcommands(this.modifyBalGroup.getSubCmds()),
 
-                        new SubcommandGroupData(this.modifyItemGroup.getName(), this.modifyItemGroup.getDesc())
-                                .addSubcommands(this.modifyItemGroup.getSubCmds())
+                        new SubcommandGroupData(this.modifyInvGroup.getName(), this.modifyInvGroup.getDesc())
+                                .addSubcommands(this.modifyInvGroup.getSubCmds())
                 )
                 .setDefaultEnabled(false)
         );
@@ -80,7 +80,7 @@ public class ModsTopLevel extends SlashCmd {
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override
@@ -94,8 +94,8 @@ public class ModsTopLevel extends SlashCmd {
                     this.modifyBalGroup.action(event);
                     break;
 
-                case "modifyitem":
-                    this.modifyItemGroup.action(event);
+                case "modifyinv":
+                    this.modifyInvGroup.action(event);
             }
         } else {
             switch (subCmdName) {

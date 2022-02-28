@@ -33,17 +33,18 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
-public class ModifyItem extends SlashCmd {
+public class ModifyInv extends SlashCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
-    public ModifyItem() {
-        setCommandData(Commands.slash("modifyitem", "Add or remove some items from a user.")
+    public ModifyInv() {
+        setCommandData(Commands.slash("modifyinv", "Add or remove some items from a user's inventory.")
                 .addSubcommands(
                         new SubcommandData("add", "Add some items to a user.")
                                 .addOption(OptionType.USER, "user", "The user you'd like to give some items to.", true)
@@ -57,12 +58,12 @@ public class ModifyItem extends SlashCmd {
                 )
         );
 
-        setUsage("/mods modifyitem ((subcommands))");
+        setUsage("/mods modifyInv ((subcommands))");
         setCategory(CommandCategory.MODS);
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override
@@ -87,28 +88,28 @@ public class ModifyItem extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
-                    int addAmount = (int) event.getOption("amount").getAsLong();
+                    long addAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
                     if (addAmount < 0 || addAmount == 0) {
                         hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of item.").queue();
                         return;
                     }
 
-                    String itemNameToAdd = event.getOption("item_name").getAsString();
+                    String itemNameToAdd = event.getOption("item_name", OptionMapping::getAsString);
 
                     if (!CurrencyTools.checkIfItemExists(itemNameToAdd)) {
                         hook.sendMessage(":tea: That item does not exist.").queue();
                         return;
                     }
 
-                    Member memberAdd = event.getOption("user").getAsMember();
+                    Member memberAdd = event.getOption("user", OptionMapping::getAsMember);
 
                     if (memberAdd == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
             
-                    CurrencyTools.addItemToUser(String.valueOf(memberAdd.getIdLong()), itemNameToAdd, addAmount);
+                    CurrencyTools.addItemToUser(memberAdd.getIdLong(), itemNameToAdd, addAmount);
             
                     hook.sendMessage(":oden: " 
                             + memberAdd.getAsMention() 
@@ -116,39 +117,39 @@ public class ModifyItem extends SlashCmd {
                             + " " + itemNameToAdd + " from " 
                             + author.getAsMention() + "!\r\n"
                             + ":blueberries: You now have " 
-                            + CurrencyTools.getItemFromUserInv(String.valueOf(memberAdd.getIdLong()), itemNameToAdd)
+                            + CurrencyTools.getItemFromUserInv(memberAdd.getIdLong(), itemNameToAdd)
                             + " " + itemNameToAdd + ".")
                         .queue();
                     break;
 
                 case "remove":
-                    int removeAmount = (int) event.getOption("amount").getAsLong();
+                    long removeAmount = event.getOption("amount", OptionMapping::getAsLong);
 
                     if (removeAmount < 0 || removeAmount == 0) {
                         hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of items").queue();
                         return;
                     }
 
-                    String itemNameToRemove = event.getOption("item_name").getAsString();
+                    String itemNameToRemove = event.getOption("item_name", OptionMapping::getAsString);
 
                     if (!CurrencyTools.checkIfItemExists(itemNameToRemove)) {
                         hook.sendMessage(":tea: That item does not exist.").queue();
                         return;
                     }
 
-                    Member memberRemove = event.getOption("user").getAsMember();
+                    Member memberRemove = event.getOption("user", OptionMapping::getAsMember);
 
                     if (memberRemove == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    if (CurrencyTools.getItemFromUserInv(String.valueOf(memberRemove.getIdLong()), itemNameToRemove) < removeAmount) {
+                    if (CurrencyTools.getItemFromUserInv(memberRemove.getIdLong(), itemNameToRemove) < removeAmount) {
                         hook.sendMessage(":hibiscus: You cannot take more than what they have.").queue();
                         return;
                     }
 
-                    CurrencyTools.removeItemFromUser(String.valueOf(memberRemove.getIdLong()), itemNameToRemove, removeAmount);
+                    CurrencyTools.removeItemFromUser(memberRemove.getIdLong(), itemNameToRemove, removeAmount);
             
                     hook.sendMessage(":oden: " 
                             + memberRemove.getAsMention() 
@@ -156,7 +157,7 @@ public class ModifyItem extends SlashCmd {
                             + " has taken " + removeAmount + " " + itemNameToRemove + " from " 
                             + "you" + "!\r\n"
                             + ":blueberries: You now have " 
-                            + CurrencyTools.getItemFromUserInv(String.valueOf(memberRemove.getIdLong()), itemNameToRemove)
+                            + CurrencyTools.getItemFromUserInv(memberRemove.getIdLong(), itemNameToRemove)
                             + " " + itemNameToRemove + ".")
                         .queue();
             }

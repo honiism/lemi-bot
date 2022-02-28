@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -42,7 +41,6 @@ public class BaseListener extends ListenerAdapter {
         getJDA().addEventListener(new SlashCmdListener());
 
         Lemi.getInstance().getSlashCmdManager().initialize();
-        Lemi.getInstance().onStartCommandCheck();
         
         log.info("{} is now online and all set up! (Shard : {} / {})",
                 event.getJDA().getSelfUser().getAsTag(),
@@ -58,14 +56,6 @@ public class BaseListener extends ListenerAdapter {
                 .queue();
             
         } catch (NullPointerException ignored) { }
-
-        for (Guild guild : getJDA().getGuilds()) {
-            getJDA().retrieveCommands().queue(
-                (cmds) -> {
-                    Lemi.getInstance().updateCmdPrivileges(guild, cmds);
-                }
-            );
-        }
     }
 
     public static JDA getJDA() {

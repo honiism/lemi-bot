@@ -50,13 +50,13 @@ public class Bankrob extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User author = hook.getInteraction().getUser();
+        User author = event.getUser();
 
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -73,9 +73,9 @@ public class Bankrob extends SlashCmd {
 
             Guild guild = event.getGuild();
 
-            if (CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) < 10000) {
+            if (CurrencyTools.getUserBal(author.getIdLong()) < 10000) {
                 hook.sendMessage(":blossom: You need at least 10,000 " 
-                        + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + ".")
+                        + CurrencyTools.getBalName() + ".")
                     .queue();
                 return;
             }
@@ -114,9 +114,9 @@ public class Bankrob extends SlashCmd {
         int lostAmount = random.nextInt(10000 - 2000) + 2000;
         lostAmount += 1;
         
-        String lostBal = lostAmount + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong()));
+        String lostBal = lostAmount + " " + CurrencyTools.getBalName();
 
-        CurrencyTools.removeBalFromUser(String.valueOf(author.getIdLong()), lostAmount);
+        CurrencyTools.removeBalFromUser(author.getIdLong(), lostAmount);
 
         String[] resultMessages = new String[] {
                 "You dropped the money bag and lost " + lostBal + ".",
@@ -131,8 +131,8 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + Tools.getRandomEntry(resultMessages) + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) 
-                + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
+                + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
+                + " " + CurrencyTools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
@@ -143,8 +143,8 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + "You wake up from the dream, you gained nothing." + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong()))
-                + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
+                + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong())
+                + " " + CurrencyTools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
@@ -154,9 +154,9 @@ public class Bankrob extends SlashCmd {
         
         int gainedAmount = random.nextInt(50000 - 10000) + 10000;
         gainedAmount += 1;
-        String gainedBal = gainedAmount + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong()));
+        String gainedBal = gainedAmount + " " + CurrencyTools.getBalName();
 
-        CurrencyTools.addBalToUser(String.valueOf(author.getIdLong()), gainedAmount);
+        CurrencyTools.addBalToUser(author.getIdLong(), gainedAmount);
 
         String[] resultMessages = new String[] {
                 "You ran away and gained " + gainedBal + ".",
@@ -171,8 +171,8 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + Tools.getRandomEntry(resultMessages) + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) 
-                + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
+                + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
+                + " " + CurrencyTools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }

@@ -40,7 +40,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Inventory extends SlashCmd {
 
@@ -49,10 +48,8 @@ public class Inventory extends SlashCmd {
 
     public Inventory() {
         setCommandData(Commands.slash("inventory", "Shows the inventory of a user.")
-                .addOptions(
-                        new OptionData(OptionType.USER, "user", "The user you want to see the inventory of.", true),
-                        new OptionData(OptionType.INTEGER, "page", "Page of the help menu.", false)
-                )
+                .addOption(OptionType.USER, "user", "The user you want to see the inventory of.", false)
+                .addOption(OptionType.INTEGER, "page", "Page of the help menu.", false)
         );
         
         setUsage("/currency inventory <user>");
@@ -60,13 +57,13 @@ public class Inventory extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User author = hook.getInteraction().getUser();
+        User author = event.getUser();
 
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -81,21 +78,9 @@ public class Inventory extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            OptionMapping helpOption = event.getOption("help");
+            Member member = event.getOption("user", event.getMember(), OptionMapping::getAsMember);
 
-            if (helpOption != null && helpOption.getAsBoolean()) {
-                hook.sendMessageEmbeds(this.getHelp(event)).queue();
-                return;
-            }
-
-            Member member = event.getOption("user").getAsMember();
-
-            if (member == null) {
-                hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
-                return;
-            }
-
-            if (Tools.isEmpty(CurrencyTools.getOwnedItems(String.valueOf(member.getIdLong())))) {
+            if (Tools.isEmpty(CurrencyTools.getOwnedItems(member.getIdLong()))) {
                 hook.editOriginal(":fish_cake: This user has no items! Sadge :(").queue();
                 return;
             }
@@ -104,24 +89,18 @@ public class Inventory extends SlashCmd {
                 .setEventWaiter(Lemi.getInstance().getEventWaiter())
                 .setItemsPerPage(10)
                 .setTimeout(1, TimeUnit.MINUTES)
-                .setItems(CurrencyTools.getOwnedItems(String.valueOf(member.getIdLong())))
+                .setItems(CurrencyTools.getOwnedItems(member.getIdLong()))
                 .useNumberedItems(true)
                 .useTimestamp(true)
                 .addAllowedUsers(author.getIdLong())
                 .setEmbedDesc("‧₊੭ :tulip: " + member.getAsMention() + "'s inventory ♡ ⋆｡˚")
                 .setColor(0xffd1dc)
-                .setThumbnail(member.getUser().getAvatarUrl());
+                .setThumbnail(member.getUser().getEffectiveAvatarUrl());
 
-            int page = 1;
-
-            if (event.getOption("page") != null) {
-                page = (int) event.getOption("page").getAsLong();
-            }
-
-            int finalPage = page;
+            int page = event.getOption("page", 1, OptionMapping::getAsInt);
 
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":snowflake: Loaded!"))
-                .queue(message -> builder.build().paginate(message, finalPage));
+                .queue(message -> builder.build().paginate(message, page));
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
                 

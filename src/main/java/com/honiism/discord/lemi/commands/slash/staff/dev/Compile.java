@@ -52,7 +52,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Compile extends SlashCmd {
 
@@ -62,20 +61,17 @@ public class Compile extends SlashCmd {
 
     public Compile() {
         setCommandData(Commands.slash("compile", "Compile code using Lemi's core system.")
-                .addOptions(
-                        new OptionData(OptionType.STRING, "language", "Language you want to use to code.", true),
-                        new OptionData(OptionType.STRING, "version_index", "The version index of the language to use.", true),
-                        new OptionData(OptionType.STRING, "input", "Input for the code if needed for execution.", false),
-                        new OptionData(OptionType.INTEGER, "page", "The page number for the compile menu you want to see.", false)
-                )
+                .addOption(OptionType.STRING, "language", "Language you want to use to code.", true)
+                .addOption(OptionType.STRING, "version_index", "The version index of the language to use.", true)
+                .addOption(OptionType.STRING, "input", "Input for the code if needed for execution.", false)
         );
 
-        setUsage("/dev compile <language> <version_index> [input] [page number]");
+        setUsage("/dev compile <language> <version_index> [input]");
         setCategory(CommandCategory.DEV);
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        setGlobal(true);
+        
     }
 
     @Override
@@ -98,12 +94,12 @@ public class Compile extends SlashCmd {
 
             hook.sendMessage(":coconut: Please type in your code in 1 minute!").queue();
 
-            OptionMapping inputOption = event.getOption("input");
-            String versionIndex = event.getOption("version_index").getAsString();
-            String language = event.getOption("language").getAsString();
+            String inputOption = event.getOption("input", OptionMapping::getAsString);
+            String versionIndex = event.getOption("version_index", OptionMapping::getAsString);
+            String language = event.getOption("language", OptionMapping::getAsString);
 
             waitAndCompile(Lemi.getInstance().getEventWaiter(), hook,
-                    (inputOption != null) ? inputOption.getAsString() : null,
+                    (inputOption != null) ? inputOption : null,
                     language, versionIndex);
                     
         } else {
@@ -165,19 +161,15 @@ public class Compile extends SlashCmd {
 
                         String output = jsonRespose.getString("output");
                         int statusCode = jsonRespose.getInt("statusCode");
-                        long memory = jsonRespose.getLong("memory");
-                        double cpuTime = jsonRespose.getDouble("cpuTime");
 
                         EmbedBuilder resultEmbed = new EmbedBuilder()
                             .setTitle("‧₊੭ :tulip: Here is your code output!\r\n"
                                 + "๑‧˚₊꒷꒦︶︶︶︶︶꒷꒦︶︶︶︶︶✦‧₊˚⊹")
-                            .setAuthor(member.getUser().getAsTag(), null, member.getUser().getAvatarUrl())
+                            .setAuthor(member.getUser().getAsTag(), null, member.getUser().getEffectiveAvatarUrl())
                             .setColor(0xffd1dc)
                             .addField("❥ **REQUESTED BY** :sunflower:", member.getAsMention(), false)
                             .addField("❥ **STATUS CODE** :seedling:", String.valueOf(statusCode) , false)
-                            .addField("❥ **CPU TIME** :snowflake:", String.valueOf(cpuTime) , false)
-                            .addField("❥ **MEMORY** :grapes:", String.valueOf(memory) , false)
-                            .setThumbnail(event.getGuild().getSelfMember().getUser().getAvatarUrl())
+                            .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
                             .setDescription("```" + output + "```");
 
                         hook.editOriginal("Here's your result! :cherries:").setEmbeds(resultEmbed.build()).queue();

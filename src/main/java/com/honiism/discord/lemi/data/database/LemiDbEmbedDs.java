@@ -17,7 +17,7 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.database;
+package com.honiism.discord.lemi.data.database;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.database.managers.LemiDbEmbedManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.honiism.discord.lemi.utils.paginator.Paginator;
@@ -55,24 +55,24 @@ import net.dv8tion.jda.internal.JDAImpl;
 public class LemiDbEmbedDs implements LemiDbEmbedManager {
     
     private static final Logger log = LoggerFactory.getLogger(LemiDbEmbedDs.class);
-    private HikariDataSource ds;
+    private final HikariDataSource dataSource;
 
     public LemiDbEmbedDs() {
         try {
-            File lemiDBFile = new File("LemiEmbedDB.db");
+            File lemiDBFile = new File("LemiEmbedDb.db");
 
             if (!lemiDBFile.exists()) {
                 if (lemiDBFile.createNewFile()) {
-                    log.info("Created a database file (LemiEmbedDB.db)");
+                    log.info("Created a database file (LemiEmbedDb.db)");
                 } else {
                     log.error("Failed to create a database file.");
                 }
             } else {
-                log.info("Connected to LemiEmbedDB.db database file.");
+                log.info("Connected to LemiEmbedDb.db database file.");
             }
         } catch (IOException e) {
             log.error("\r\nSomething unexpected went wrong while trying to "
-                    + "connect / create LemiEmbedDB.db file\r\n"
+                    + "connect / create LemiEmbedDb.db file\r\n"
                     + "Error : IOException\r\n"
                     + "\r\n");
 
@@ -81,21 +81,22 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
 
         HikariConfig config = new HikariConfig();
 
-        config.setJdbcUrl("jdbc:sqlite:LemiEmbedDB.db");
-	config.setConnectionTestQuery("SELECT 1");
-	config.addDataSourceProperty("cachePrepStmts", "true");
-	config.addDataSourceProperty("prepStmtCacheSize", "250");
-	config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-	
-        ds = new HikariDataSource(config);
+        config.setJdbcUrl("jdbc:sqlite:LemiEmbedDb.db");
+        config.setConnectionTestQuery("SELECT 1");
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.setConnectionTimeout(300000);
+
+        dataSource = new HikariDataSource(config);
 
         try (Statement statement = getConnection().createStatement()) {
             // saved_embeds
             statement.execute("CREATE TABLE IF NOT EXISTS saved_embeds ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "embed_id VARCHAR(20) NOT NULL DEFAULT '0',"
+                    + "embed_id VARCHAR(20) NOT NULL,"
                     + "message_content VARCHAR(20),"
-                    + "embed_json VARCHAR(20) NOT NULL DEFAULT '0'"
+                    + "embed_json VARCHAR(20) NOT NULL"
                     + ");"
             );
     
@@ -112,7 +113,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
     }
 
     private Connection getConnection() throws SQLException {
-	return ds.getConnection();
+	return dataSource.getConnection();
     }
 
     @Override
@@ -425,7 +426,6 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT embed_id FROM saved_embeds WHERE embed_id = ?")) {
-            
             selectStatement.setString(1, specialKey);
 
             try (ResultSet rs = selectStatement.executeQuery()) {
@@ -442,17 +442,15 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
     }
     
     @Override
-    public void saveCreatedEmbed(InteractionHook hook, String messageContent, String embedId,
-                                 Map<String, String> embedProperties, Map<String, Integer> embedColor) {
+    public void saveCreatedEmbed(InteractionHook hook, Map<String, String> embedProperties) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT embed_id FROM saved_embeds WHERE embed_id = ?")) {
-            
-            selectStatement.setString(1, embedId);
+            selectStatement.setString(1, embedProperties.get("embed-id"));
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
-                    hook.sendMessage(":butterfly; Found the same id while saving, operation cancelled.").queue();
+                    hook.sendMessage(":butterfly: Found the same id while saving, operation cancelled.").queue();
                     return;
                 }
             }
@@ -469,7 +467,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                 embedBuilderJson.put("description", embedProperties.get("description"));
             }
             
-            embedBuilderJson.put("color", embedColor.get("color"));
+            embedBuilderJson.put("color", Integer.decode(embedProperties.get("color")));
 
             if (embedProperties.get("image") != null) {
                 JSONObject imageItems = new JSONObject();
@@ -507,135 +505,42 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                 embedBuilderJson.put("footer", footerItems);
             }
 
-            try (PreparedStatement insertStatement =
-    		    conn.prepareStatement("INSERT INTO saved_embeds(embed_id, message_content, embed_json) VALUES(?, ?, ?)")) {
-    	        insertStatement.setString(1, embedId);
-                insertStatement.setString(2, messageContent);
+            if (embedProperties.get("message-content") != null) {
+                try (PreparedStatement insertStatement =
+    		        conn.prepareStatement("INSERT INTO saved_embeds(embed_id, message_content, embed_json) VALUES(?, ?, ?)")) {
+    	            String embedJson = embedBuilderJson.toString();
 
-                String embedJson = embedBuilderJson.toString();
+                    insertStatement.setString(1, embedProperties.get("embed-id"));
+                    insertStatement.setString(2, embedProperties.get("message-content"));
+                    insertStatement.setString(3, embedJson);
 
-                insertStatement.setString(3, embedJson);
+                    int result = insertStatement.executeUpdate();
 
-                int result = insertStatement.executeUpdate();
+                    if (result != 0) {
+                        hook.sendMessage(":herb: Successfully registered embed with the id of : " 
+                                + embedProperties.get("embed-id"))
+                            .queue();
 
-                if (result != 0) {
-                    hook.sendMessage(":herb: Successfully registered embed with the id of : " + embedId).queue();
-
-                } else {
-                    hook.sendMessage(":blueberries: Something went wrong while registering the embed.").queue();
-                }
-    	    }
-                
-        } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "register an embed to the database.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "register an embed to the database.\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "register an embed id to the database. :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
-        }
-    }
-    
-    @Override
-    public void saveCreatedEmbed(InteractionHook hook, String embedId, Map<String, String> embedProperties, Map<String, Integer> embedColor) {
-        try (Connection conn = getConnection();
-                PreparedStatement selectStatement =
-                    conn.prepareStatement("SELECT embed_id FROM saved_embeds WHERE embed_id = ?")) {
-            
-            selectStatement.setString(1, embedId);
-
-            try (ResultSet rs = selectStatement.executeQuery()) {
-                if (rs.next()) {
-                    hook.sendMessage(":butterfly; Found the same id while saving, operation cancelled.").queue();
-                    return;
-                }
-            }
-
-            JSONObject embedBuilderJson = new JSONObject();
-
-            embedBuilderJson.put("type", "rich");
-
-            if (embedProperties.get("title") != null) {
-                embedBuilderJson.put("title", embedProperties.get("title"));
-            }
-            
-            if (embedProperties.get("description") != null) {
-                embedBuilderJson.put("description", embedProperties.get("description"));
-            }
-            
-            embedBuilderJson.put("color", embedColor.get("color"));
-
-            if (embedProperties.get("image") != null) {
-                JSONObject imageItems = new JSONObject();
-                
-                imageItems.put("url", embedProperties.get("image"));
-                embedBuilderJson.put("image", imageItems);
-            }
-            
-            if (embedProperties.get("thumbnail") != null) {
-                JSONObject thumbnailItems = new JSONObject();
-                
-                thumbnailItems.put("url", embedProperties.get("thumbnail"));
-                embedBuilderJson.put("thumbnail", thumbnailItems);
-            }
-
-            if (embedProperties.get("author-name") != null) {
-                JSONObject authorItems = new JSONObject();
-                authorItems.put("name", embedProperties.get("author-name"));
-
-                if (embedProperties.get("author-avatar") != null) {
-                    authorItems.put("icon_url", embedProperties.get("author-avatar"));
-                }
-
-                embedBuilderJson.put("author", authorItems);
-            }
-
-            if (embedProperties.get("footer-text") != null) {
-                JSONObject footerItems = new JSONObject();
-                footerItems.put("text", embedProperties.get("footer-text"));
-
-                if (embedProperties.get("footer-icon") != null) {
-                    footerItems.put("icon_url", embedProperties.get("footer-icon"));
-                }
-
-                embedBuilderJson.put("footer", footerItems);
+                    } else {
+                        hook.sendMessage(":blueberries: Something went wrong while registering the embed.").queue();
+                    }
+    	        }
+                return;
             }
 
             try (PreparedStatement insertStatement =
     		    conn.prepareStatement("INSERT INTO saved_embeds(embed_id, embed_json) VALUES(?, ?)")) {
                 String embedJson = embedBuilderJson.toString();
 
-    	        insertStatement.setString(1, embedId);
+    	        insertStatement.setString(1, embedProperties.get("embed-id"));
                 insertStatement.setString(2, embedJson);
 
                 int result = insertStatement.executeUpdate();
 
                 if (result != 0) {
-                    hook.sendMessage(":herb: Successfully registered embed with the id of : " + embedId).queue();
+                    hook.sendMessage(":herb: Successfully registered embed with the id of : " 
+                            + embedProperties.get("embed-id"))
+                        .queue();
 
                 } else {
                     hook.sendMessage(":blueberries: Something went wrong while registering the embed.").queue();
@@ -652,7 +557,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
 
             hook.sendMessage("--------------------------\r\n" 
                     + "**Something went wrong while trying to "
-                    + "register an embed to the database.\r\n"
+                    + "register an embed to the database.**\r\n"
                     + "Error : SQLException\r\n"
                     + "--------------------------\r\n"
                     + "```\r\n"

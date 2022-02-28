@@ -28,7 +28,7 @@ import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.honiism.discord.lemi.utils.paginator.Paginator;
@@ -39,6 +39,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -67,13 +68,13 @@ public class UserBan extends SlashCmd {
         setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        setGlobal(true);
+        
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User author = hook.getInteraction().getUser();
+        User author = event.getUser();
 
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -92,26 +93,26 @@ public class UserBan extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
-                    Member memberToAdd = event.getOption("user").getAsMember();
-                    String reason = event.getOption("reason").getAsString();
+                    Member memberToAdd = event.getOption("user", OptionMapping::getAsMember);
+                    String reason = event.getOption("reason", OptionMapping::getAsString);
                     
                     if (memberToAdd == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    LemiDbManager.INS.addUserId(memberToAdd, reason, event);
+                    LemiDbManager.INS.addBannedUserId(memberToAdd, reason, event);
                     break;
 
                 case "remove":
-                    Member memberToRemove = event.getOption("user").getAsMember();
+                    Member memberToRemove = event.getOption("user", OptionMapping::getAsMember);
 
                     if (memberToRemove == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    LemiDbManager.INS.removeUserId(memberToRemove, event);
+                    LemiDbManager.INS.removeBannedUserId(memberToRemove, event);
                     break;
 
                 case "view":
@@ -134,13 +135,13 @@ public class UserBan extends SlashCmd {
     private void viewAllBans(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         List<String> banDetails = new ArrayList<>();
-        List<String> authorIds = LemiDbManager.INS.getAuthorIds(event);
-        List<String> bannedUserIds = LemiDbManager.INS.getUserIds(event);
-        List<String> reasons = LemiDbManager.INS.getReasons(event);
+        List<Long> authorIds = LemiDbManager.INS.getBannerAuthorIds(event);
+        List<Long> bannedUserIds = LemiDbManager.INS.getBannedUserIds(event);
+        List<String> reasons = LemiDbManager.INS.getBannedReasons(event);
 
         for (int i = 0; i < bannedUserIds.size(); i++) {
             banDetails.add("Admin : <@" + authorIds.get(i) + ">" 
-                    + " | Banned user : <@" + bannedUserIds.get(i)
+                    + " | Banned user : <@" + bannedUserIds.get(i) + ">"
                     + " | Reason : `" + reasons.get(i) + "`");
         }
 

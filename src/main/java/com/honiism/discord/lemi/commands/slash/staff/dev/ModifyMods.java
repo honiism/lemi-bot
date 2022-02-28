@@ -28,7 +28,7 @@ import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.honiism.discord.lemi.utils.paginator.Paginator;
@@ -40,6 +40,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -68,7 +69,7 @@ public class ModifyMods extends SlashCmd {
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        setGlobal(true);
+        
     }
     
     @Override
@@ -94,8 +95,8 @@ public class ModifyMods extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
-                    Member memberToAdd = event.getOption("user").getAsMember();
-                    String keyToAdd = event.getOption("key").getAsString();
+                    Member memberToAdd = event.getOption("user", OptionMapping::getAsMember);
+                    String keyToAdd = event.getOption("key", OptionMapping::getAsString);
                     
                     if (memberToAdd == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
@@ -106,7 +107,7 @@ public class ModifyMods extends SlashCmd {
                     break;
 
                 case "remove":
-                    Member memberToRemove = event.getOption("user").getAsMember();
+                    Member memberToRemove = event.getOption("user", OptionMapping::getAsMember);
 
                     if (memberToRemove == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
@@ -137,7 +138,7 @@ public class ModifyMods extends SlashCmd {
     private void viewAllIds(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         List<String> modDetails = new ArrayList<>();
-        List<String> modIds = LemiDbManager.INS.getModIds();
+        List<Long> modIds = LemiDbManager.INS.getModIds();
         List<String> modKeys = LemiDbManager.INS.getModKeys();
 
         for (int i = 0; i < modIds.size(); i++) {

@@ -51,13 +51,13 @@ public class Beg extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User author = hook.getInteraction().getUser();
+        User author = event.getUser();
 
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -140,8 +140,8 @@ public class Beg extends SlashCmd {
                 + "> :cherry_blossom: " 
                 + CurrencyTools.getRandomNPC() + ": \"" + Tools.getRandomEntry(resultMessages) + "\"\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) 
-                + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
+                + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
+                + " " + CurrencyTools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
@@ -151,9 +151,9 @@ public class Beg extends SlashCmd {
         int gainedAmount = random.nextInt(250 - 50) + 50;
         gainedAmount += 1;
         
-        String gainedBal = gainedAmount + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong()));
+        String gainedBal = gainedAmount + " " + CurrencyTools.getBalName();
 
-        CurrencyTools.addBalToUser(String.valueOf(author.getIdLong()), gainedAmount);
+        CurrencyTools.addBalToUser(author.getIdLong(), gainedAmount);
 
         hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **BEGGING . . .**\r\n" 
                 + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -161,8 +161,8 @@ public class Beg extends SlashCmd {
                 + "> :cherry_blossom: " 
                 + CurrencyTools.getRandomNPC() + " gave you " + gainedBal + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) 
-                + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
+                + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
+                + " " + CurrencyTools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
@@ -173,9 +173,9 @@ public class Beg extends SlashCmd {
             int gainedAmount = random.nextInt(500 - 200) + 200;
             gainedAmount += 1;
 
-            String gainedBal = gainedAmount + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong()));
+            String gainedBal = gainedAmount + " " + CurrencyTools.getBalName();
 
-            CurrencyTools.addBalToUser(String.valueOf(author.getIdLong()), gainedAmount);
+            CurrencyTools.addBalToUser(author.getIdLong(), gainedAmount);
         
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **BEGGING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -183,8 +183,8 @@ public class Beg extends SlashCmd {
                     + "> :cherry_blossom: " 
                     + CurrencyTools.getRandomNPC() + " gave you " + gainedBal + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) 
-                    + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
+                    + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
+                    + " " + CurrencyTools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
                 
@@ -197,7 +197,7 @@ public class Beg extends SlashCmd {
                 .add(20, new Items.Junk())
                 .add(20, new Items.Cookie());
 
-            String userId = String.valueOf(author.getIdLong());
+            long userId = author.getIdLong();
             Items pickedItem = randomItem.next();
             String itemName = pickedItem.getName();
             String itemEmoji = pickedItem.getEmoji();
@@ -211,8 +211,8 @@ public class Beg extends SlashCmd {
                     + CurrencyTools.getRandomNPC() 
                     + " gave you a " + itemEmoji + " " + itemName + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) 
-                    + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
+                    + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
+                    + " " + CurrencyTools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
         }
@@ -224,9 +224,9 @@ public class Beg extends SlashCmd {
             int gainedAmount = random.nextInt(800 - 500) + 500;
             gainedAmount += 1;
 
-            String gainedBal = gainedAmount + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong()));
+            String gainedBal = gainedAmount + " " + CurrencyTools.getBalName();
 
-            CurrencyTools.addBalToUser(String.valueOf(author.getIdLong()), gainedAmount);
+            CurrencyTools.addBalToUser(author.getIdLong(), gainedAmount);
         
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **BEGGING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -234,8 +234,8 @@ public class Beg extends SlashCmd {
                     + "> :cherry_blossom: " 
                     + CurrencyTools.getRandomNPC() + " gave you " + gainedBal + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) 
-                    + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
+                    + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
+                    + " " + CurrencyTools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
                 
@@ -247,7 +247,7 @@ public class Beg extends SlashCmd {
                 .add(25, new Items.LenSushi())
                 .add(25, new Items.Sticker());
 
-            String userId = String.valueOf(author.getIdLong());
+            long userId = author.getIdLong();
             Items pickedItem = randomItem.next();
             String itemName = pickedItem.getName();
             String itemEmoji = pickedItem.getEmoji();
@@ -261,8 +261,8 @@ public class Beg extends SlashCmd {
                     + CurrencyTools.getRandomNPC() 
                     + " gave you a " + itemEmoji + " " + itemName + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) 
-                    + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
+                    + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
+                    + " " + CurrencyTools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
         }
@@ -274,9 +274,9 @@ public class Beg extends SlashCmd {
             int gainedAmount = random.nextInt(1200 - 800) + 800;
             gainedAmount += 1;
 
-            String gainedBal = gainedAmount + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong()));
+            String gainedBal = gainedAmount + " " + CurrencyTools.getBalName();
 
-            CurrencyTools.addBalToUser(String.valueOf(author.getIdLong()), gainedAmount);
+            CurrencyTools.addBalToUser(author.getIdLong(), gainedAmount);
         
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **BEGGING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -284,8 +284,8 @@ public class Beg extends SlashCmd {
                     + "> :cherry_blossom: " 
                     + CurrencyTools.getRandomNPC() + " gave you " + gainedBal + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) 
-                    + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
+                    + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
+                    + " " + CurrencyTools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
                 
@@ -295,7 +295,7 @@ public class Beg extends SlashCmd {
             randomItem.add(50, new Items.CommonChest())
                 .add(50, new Items.BankNote());
 
-            String userId = String.valueOf(author.getIdLong());
+            long userId = author.getIdLong();
             Items pickedItem = randomItem.next();
             String itemName = pickedItem.getName();
             String itemEmoji = pickedItem.getEmoji();
@@ -309,8 +309,8 @@ public class Beg extends SlashCmd {
                     + CurrencyTools.getRandomNPC() 
                     + " gave you a " + itemEmoji + " " + itemName + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + CurrencyTools.getUserbal(String.valueOf(author.getIdLong())) 
-                    + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + "\r\n"
+                    + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
+                    + " " + CurrencyTools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
         }

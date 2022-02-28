@@ -29,14 +29,13 @@ import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Balance extends SlashCmd {
 
@@ -45,9 +44,7 @@ public class Balance extends SlashCmd {
 
     public Balance() {
         setCommandData(Commands.slash("balance", "Shows the balance of a user.")
-                .addOptions(
-                        new OptionData(OptionType.USER, "user", "The user you want to see the balance of.", true)
-                )
+                .addOption(OptionType.USER, "user", "The user you want to see the balance of.", false)
         );
         
         setUsage("/currency balance <user>");
@@ -55,13 +52,13 @@ public class Balance extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User author = hook.getInteraction().getUser();
+        User author = event.getUser();
 
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -76,24 +73,17 @@ public class Balance extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Member member = event.getOption("user").getAsMember();
-
-            if (member == null) {
-                hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
-                return;
-            }
-
+            Member member = event.getOption("user", event.getMember(), OptionMapping::getAsMember);
             EmbedBuilder userBal = new EmbedBuilder();
-
-            Guild guild = event.getGuild();
-            long bal = CurrencyTools.getUserbal(String.valueOf(member.getIdLong()));
+            
+            long bal = CurrencyTools.getUserBal(member.getIdLong());
 
             userBal.setDescription("‧₊੭ :cherry_blossom: " + member.getAsMention() + "'s balance ♡ ⋆｡˚\r\n"
                     + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                    + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + " " + bal)
+                    + CurrencyTools.getBalName() + " " + bal)
                 .setColor(0xffd1dc)
-                .setThumbnail(member.getUser().getAvatarUrl())
-                .setAuthor(member.getUser().getAsTag(), null, member.getUser().getAvatarUrl());
+                .setThumbnail(member.getUser().getEffectiveAvatarUrl())
+                .setAuthor(member.getUser().getAsTag(), null, member.getUser().getEffectiveAvatarUrl());
 
             hook.sendMessageEmbeds(userBal.build()).queue();
         } else {

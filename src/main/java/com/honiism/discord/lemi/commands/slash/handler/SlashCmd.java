@@ -24,12 +24,12 @@ import java.util.List;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -41,7 +41,6 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 public abstract class SlashCmd implements ISlashCmd {
 
     private SlashCommandData commandData;
-    private boolean isGlobal = true;
     private String usage = "";
     private CommandCategory category = CommandCategory.MAIN;
     private UserCategory userCategory = UserCategory.USERS;
@@ -50,31 +49,30 @@ public abstract class SlashCmd implements ISlashCmd {
 
     @Override
     public void executeAction(SlashCommandInteractionEvent event) {
-        LemiDbManager.INS.checkIfBanned(event);
-
         InteractionHook hook = event.getHook();
+        Member member = event.getMember();
 
         if (getUserCategory().equals(UserCategory.DEV) 
-                && !Tools.isAuthorDev(event.getMember())) {
+                && !Tools.isAuthorDev(member)) {
             return;
         }
 
         if (getUserCategory().equals(UserCategory.ADMINS) 
-                && !Tools.isAuthorAdmin(event.getMember(), event)) {
+                && !Tools.isAuthorAdmin(member, event)) {
             return;
         }
 
         if (getUserCategory().equals(UserCategory.MODS) 
-                && !Tools.isAuthorMod(event.getMember(), event)) {
+                && !Tools.isAuthorMod(member, event)) {
             return;
         }
 
-        if (getUserPerms().length > 0 && !event.getMember().hasPermission(getUserPerms())) {
+        if (getUserPerms().length > 0 && !member.hasPermission(getUserPerms())) {
             EmbedBuilder needUserPermsMsg = new EmbedBuilder()
                 .setDescription(":cherries: **WAIT!**\r\n"
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + ":sunflower:" + event.getMember().getAsMention() + "\r\n"
+                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + ":sunflower:" + member.getAsMention() + "\r\n"
                         + "> You don't have the " + getUserPermsString())
-                .setThumbnail(event.getUser().getAvatarUrl())
+                .setThumbnail(member.getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
             
             hook.sendMessageEmbeds(needUserPermsMsg.build()).queue();
@@ -85,9 +83,9 @@ public abstract class SlashCmd implements ISlashCmd {
                 && !event.getGuild().getSelfMember().hasPermission(getBotPerms())) {
             EmbedBuilder needUserPermsMsg = new EmbedBuilder()
                 .setDescription(":cherries: **WAIT!**\r\n"
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + event.getMember().getAsMention() + "\r\n" 
+                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + member.getAsMention() + "\r\n" 
                         + getBotPermsString())
-                .setThumbnail(event.getGuild().getSelfMember().getUser().getAvatarUrl())
+                .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
 
             hook.sendMessageEmbeds(needUserPermsMsg.build()).queue();
@@ -112,16 +110,6 @@ public abstract class SlashCmd implements ISlashCmd {
     @Override
     public String getName() {
         return getCommandData().getName();
-    }
-
-    @Override
-    public void setGlobal(boolean isGlobal) {
-        this.isGlobal = isGlobal;
-    }
-
-    @Override
-    public boolean isGlobal() {
-        return isGlobal;
     }
 
     @Override
@@ -245,7 +233,7 @@ public abstract class SlashCmd implements ISlashCmd {
                     "`" + getUserPermsString() + "`", false)
             .addField(":cake: **Bot permissions needed**" + CustomEmojis.PINK_DASH,
                     "`" + getBotPermsString() + "`", false)
-            .setThumbnail(event.getGuild().getSelfMember().getUser().getAvatarUrl())
+            .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
             .setColor(0xffd1dc);
 
         return helpEmbed.build();
@@ -274,7 +262,7 @@ public abstract class SlashCmd implements ISlashCmd {
                     "`" + getUserPermsString() + "`", false)
             .addField(":cake: **Bot permissions needed**" + CustomEmojis.PINK_DASH,
                     "`" + getBotPermsString() + "`", false)
-            .setThumbnail(event.getGuild().getSelfMember().getUser().getAvatarUrl())
+            .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
             .setColor(0xffd1dc);
 
         return helpEmbed;

@@ -17,36 +17,31 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.database.managers;
+package com.honiism.discord.lemi.data.database.managers;
 
 import java.util.List;
 
-import com.honiism.discord.lemi.database.LemiDbBalDs;
+import com.honiism.discord.lemi.data.database.LemiDbBalDs;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public interface LemiDbBalManager {
     LemiDbBalManager INS = new LemiDbBalDs();
 
     // currency
-    boolean userHasCurrProfile(Member member);
-    void addUserCurrProfile(Member member);
-    void addUserInvProfile(Member member);
-    long getUserBal(String userId);
-    void addBalToUser(String userId, long balToAdd);
-    void removeBalFromUser(String userId, long balToRemove);
-    void updateUserBal(String userId, long balToUpdate);
-    List<String> getOwnedItems(String userId);
-    long getItemFromUserInv(String userId, String itemName);
+    boolean userHasCurrProfile(long userId);
+    void addUserCurrProfile(long userId);
+    void addUserInvProfile(long userId);
+    long getUserBal(Long userId);
+    void updateUserBal(Long userId, long balToUpdate);
+    List<String> getOwnedItems(Long userId);
+    long getItemFromUserInv(Long userId, String itemName);
     boolean checkIfItemExists(String itemName);
-    void addItemToUser(String userId, String itemName, long amountToAdd);
-    void removeItemFromUser(String userId, String itemName, long amountToRemove);
-    void updateItemUser(String userId, String itemName, long amountToUpdate);
-    void removeAllItems(String userId, Guild guild);
-    void removeCurrData(String userId, Guild guild);
+    void updateItemUser(Long userId, String itemName, long amountToUpdate);
+    void removeAllItems(Long userId, Guild guild);
+    void removeCurrData(Long userId, Guild guild);
     void addNewItemToDb(String itemId, InteractionHook hook);
     void removeItemFromDb(String itemId, InteractionHook hook);
-    void addItemsToDb();
+    void createInvDb();
 }

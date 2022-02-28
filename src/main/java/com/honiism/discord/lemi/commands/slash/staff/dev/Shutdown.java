@@ -45,13 +45,13 @@ public class Shutdown extends SlashCmd {
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        setGlobal(true);
+        
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User author = hook.getInteraction().getUser();
+        User author = event.getUser();
         
         log.info(author.getAsTag() + "(" + author.getIdLong() + ") initiated non-emergency shutdown!");
                         

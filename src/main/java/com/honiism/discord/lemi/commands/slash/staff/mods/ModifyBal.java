@@ -29,11 +29,11 @@ import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -61,7 +61,7 @@ public class ModifyBal extends SlashCmd {
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override
@@ -83,60 +83,59 @@ public class ModifyBal extends SlashCmd {
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
             String subCmdName = event.getSubcommandName();
-            Guild guild = event.getGuild();
 
             switch (subCmdName) {
                 case "add":
-                    int addAmount = (int) event.getOption("amount").getAsLong();
+                    long addAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
                     if (addAmount < 0 || addAmount == 0) {
                         hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of currency.").queue();
                         return;
                     } 
                         
-                    Member memberToAddCurr = event.getOption("user").getAsMember();
+                    Member memberToAddCurr = event.getOption("user", OptionMapping::getAsMember);
 
                     if (memberToAddCurr == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
             
-                    CurrencyTools.addBalToUser(String.valueOf(memberToAddCurr.getIdLong()), addAmount);
+                    CurrencyTools.addBalToUser(memberToAddCurr.getIdLong(), addAmount);
             
                     hook.sendMessage(":cherry_blossom: " 
                             + memberToAddCurr.getAsMention() 
                             + ", you have received " + addAmount 
-                            + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + " from " 
+                            + " " + CurrencyTools.getBalName() + " from " 
                             + author.getAsMention() + "!\r\n"
-                            + ":blueberries: You now have " + CurrencyTools.getUserbal(String.valueOf(memberToAddCurr.getIdLong()))
-                            + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + ".")
+                            + ":blueberries: You now have " + CurrencyTools.getUserBal(memberToAddCurr.getIdLong())
+                            + " " + CurrencyTools.getBalName() + ".")
                         .queue();
                     break;
 
                 case "remove":
-                    int removeAmount = (int) event.getOption("amount").getAsLong();
+                    long removeAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
                     if (removeAmount < 0 || removeAmount == 0) {
                         hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of currency.").queue();
                         return;
                     } 
                         
-                    Member memberToRemoveCurr = event.getOption("user").getAsMember();
+                    Member memberToRemoveCurr = event.getOption("user", OptionMapping::getAsMember);
 
                     if (memberToRemoveCurr == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
             
-                    CurrencyTools.removeBalFromUser(String.valueOf(memberToRemoveCurr.getIdLong()), removeAmount);
+                    CurrencyTools.removeBalFromUser(memberToRemoveCurr.getIdLong(), removeAmount);
             
                     hook.sendMessage(":cherry_blossom: " 
                             + memberToRemoveCurr.getAsMention() 
                             + ", " + author.getAsMention()
                             + " has taken " + removeAmount + " " 
-                            + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + " from " + "you" + "!\r\n"
-                            + ":blueberries: You now have " + CurrencyTools.getUserbal(String.valueOf(memberToRemoveCurr.getIdLong()))
-                            + " " + CurrencyTools.getBalName(String.valueOf(guild.getIdLong())) + ".")
+                            + CurrencyTools.getBalName() + " from " + "you" + "!\r\n"
+                            + ":blueberries: You now have " + CurrencyTools.getUserBal(memberToRemoveCurr.getIdLong())
+                            + " " + CurrencyTools.getBalName() + ".")
                         .queue();
             }
         } else {

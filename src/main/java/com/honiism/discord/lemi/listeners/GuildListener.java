@@ -21,7 +21,7 @@ package com.honiism.discord.lemi.listeners;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,36 +48,25 @@ public class GuildListener extends ListenerAdapter {
         Guild guild = event.getGuild();
         Long guildId = guild.getIdLong();
 
-        if (!guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))) {
-            String joinedLogMsg = "--------------------------\r\n"
-                +  "**LEMI JOINED A SERVER!**\r\n"
-                + "**Guild id :** " + guild.getIdLong() + "\r\n"
-                + "**Guild name :** " + guild.getName() + "\r\n";
-
-            log.info(joinedLogMsg.toString());
-
-            Lemi.getInstance().getShardManager()
-                .getGuildById(Config.get("honeys_sweets_id"))
-                .getTextChannelById(Config.get("logs_channel_id"))
-                .sendMessage(joinedLogMsg)
-	        .queue();
+        if (guildId.equals(Config.getLong("honeys_sweets_id"))
+                || guildId.equals(Config.getLong("test_server"))) {
+            return;
         }
 
-        LemiDbManager.INS.insertGuildSettings(guild);
+        String joinedLogMsg = "--------------------------\r\n"
+                +  "**LEMI JOINED A SERVER!**\r\n"
+                + "**Guild id :** " + guildId + "\r\n"
+                + "**Guild name :** " + guild.getName() + "\r\n";
 
-        BaseListener.getJDA().retrieveCommands().queue(
-            (globalCmds) -> {
-                Lemi.getInstance().updateCmdPrivileges(guild, globalCmds);
-            }
-        );
+        log.info(joinedLogMsg.toString());
 
-        guild.retrieveCommands().queue(
-            (guildCmds) -> {
-                if (guildCmds.isEmpty() || guildCmds != null) {
-                    Lemi.getInstance().updateCmdPrivileges(guild, guildCmds);
-                }
-            }
-        );
+        Lemi.getInstance().getShardManager()
+            .getGuildById(Config.get("honeys_sweets_id"))
+            .getTextChannelById(Config.get("logs_channel_id"))
+            .sendMessage(joinedLogMsg)
+	    .queue();
+
+        guild.leave().queue();
     }
 
     @Override
@@ -91,7 +80,7 @@ public class GuildListener extends ListenerAdapter {
 
         String leaveLogMsg = "--------------------------\r\n"
                 +  "**LEMI LEFT A SERVER!**\r\n"
-                + "**Guild id :** " + guild.getIdLong() + "\r\n"
+                + "**Guild id :** " + guildId + "\r\n"
                 + "**Guild name :** " + guild.getName() + "\r\n";
 
         log.info(leaveLogMsg.toString());
@@ -105,16 +94,32 @@ public class GuildListener extends ListenerAdapter {
 
     @Override
     public void onGuildTimeout(GuildTimeoutEvent event) {
-        String logMessage = "A guild has failed to load and timeout.\r\n"
+        if (event.getGuildIdLong() == Config.getLong("honeys_sweets_id")) {
+            BaseListener.getJDA().retrieveUserById(Config.getLong("dev_id")).queue(
+                (dev) -> {
+                    dev.openPrivateChannel().queue(
+                        (channel) -> {
+                            channel.sendMessage("HONEY'S SWEETS GUILD HAS FAILED TO LOAD!").queue();
+                            log.error("HONEY'S SWEETS GUILD HAS FAILED TO LOAD!");
+                        },
+                        (error) -> {
+                            log.error("HONEY'S SWEETS GUILD HAS FAILED TO LOAD!");
+                        }
+                    );
+                }
+            );
+        } else {
+            String logMessage = "A guild has failed to load and timeout.\r\n"
                 + "Guild id : " + event.getGuildId() + "\r\n"
                 + "Response number : " + event.getResponseNumber();
 
-        log.error(logMessage);
+            log.error(logMessage);
         
-        Lemi.getInstance().getShardManager()
-            .getGuildById(Config.get("honeys_sweets_id"))
-            .getTextChannelById(Config.get("logs_channel_id"))
-            .sendMessage(logMessage)
-	    .queue();
+            Lemi.getInstance().getShardManager()
+                .getGuildById(Config.get("honeys_sweets_id"))
+                .getTextChannelById(Config.get("logs_channel_id"))
+                .sendMessage(logMessage)
+	        .queue();   
+        }
     }
 }

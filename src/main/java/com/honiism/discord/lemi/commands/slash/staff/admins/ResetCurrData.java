@@ -34,9 +34,9 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class ResetCurrData extends SlashCmd {
 
@@ -45,9 +45,7 @@ public class ResetCurrData extends SlashCmd {
 
     public ResetCurrData() {
         setCommandData(Commands.slash("resetcurrdata", "Reset a user's currency data.")
-                .addOptions(
-                        new OptionData(OptionType.USER, "user", "The user you want to reset.", true)
-                )
+                .addOption(OptionType.USER, "user", "The user you want to reset.", true)
         );
 
         setUsage("/admins resetcurrdata <user>");
@@ -55,7 +53,7 @@ public class ResetCurrData extends SlashCmd {
         setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        setGlobal(true);
+        
     }
 
     @Override
@@ -76,7 +74,7 @@ public class ResetCurrData extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Member member = event.getOption("user").getAsMember();
+            Member member = event.getOption("user", OptionMapping::getAsMember);
             Guild guild = event.getGuild();
 
             if (member == null) {
@@ -84,7 +82,7 @@ public class ResetCurrData extends SlashCmd {
                 return;
             }
 
-            CurrencyTools.removeUserData(String.valueOf(member.getIdLong()), guild);
+            CurrencyTools.removeUserData(member.getIdLong(), guild);
 
             hook.sendMessage(":tulip: Successfully reset the user's data.").queue();
 

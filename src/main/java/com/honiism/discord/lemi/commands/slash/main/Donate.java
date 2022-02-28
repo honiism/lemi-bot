@@ -45,7 +45,7 @@ public class Donate extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override
@@ -71,7 +71,7 @@ public class Donate extends SlashCmd {
                                 + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
                                 + "Click [here](https://www.paypal.me/artbyhoneyz) to donate!")
                 .setFooter("Thanks for the support! ꒱ੈ♡˳")
-                .setThumbnail(event.getGuild().getSelfMember().getUser().getAvatarUrl())
+                .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
 
             hook.sendMessageEmbeds(donateEmbed.build())

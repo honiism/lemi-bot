@@ -17,7 +17,7 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.database;
+package com.honiism.discord.lemi.data.database;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.List;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -50,24 +49,24 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 public class LemiDbDs implements LemiDbManager {
     
     private static final Logger log = LoggerFactory.getLogger(LemiDbDs.class);
-    private HikariDataSource ds;
+    private final HikariDataSource dataSource;
 
     public LemiDbDs() {
         try {
-            File lemiDBFile = new File("LemiDB.db");
+            File lemiDBFile = new File("LemiDb.db");
 
             if (!lemiDBFile.exists()) {
                 if (lemiDBFile.createNewFile()) {
-                    log.info("Created a database file (LemiDB.db)");
+                    log.info("Created a database file (LemiDb.db)");
                 } else {
                     log.error("Failed to create a database file.");
                 }
             } else {
-                log.info("Connected to LemiDB.db database file.");
+                log.info("Connected to LemiDb.db database file.");
             }
         } catch (IOException e) {
             log.error("\r\nSomething unexpected went wrong while trying to "
-                    + "connect / create LemiDB.db file\r\n"
+                    + "connect / create LemiDb.db file\r\n"
                     + "Error : IOException\r\n"
                     + "\r\n");
 
@@ -75,21 +74,22 @@ public class LemiDbDs implements LemiDbManager {
         }
 
         HikariConfig config = new HikariConfig();
-        
-        config.setJdbcUrl("jdbc:sqlite:LemiDB.db");
-	config.setConnectionTestQuery("SELECT 1");
-	config.addDataSourceProperty("cachePrepStmts", "true");
-	config.addDataSourceProperty("prepStmtCacheSize", "250");
-	config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-	
-        ds = new HikariDataSource(config);
+
+        config.setJdbcUrl("jdbc:sqlite:LemiDb.db");
+        config.setConnectionTestQuery("SELECT 1");
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.setConnectionTimeout(300000);
+
+        dataSource = new HikariDataSource(config);
 
         try (Statement statement = getConnection().createStatement()) {
             // guild_settings
             statement.execute("CREATE TABLE IF NOT EXISTS guild_settings ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "guild_id VARCHAR(20) NOT NULL DEFAULT '0',"
-                    + "balance_name VARCHAR(20) NOT NULL DEFAULT '<:coin_hs_nosteal:932137408282103818>'"
+                    + "guild_id VARCHAR(20) NOT NULL,"
+                    + "dj_role_id VARCHAR(20) NOT NULL DEFAULT '0'"
                     + ");"
             );
     
@@ -129,11 +129,11 @@ public class LemiDbDs implements LemiDbManager {
     }
 
     private Connection getConnection() throws SQLException {
-	return ds.getConnection();
+	return dataSource.getConnection();
     }
 
     @Override
-    public List<String> getReasons(SlashCommandInteractionEvent event) {
+    public List<String> getBannedReasons(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         List<String> reasons = new ArrayList<>();
 
@@ -141,13 +141,9 @@ public class LemiDbDs implements LemiDbManager {
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT reason FROM banned_users")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.editOriginal(":cherry_blossom: Fetching all the reasons...").queue();
-
                 while (rs.next()) {
                     reasons.add(rs.getString("reason"));
                 }
-
-                hook.editOriginal(":grapes: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -189,21 +185,17 @@ public class LemiDbDs implements LemiDbManager {
     }
 
     @Override
-    public List<String> getAuthorIds(SlashCommandInteractionEvent event) {
+    public List<Long> getBannerAuthorIds(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        List<String> authorIds = new ArrayList<>();
+        List<Long> authorIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT author_id FROM banned_users")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.sendMessage(":cherry_blossom: Fetching all the author (admin) ids...").queue();
-
                 while (rs.next()) {
-                    authorIds.add(rs.getString("author_id"));
+                    authorIds.add(rs.getLong("author_id"));
                 }
-
-                hook.editOriginal(":grapes: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -245,21 +237,17 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getUserIds(SlashCommandInteractionEvent event) {
+    public List<Long> getBannedUserIds(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        List<String> userIds = new ArrayList<>();
+        List<Long> userIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT user_id FROM banned_users")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
-                hook.editOriginal(":cherry_blossom: Fetching all the user ids...").queue();
-
                 while (rs.next()) {
-                    userIds.add(rs.getString("user_id"));
+                    userIds.add(rs.getLong("user_id"));
                 }
-
-                hook.editOriginal(":grapes: Fetching complete.").queue();
             }
 
         } catch (SQLException e) {
@@ -301,7 +289,7 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public void addUserId(Member member, String reason, SlashCommandInteractionEvent event) {
+    public void addBannedUserId(Member member, String reason, SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
 
         try (Connection conn = getConnection();
@@ -318,10 +306,11 @@ public class LemiDbDs implements LemiDbManager {
             }
 
             try (PreparedStatement insertStatement =
-    		    conn.prepareStatement("INSERT INTO banned_users(user_id, reason) VALUES(?, ?)")) {
+    		    conn.prepareStatement("INSERT INTO banned_users(author_id, user_id, reason) VALUES(?, ?, ?)")) {
 
-    	        insertStatement.setLong(1, member.getIdLong());
-                insertStatement.setString(2, reason);
+                insertStatement.setLong(1, event.getMember().getIdLong());
+    	        insertStatement.setLong(2, member.getIdLong());
+                insertStatement.setString(3, reason);
 
                 int result = insertStatement.executeUpdate();
 
@@ -375,7 +364,7 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public void removeUserId(Member member, SlashCommandInteractionEvent event) {
+    public void removeBannedUserId(Member member, SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
 
         try (Connection conn = getConnection();
@@ -447,18 +436,18 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getAdminIds() {
-        List<String> adminIds = new ArrayList<>();
+    public List<Long> getAdminIds() {
+        List<Long> adminIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT admin_ids FROM admin_mod_ids")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
                 while (rs.next()) {
-                    if (rs.getString("admin_ids").equals("0")) {
+                    if (rs.getLong("admin_ids") == 0) {
                         continue;
                     }
-                    adminIds.add(rs.getString("admin_ids"));
+                    adminIds.add(rs.getLong("admin_ids"));
                 }
             }
 
@@ -496,7 +485,7 @@ public class LemiDbDs implements LemiDbManager {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
                 while (rs.next()) {
-                    if (!rs.getString("staff_key").endsWith("admin")) {
+                    if (!rs.getString("staff_key").contains("admin")) {
                         continue;
                     }
                     adminKeys.add(rs.getString("staff_key"));
@@ -732,18 +721,18 @@ public class LemiDbDs implements LemiDbManager {
     }
     
     @Override
-    public List<String> getModIds() {
-        List<String> modIds = new ArrayList<>();
+    public List<Long> getModIds() {
+        List<Long> modIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement = conn.prepareStatement("SELECT mod_ids FROM admin_mod_ids")) {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
                 while (rs.next()) {
-                    if (rs.getString("mod_ids").equals("0")) {
+                    if (rs.getLong("mod_ids") == 0) {
                         continue;
                     }
-                    modIds.add(rs.getString("mod_ids"));
+                    modIds.add(rs.getLong("mod_ids"));
                 }
             }
 
@@ -784,7 +773,7 @@ public class LemiDbDs implements LemiDbManager {
             
             try (ResultSet rs = selectStatement.executeQuery()) {
                 while (rs.next()) {
-                    if (!rs.getString("staff_key").endsWith("mod")) {
+                    if (!rs.getString("staff_key").contains("mod")) {
                         continue;
                     }
                     modKeys.add(rs.getString("staff_key"));
@@ -1113,26 +1102,7 @@ public class LemiDbDs implements LemiDbManager {
     }
 
     @Override
-    public String getBalName(String guildId) {
-        try (Connection conn = getConnection();
-                PreparedStatement selectStatement =
-                        conn.prepareStatement("SELECT balance_name FROM guild_settings WHERE guild_id = ?")) {
-            selectStatement.setString(1, guildId);
-            
-            try (ResultSet rs = selectStatement.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("balance_name");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    @Override
-    public boolean isAuthorAdmin(User author, TextChannel channel) {
+    public boolean isAuthorAdmin(User author) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT admin_ids FROM admin_mod_ids WHERE admin_ids = ?")) {
@@ -1152,8 +1122,11 @@ public class LemiDbDs implements LemiDbManager {
                     + "\r\n");
     
             e.printStackTrace();
-    
-            channel.sendMessage("--------------------------\r\n" 
+            
+            Lemi.getInstance().getShardManager()
+                .getGuildById(Config.get("honeys_sweets_id"))
+                .getTextChannelById(Config.get("logs_channel_id"))
+                .sendMessage("--------------------------\r\n" 
                     +"\r\n**Something went wrong while trying to "
                     + "run isAuthorAdmin :no_entry:**\r\n"
                     + "Error : SQLException\r\n"
@@ -1162,14 +1135,14 @@ public class LemiDbDs implements LemiDbManager {
                     + e.getMessage() + "\r\n"
                     + e.getCause() + "\r\n"
                     + "```")
-                .queue();
+	        .queue();  
         }
     
         return false;
     }
     
     @Override
-    public boolean isAuthorMod(User author, TextChannel channel) {
+    public boolean isAuthorMod(User author) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT mod_ids FROM admin_mod_ids WHERE mod_ids = ?")) {
@@ -1177,7 +1150,7 @@ public class LemiDbDs implements LemiDbManager {
             selectStatement.setLong(1, author.getIdLong());
     
             try (ResultSet rs = selectStatement.executeQuery()) {
-                if (rs.next() || Tools.isAuthorDev(author) || isAuthorAdmin(author, channel)) {
+                if (rs.next() || Tools.isAuthorDev(author) || isAuthorAdmin(author)) {
                     return true;
                 }
             }
@@ -1189,17 +1162,20 @@ public class LemiDbDs implements LemiDbManager {
                         + "\r\n");
     
                 e.printStackTrace();
-    
-                channel.sendMessage("--------------------------\r\n" 
-                        +"\r\n**Something went wrong while trying to"
-                        + " run isAuthorMod :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + e.getMessage() + "\r\n"
-                        + e.getCause() + "\r\n"
-                        + "```")
-                    .queue();
+
+                Lemi.getInstance().getShardManager()
+                    .getGuildById(Config.get("honeys_sweets_id"))
+                    .getTextChannelById(Config.get("logs_channel_id"))
+                    .sendMessage("--------------------------\r\n" 
+                            +"\r\n**Something went wrong while trying to"
+                            + " run isAuthorMod :no_entry:**\r\n"
+                            + "Error : SQLException\r\n"
+                            + "--------------------------\r\n"
+                            + "```\r\n"
+                            + e.getMessage() + "\r\n"
+                            + e.getCause() + "\r\n"
+                            + "```")
+	            .queue();  
             }
     
         return false;
@@ -1227,7 +1203,7 @@ public class LemiDbDs implements LemiDbManager {
     
             e.printStackTrace();
     
-            event.reply("--------------------------\r\n" 
+            event.getHook().sendMessage("--------------------------\r\n" 
                     +"\r\n**Something went wrong while trying to "
                     + "run isAuthorAdmin :no_entry:**\r\n"
                     + "Error : SQLException\r\n"
@@ -1264,7 +1240,7 @@ public class LemiDbDs implements LemiDbManager {
     
                 e.printStackTrace();
     
-                event.reply("--------------------------\r\n" 
+                event.getHook().sendMessage("--------------------------\r\n" 
                         +"\r\n**Something went wrong while trying to"
                         + " run isAuthorMod :no_entry:**\r\n"
                         + "Error : SQLException\r\n"

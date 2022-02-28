@@ -39,9 +39,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class ShardStatus extends SlashCmd {
 
@@ -50,9 +50,7 @@ public class ShardStatus extends SlashCmd {
 
     public ShardStatus() {
         setCommandData(Commands.slash("shardstatus", "View the status of all shards.")
-                .addOptions(
-                        new OptionData(OptionType.INTEGER, "page", "The page number for the shard status you want to see.", false)
-                )
+                .addOption(OptionType.INTEGER, "page", "The page number for the shard status you want to see.", false)
         );
 
         setUsage("/mods shardstatus [page number]");
@@ -60,7 +58,7 @@ public class ShardStatus extends SlashCmd {
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override
@@ -110,16 +108,10 @@ public class ShardStatus extends SlashCmd {
                 .setColor(0xffd1dc)
                 .setTimeout(1, TimeUnit.MINUTES);
 
-            int page = 1;
-
-            if (event.getOption("page") != null) {
-                page = (int) event.getOption("page").getAsLong();
-            }
-
-            int finalPage = page;
+            int page = event.getOption("page", 1, OptionMapping::getAsInt);
 
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":umbrella2: Loading..."))
-                .queue(message -> builder.build().paginate(message, finalPage));
+                .queue(message -> builder.build().paginate(message, page));
 
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);

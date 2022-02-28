@@ -33,9 +33,9 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class AddCurrProfile extends SlashCmd {
 
@@ -44,9 +44,7 @@ public class AddCurrProfile extends SlashCmd {
 
     public AddCurrProfile() {
         setCommandData(Commands.slash("addcurrprofile", "Add a currency profile for members that doesn't have one.")
-                .addOptions(
-                        new OptionData(OptionType.USER, "user", "User you'd like to give a currency profile.", true)
-                )
+                .addOption(OptionType.USER, "user", "User you'd like to give a currency profile.", true)
         );
 
         setUsage("/mods addcurrprofile <user>");
@@ -54,7 +52,7 @@ public class AddCurrProfile extends SlashCmd {
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override
@@ -75,20 +73,20 @@ public class AddCurrProfile extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Member member = event.getOption("user").getAsMember();
+            Member member = event.getOption("user", OptionMapping::getAsMember);
             
             if (member == null) {
                 hook.sendMessage(":cherry_blossom This user doesn't exist in the guild.").queue();
                 return;
             }
 
-            if (CurrencyTools.userHasCurrProfile(member)) {
+            if (CurrencyTools.userHasCurrProfile(member.getIdLong())) {
                 hook.sendMessage(":snowflake: This user already has a currency profile.").queue();
                 return;
             }
 
-            CurrencyTools.addUserCurrProfile(member);
-            CurrencyTools.addUserInvProfile(member);
+            CurrencyTools.addUserCurrProfile(member.getIdLong());
+            CurrencyTools.addUserInvProfile(member.getIdLong());
 
             hook.sendMessage(":seedling: Successfully added currency profiles to them.").queue();
         } else {

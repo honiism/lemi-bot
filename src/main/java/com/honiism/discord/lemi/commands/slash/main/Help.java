@@ -43,7 +43,6 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Help extends SlashCmd {
 
@@ -52,10 +51,8 @@ public class Help extends SlashCmd {
 
     public Help() {
         setCommandData(Commands.slash("help", "Shows information about Lemi.")
-                .addOptions(
-                        new OptionData(OptionType.INTEGER, "page", "Page of the help menu.", false),
-                        new OptionData(OptionType.STRING, "command_name", "The name of command/category to display its help menu.", false)
-                )
+                .addOption(OptionType.INTEGER, "page", "Page of the help menu.", false)
+                .addOption(OptionType.STRING, "command_name", "The name of command/category.", false)
         );
         
         setUsage("/help [page number]");
@@ -63,13 +60,13 @@ public class Help extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
     
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User author = hook.getInteraction().getUser();
+        User author = event.getUser();
         
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -84,17 +81,17 @@ public class Help extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            OptionMapping cmdNameOption = event.getOption("command_name");
+            String cmdName = event.getOption("command_name", OptionMapping::getAsString);
 
-            if (cmdNameOption != null) {
-                String cmdName = cmdNameOption.getAsString();
-
+            if (cmdName != null) {
                 if (Lemi.getInstance().getSlashCmdManager().getCmdByName(cmdName) == null) {
                     hook.sendMessage(":tulip: That command doesn't exist.\r\n"
                             + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
                             + ":sunflower: Don't include the category names when you're trying to " 
-                            + "*search for a command* and don't put the slashes!\r\n"
+                            + "**search for a command and don't include the slashes and the command's category!**\r\n"
                             + CustomEmojis.PINK_CHECK_MARK + " `balance`\r\n"
+                            + CustomEmojis.PINK_CROSS_MARK + " `currency balance`\r\n"
+                            + CustomEmojis.PINK_CROSS_MARK + " `/balance`\r\n"
                             + CustomEmojis.PINK_CROSS_MARK + " `/currency balance`\r\n"
                             + "-\r\n"
                             + ":seedling: You can also get a category help menu!\r\n"
@@ -125,7 +122,7 @@ public class Help extends SlashCmd {
                 if ((category.equals(CommandCategory.MODS)
                         || category.equals(CommandCategory.ADMINS)
                         || category.equals(CommandCategory.DEV))
-                        && !Tools.isAuthorMod(author, hook.getInteraction().getTextChannel())) {
+                        && !Tools.isAuthorMod(author)) {
                     continue;
                 }
                 
@@ -137,7 +134,7 @@ public class Help extends SlashCmd {
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
                     .appendDescription(":sunflower: Category : " + category.toString() + "\r\n \r\n" 
                         + String.join(", ", slashCmdManagerIns.getCmdNamesByCategory(slashCmdManagerIns.getCmdByCategory(category))))
-                    .setThumbnail(hook.getJDA().getSelfUser().getAvatarUrl())
+                    .setThumbnail(hook.getJDA().getSelfUser().getEffectiveAvatarUrl())
                     .setColor(0xffd1dc)
                 );
             }
@@ -149,16 +146,10 @@ public class Help extends SlashCmd {
                 .addAllowedUsers(author.getIdLong())
                 .setFooter("© honiism#8022");
 
-            int page = 1;
-
-            if (event.getOption("page") != null) {
-                page = (int) event.getOption("page").getAsLong();
-            }
-
-            int finalPage = page;
+            int page = event.getOption("page", 1, OptionMapping::getAsInt);
 
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":snowflake: Finished!"))
-                .queue(message -> builder.build().paginate(message, finalPage));
+                .queue(message -> builder.build().paginate(message, page));
 
         } else {
             String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);

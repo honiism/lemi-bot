@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.honiism.discord.lemi.Config;
-import com.honiism.discord.lemi.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 
 import me.duncte123.botcommons.StringUtils;
@@ -61,7 +61,7 @@ public class Tools {
         StringBuilder stringBuilder = new StringBuilder();
         String temp;
 
-        stringBuilder.append(msgToProcess);
+        stringBuilder.append(msgToProcess.trim());
 
         if (stringBuilder.indexOf("%user%") != -1) {
             temp = replaceAllSb(stringBuilder, "%user%", member.getUser().getAsMention()).toString();
@@ -85,7 +85,7 @@ public class Tools {
         }
         
         if (stringBuilder.indexOf("%user_avatar%") != -1) {
-            temp = replaceAllSb(stringBuilder, "%user_avatar%", member.getUser().getAvatarUrl()).toString();
+            temp = replaceAllSb(stringBuilder, "%user_avatar%", member.getUser().getEffectiveAvatarUrl()).toString();
 
             stringBuilder.setLength(0);
             stringBuilder.append(temp);
@@ -141,8 +141,7 @@ public class Tools {
         }
         
         if (stringBuilder.indexOf("%server_currency%") != -1) {
-            temp = replaceAllSb(stringBuilder, "%server_currency%",
-                    CurrencyTools.getBalName(String.valueOf(guild.getIdLong()))).toString();
+            temp = replaceAllSb(stringBuilder, "%server_currency%", CurrencyTools.getBalName()).toString();
 
             stringBuilder.setLength(0);
             stringBuilder.append(temp);
@@ -338,13 +337,13 @@ public class Tools {
         }
 
         if (stringBuilder.indexOf("%date%") != -1) {
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");  
-                LocalDateTime now = LocalDateTime.now();  
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");  
+            LocalDateTime now = LocalDateTime.now();  
     
-                temp = replaceAllSb(stringBuilder, "%date%", dtf.format(now)).toString();
+            temp = replaceAllSb(stringBuilder, "%date%", dtf.format(now)).toString();
     
-                stringBuilder.setLength(0);
-                stringBuilder.append(temp);
+            stringBuilder.setLength(0);
+            stringBuilder.append(temp);
         }
 
         return stringBuilder.toString();
@@ -454,12 +453,12 @@ public class Tools {
         return authorId.equals(Long.parseLong(Config.get("dev_id")));
     }
     
-    public static boolean isAuthorAdmin(User author, TextChannel channel) {
-        return LemiDbManager.INS.isAuthorAdmin(author, channel);
+    public static boolean isAuthorAdmin(User author) {
+        return LemiDbManager.INS.isAuthorAdmin(author);
     }
     
-    public static boolean isAuthorMod(User author, TextChannel channel) {
-        return LemiDbManager.INS.isAuthorMod(author, channel);
+    public static boolean isAuthorMod(User author) {
+        return LemiDbManager.INS.isAuthorMod(author);
     }
 
     public static boolean isAuthorDev(Member member) {
@@ -491,7 +490,7 @@ public class Tools {
     @SuppressWarnings("rawtypes")
     public static boolean isEmpty(Collection... collections) {
         for (Collection collection : collections) {
-            if (null == collection || collection.isEmpty()) {
+            if (collection == null || collection.isEmpty()) {
                 return true;
             }
         }
@@ -511,8 +510,7 @@ public class Tools {
             return "No aliases available!";
         }
     
-        String modifiedAliases = Arrays.stream(aliases)
-            .collect(Collectors.joining(","));
+        String modifiedAliases = Arrays.stream(aliases).collect(Collectors.joining(","));
 
         return StringUtils.replaceLast(modifiedAliases, ", ", " and ");
     }

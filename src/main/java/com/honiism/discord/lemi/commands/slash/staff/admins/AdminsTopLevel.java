@@ -66,7 +66,7 @@ public class AdminsTopLevel extends SlashCmd {
         setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        setGlobal(true);
+        
     }
 
     @Override
@@ -75,7 +75,7 @@ public class AdminsTopLevel extends SlashCmd {
         String subCmdName = event.getSubcommandName();
 
         if (subCmdGroupName != null) {
-            switch (subCmdName) {
+            switch (subCmdGroupName) {
                 case "userban":
                     this.userBanGroup.action(event);
                     break;

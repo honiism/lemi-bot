@@ -39,9 +39,9 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.MiscUtil;
 
 public class GuildList extends SlashCmd {
@@ -51,9 +51,7 @@ public class GuildList extends SlashCmd {
 
     public GuildList() {
         setCommandData(Commands.slash("guildlist", "View the list of guilds that Lemi is in.")
-                .addOptions(
-                        new OptionData(OptionType.INTEGER, "page", "The page number for the guild list you want to see.", false)
-                )
+                .addOption(OptionType.INTEGER, "page", "The page number for the guild list you want to see.", false)
         );
 
         setUsage("/mods guildlist [page number]");
@@ -61,7 +59,7 @@ public class GuildList extends SlashCmd {
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setGlobal(true);
+        
     }
 
     @Override
@@ -120,16 +118,10 @@ public class GuildList extends SlashCmd {
                 .setColor(0xffd1dc)
                 .setTimeout(1, TimeUnit.MINUTES);
 
-            int page = 1;
-
-            if (event.getOption("page") != null) {
-                page = (int) event.getOption("page").getAsLong();
-            }
-
-            int finalPage = page;
+            int page = event.getOption("page", 1, OptionMapping::getAsInt);
 
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tea: Loading..."))
-                .queue(message -> builder.build().paginate(message, finalPage));
+                .queue(message -> builder.build().paginate(message, page));
 
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
