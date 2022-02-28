@@ -113,7 +113,6 @@ public class ModifyBal extends SlashCmd {
                     break;
 
                 case "remove":
-                    System.out.println("a");
                     long removeAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
                     if (removeAmount < 0 || removeAmount == 0) {

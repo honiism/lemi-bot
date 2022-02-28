@@ -55,7 +55,7 @@ public class GuildListener extends ListenerAdapter {
 
         String joinedLogMsg = "--------------------------\r\n"
                 +  "**LEMI JOINED A SERVER!**\r\n"
-                + "**Guild id :** " + guild.getIdLong() + "\r\n"
+                + "**Guild id :** " + guildId + "\r\n"
                 + "**Guild name :** " + guild.getName() + "\r\n";
 
         log.info(joinedLogMsg.toString());
@@ -80,7 +80,7 @@ public class GuildListener extends ListenerAdapter {
 
         String leaveLogMsg = "--------------------------\r\n"
                 +  "**LEMI LEFT A SERVER!**\r\n"
-                + "**Guild id :** " + guild.getIdLong() + "\r\n"
+                + "**Guild id :** " + guildId + "\r\n"
                 + "**Guild name :** " + guild.getName() + "\r\n";
 
         log.info(leaveLogMsg.toString());

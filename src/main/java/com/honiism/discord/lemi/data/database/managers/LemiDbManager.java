@@ -25,7 +25,6 @@ import com.honiism.discord.lemi.data.database.LemiDbDs;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
@@ -55,8 +54,8 @@ public interface LemiDbManager {
     void checkIfBanned(SlashCommandInteractionEvent event);
 
     // tools
-    boolean isAuthorAdmin(User author, TextChannel channel);
-    boolean isAuthorMod(User author, TextChannel channel);
+    boolean isAuthorAdmin(User author);
+    boolean isAuthorMod(User author);
     boolean isAuthorAdmin(Member member, SlashCommandInteractionEvent event);
     boolean isAuthorMod(Member member, SlashCommandInteractionEvent event);
     void insertGuildSettings(Guild guild);

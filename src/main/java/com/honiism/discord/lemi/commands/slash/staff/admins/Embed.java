@@ -21,11 +21,11 @@ package com.honiism.discord.lemi.commands.slash.staff.admins;
 
 import java.util.HashMap;
 
+import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
-import com.honiism.discord.lemi.utils.customEmbeds.EmbedTools;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -85,11 +85,10 @@ public class Embed extends SlashCmd {
             delay.put(guild.getIdLong(), System.currentTimeMillis());
 
             String subCmdName = event.getSubcommandName();
-            EmbedTools embedTools = new EmbedTools();
 
             switch (subCmdName) {
                 case "create":
-                    embedTools.askForId(hook);
+                    Lemi.getInstance().getEmbedTools().askForId(hook);
                     break;
 
                 case "remove":

@@ -29,6 +29,7 @@ import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -49,28 +50,29 @@ public abstract class SlashCmd implements ISlashCmd {
     @Override
     public void executeAction(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
+        Member member = event.getMember();
 
         if (getUserCategory().equals(UserCategory.DEV) 
-                && !Tools.isAuthorDev(event.getMember())) {
+                && !Tools.isAuthorDev(member)) {
             return;
         }
 
         if (getUserCategory().equals(UserCategory.ADMINS) 
-                && !Tools.isAuthorAdmin(event.getMember(), event)) {
+                && !Tools.isAuthorAdmin(member, event)) {
             return;
         }
 
         if (getUserCategory().equals(UserCategory.MODS) 
-                && !Tools.isAuthorMod(event.getMember(), event)) {
+                && !Tools.isAuthorMod(member, event)) {
             return;
         }
 
-        if (getUserPerms().length > 0 && !event.getMember().hasPermission(getUserPerms())) {
+        if (getUserPerms().length > 0 && !member.hasPermission(getUserPerms())) {
             EmbedBuilder needUserPermsMsg = new EmbedBuilder()
                 .setDescription(":cherries: **WAIT!**\r\n"
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + ":sunflower:" + event.getMember().getAsMention() + "\r\n"
+                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + ":sunflower:" + member.getAsMention() + "\r\n"
                         + "> You don't have the " + getUserPermsString())
-                .setThumbnail(event.getUser().getEffectiveAvatarUrl())
+                .setThumbnail(member.getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
             
             hook.sendMessageEmbeds(needUserPermsMsg.build()).queue();
@@ -81,7 +83,7 @@ public abstract class SlashCmd implements ISlashCmd {
                 && !event.getGuild().getSelfMember().hasPermission(getBotPerms())) {
             EmbedBuilder needUserPermsMsg = new EmbedBuilder()
                 .setDescription(":cherries: **WAIT!**\r\n"
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + event.getMember().getAsMention() + "\r\n" 
+                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + member.getAsMention() + "\r\n" 
                         + getBotPermsString())
                 .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);

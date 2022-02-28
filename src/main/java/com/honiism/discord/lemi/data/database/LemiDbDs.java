@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -1103,7 +1102,7 @@ public class LemiDbDs implements LemiDbManager {
     }
 
     @Override
-    public boolean isAuthorAdmin(User author, TextChannel channel) {
+    public boolean isAuthorAdmin(User author) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT admin_ids FROM admin_mod_ids WHERE admin_ids = ?")) {
@@ -1123,8 +1122,11 @@ public class LemiDbDs implements LemiDbManager {
                     + "\r\n");
     
             e.printStackTrace();
-    
-            channel.sendMessage("--------------------------\r\n" 
+            
+            Lemi.getInstance().getShardManager()
+                .getGuildById(Config.get("honeys_sweets_id"))
+                .getTextChannelById(Config.get("logs_channel_id"))
+                .sendMessage("--------------------------\r\n" 
                     +"\r\n**Something went wrong while trying to "
                     + "run isAuthorAdmin :no_entry:**\r\n"
                     + "Error : SQLException\r\n"
@@ -1133,14 +1135,14 @@ public class LemiDbDs implements LemiDbManager {
                     + e.getMessage() + "\r\n"
                     + e.getCause() + "\r\n"
                     + "```")
-                .queue();
+	        .queue();  
         }
     
         return false;
     }
     
     @Override
-    public boolean isAuthorMod(User author, TextChannel channel) {
+    public boolean isAuthorMod(User author) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT mod_ids FROM admin_mod_ids WHERE mod_ids = ?")) {
@@ -1148,7 +1150,7 @@ public class LemiDbDs implements LemiDbManager {
             selectStatement.setLong(1, author.getIdLong());
     
             try (ResultSet rs = selectStatement.executeQuery()) {
-                if (rs.next() || Tools.isAuthorDev(author) || isAuthorAdmin(author, channel)) {
+                if (rs.next() || Tools.isAuthorDev(author) || isAuthorAdmin(author)) {
                     return true;
                 }
             }
@@ -1160,17 +1162,20 @@ public class LemiDbDs implements LemiDbManager {
                         + "\r\n");
     
                 e.printStackTrace();
-    
-                channel.sendMessage("--------------------------\r\n" 
-                        +"\r\n**Something went wrong while trying to"
-                        + " run isAuthorMod :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + e.getMessage() + "\r\n"
-                        + e.getCause() + "\r\n"
-                        + "```")
-                    .queue();
+
+                Lemi.getInstance().getShardManager()
+                    .getGuildById(Config.get("honeys_sweets_id"))
+                    .getTextChannelById(Config.get("logs_channel_id"))
+                    .sendMessage("--------------------------\r\n" 
+                            +"\r\n**Something went wrong while trying to"
+                            + " run isAuthorMod :no_entry:**\r\n"
+                            + "Error : SQLException\r\n"
+                            + "--------------------------\r\n"
+                            + "```\r\n"
+                            + e.getMessage() + "\r\n"
+                            + e.getCause() + "\r\n"
+                            + "```")
+	            .queue();  
             }
     
         return false;

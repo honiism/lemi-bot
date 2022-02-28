@@ -57,7 +57,7 @@ public class Beg extends SlashCmd {
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User author = hook.getInteraction().getUser();
+        User author = event.getUser();
 
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());

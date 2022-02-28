@@ -173,14 +173,15 @@ public class SlashCmdManager {
     }
 
     private void updateCmdPrivileges(Guild guild, List<Command> cmds) {
-        Guild honeysSweetsGuild = Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_sweets_id"));
-        Role adminRole = honeysSweetsGuild.getRoleById(Config.get("admin_role_id"));
-        Role modsRole = honeysSweetsGuild.getRoleById(Config.get("mod_role_id"));
-        Role twitchModsRole = honeysSweetsGuild.getRoleById(Config.get("twitch_mod_role_id"));
+        Guild hsGuild = Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_sweets_id"));
+
+        Role adminRole = hsGuild.getRoleById(Config.get("admin_role_id"));
+        Role modsRole = hsGuild.getRoleById(Config.get("mod_role_id"));
+        Role twitchModsRole = hsGuild.getRoleById(Config.get("twitch_mod_role_id"));
                 
         cmds.forEach((cmd) -> {
             if (cmd.getName().equals("dev")) {
-                honeysSweetsGuild.retrieveMemberById(Config.get("dev_id"))
+                hsGuild.retrieveMemberById(Config.get("dev_id"))
                     .queue(
                         (dev) -> {
                             Collection<CommandPrivilege> privileges = new ArrayList<>();
@@ -189,7 +190,7 @@ public class SlashCmdManager {
                         }
                     );
             } else if (cmd.getName().equals("admins")) {
-                honeysSweetsGuild.retrieveMemberById(Config.get("dev_id"))
+                hsGuild.retrieveMemberById(Config.get("dev_id"))
                     .queue(
                         (dev) -> {
                             Collection<CommandPrivilege> privileges = new ArrayList<>();
@@ -201,7 +202,7 @@ public class SlashCmdManager {
                         }
                     );
             } else if (cmd.getName().equals("mods")) {
-                honeysSweetsGuild.retrieveMemberById(Config.get("dev_id"))
+                hsGuild.retrieveMemberById(Config.get("dev_id"))
                     .queue(
                         (dev) -> {
                             Collection<CommandPrivilege> privileges = new ArrayList<>();

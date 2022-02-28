@@ -51,7 +51,7 @@ public class Shutdown extends SlashCmd {
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User author = hook.getInteraction().getUser();
+        User author = event.getUser();
         
         log.info(author.getAsTag() + "(" + author.getIdLong() + ") initiated non-emergency shutdown!");
                         

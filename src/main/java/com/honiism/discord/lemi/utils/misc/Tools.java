@@ -61,7 +61,7 @@ public class Tools {
         StringBuilder stringBuilder = new StringBuilder();
         String temp;
 
-        stringBuilder.append(msgToProcess);
+        stringBuilder.append(msgToProcess.trim());
 
         if (stringBuilder.indexOf("%user%") != -1) {
             temp = replaceAllSb(stringBuilder, "%user%", member.getUser().getAsMention()).toString();
@@ -337,13 +337,13 @@ public class Tools {
         }
 
         if (stringBuilder.indexOf("%date%") != -1) {
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");  
-                LocalDateTime now = LocalDateTime.now();  
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");  
+            LocalDateTime now = LocalDateTime.now();  
     
-                temp = replaceAllSb(stringBuilder, "%date%", dtf.format(now)).toString();
+            temp = replaceAllSb(stringBuilder, "%date%", dtf.format(now)).toString();
     
-                stringBuilder.setLength(0);
-                stringBuilder.append(temp);
+            stringBuilder.setLength(0);
+            stringBuilder.append(temp);
         }
 
         return stringBuilder.toString();
@@ -453,12 +453,12 @@ public class Tools {
         return authorId.equals(Long.parseLong(Config.get("dev_id")));
     }
     
-    public static boolean isAuthorAdmin(User author, TextChannel channel) {
-        return LemiDbManager.INS.isAuthorAdmin(author, channel);
+    public static boolean isAuthorAdmin(User author) {
+        return LemiDbManager.INS.isAuthorAdmin(author);
     }
     
-    public static boolean isAuthorMod(User author, TextChannel channel) {
-        return LemiDbManager.INS.isAuthorMod(author, channel);
+    public static boolean isAuthorMod(User author) {
+        return LemiDbManager.INS.isAuthorMod(author);
     }
 
     public static boolean isAuthorDev(Member member) {

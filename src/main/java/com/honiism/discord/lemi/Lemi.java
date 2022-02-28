@@ -57,6 +57,7 @@ public class Lemi {
     private final ExecutorService cmdExecutor;
     private final EventWaiter waiter;
     private final SlashCmdManager slashCmdManager;
+    private final EmbedTools embedTools;
 
     private boolean shuttingDown = false;
     private boolean debug = false;
@@ -65,6 +66,7 @@ public class Lemi {
         instance = this;
         waiter = new EventWaiter();
         slashCmdManager = new SlashCmdManager();
+        embedTools = new EmbedTools();
 
         cmdExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
                 new ThreadFactoryBuilder()
@@ -110,10 +112,8 @@ public class Lemi {
             );
 
         shardManager = builder.build();
-        EmbedTools embedTools = new EmbedTools();
-        CustomEmbedListener embedListener = new CustomEmbedListener();
 
-        embedTools.registerEmbedListener(embedListener);
+        embedTools.registerEmbedListener(new CustomEmbedListener());
         Items.addItemsToList();
     }
 
@@ -150,6 +150,10 @@ public class Lemi {
 
     public static Lemi getInstance() {
         return instance;
+    }
+
+    public EmbedTools getEmbedTools() {
+        return embedTools;
     }
 
     public SlashCmdManager getSlashCmdManager() {

@@ -66,7 +66,7 @@ public class Help extends SlashCmd {
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        User author = hook.getInteraction().getUser();
+        User author = event.getUser();
         
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -122,7 +122,7 @@ public class Help extends SlashCmd {
                 if ((category.equals(CommandCategory.MODS)
                         || category.equals(CommandCategory.ADMINS)
                         || category.equals(CommandCategory.DEV))
-                        && !Tools.isAuthorMod(author, hook.getInteraction().getTextChannel())) {
+                        && !Tools.isAuthorMod(author)) {
                     continue;
                 }
                 
