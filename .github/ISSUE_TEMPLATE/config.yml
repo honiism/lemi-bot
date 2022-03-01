@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Support server
+    url: https://discord.gg/7fBW89kEm9
+    about: Honey's Sweets discord server has a help desk channel where you may ask questions from it by opening a ticket.
+  - name: Releases
+    url: https://github.com/honiism/lemi-bot/releases
+    about: Version releases of Lemi.
