@@ -15,6 +15,7 @@ about: Create a bug report to help improve Lemi.
 ## 🎀 Bug Report
 <!--
 Please do remember that this is NOT the place to ask questions. You can instead, open a ticket on our support server.
+Also, please provide some brief description about this bug report.
 -->
 
 ### 1. Expected Behavior
