@@ -1,6 +1,10 @@
 ---
 name: Bug report
 about: Create a bug report to help improve Lemi.
+title: ''
+labels: ''
+assignees: ''
+
 ---
 
 ## 🌷 Bug Details
