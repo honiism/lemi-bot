@@ -20,7 +20,7 @@
 [ ![discord-shield][] ][discord-invite]
 [ ![license-shield][] ][license]
 
-> - 🎀 A discord bot named Lemi who is able to handle currency, fun, and game commands made **specifically for [Honey's Sweets][discord-invite]** server.
+> - 🎀 A discord bot named Lemi who can handle currency, fun, and game commands made **specifically for [Honey's Sweets][discord-invite]** server.
 > - 🌼 Made by honiism#8022 on discord.
 > - 🍰 I operate **currently** with only slash commands (`/commandName`).
 > - 🍓 This bot is made possible by the [JDA][jda-link] library and is hosted using [DanBot Hosting][dbh-link].
