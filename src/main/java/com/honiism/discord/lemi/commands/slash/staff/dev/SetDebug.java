@@ -17,19 +17,22 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.staff.mods;
+package com.honiism.discord.lemi.commands.slash.staff.dev;
 
 import java.util.HashMap;
 
+import com.honiism.discord.lemi.Config;
+import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.Tools;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -37,68 +40,66 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-public class AddCurrProfile extends SlashCmd {
+public class SetDebug extends SlashCmd {
 
+    private static final Logger log = LoggerFactory.getLogger(SetDebug.class);
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
-    public AddCurrProfile() {
-        setCommandData(Commands.slash("addcurrprofile", "Add a currency profile for members that doesn't have one.")
-                .addOption(OptionType.USER, "user", "User you'd like to give a currency profile.", true)
+    public SetDebug() {
+        setCommandData(Commands.slash("setdebug", "Toggle debug mode for Lemi.")
+                .addOption(OptionType.BOOLEAN, "value", "Set the debug mode, true = on | false = off", true)
         );
 
-        setUsage("/mods addcurrprofile <user>");
-        setCategory(CommandCategory.MODS);
-        setUserCategory(UserCategory.MODS);
-        setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
-        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
+        setUsage("/dev compile <true|false>");
+        setCategory(CommandCategory.DEV);
+        setUserCategory(UserCategory.DEV);
+        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
-        
+
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
         } else {
             timeDelayed = (10 * 1000);
         }
             
-        if (timeDelayed >= (10 * 1000)) {        
+        if (timeDelayed >= (10 * 1000)) {
             if (delay.containsKey(author.getIdLong())) {
                 delay.remove(author.getIdLong());
             }
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Member member = event.getOption("user", OptionMapping::getAsMember);
-            
-            if (member == null) {
-                hook.sendMessage(":cherry_blossom This user doesn't exist in the guild.").queue();
-                return;
-            }
+            boolean debugValue = event.getOption("value", OptionMapping::getAsBoolean);
 
-            if (CurrencyTools.userHasCurrProfile(member.getIdLong())) {
-                hook.sendMessage(":snowflake: This user already has a currency profile.").queue();
-                return;
-            }
+            Lemi.getInstance().setDebug(debugValue);
 
-            CurrencyTools.addUserCurrProfile(member.getIdLong());
-            CurrencyTools.addUserInvProfile(member.getIdLong());
+            String logMsg = "Successfully toggled debug mode to " + (debugValue ? "on" : "off") + "!";
 
-            hook.sendMessage(":seedling: Successfully added currency profiles to them.").queue();
+            hook.sendMessage(":tulip: " + logMsg).queue();
+            log.info(logMsg);
+
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+        	.getTextChannelById(Config.get("logs_channel_id"))
+        	.sendMessage(logMsg)
+                .queue();
         } else {
-            String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
+            String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);
                 
             EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
                 .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() + ", you can use this command again in `" + time + "`.")
+                        + author.getAsMention() 
+                        + ", you can use this command again in `" + time + "`.")
                 .setColor(0xffd1dc);
                 
             hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
-        }
-    }
+        }        
+    }    
 }

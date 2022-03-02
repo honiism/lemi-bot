@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2022 Honiism
  * 
  * This file is part of Lemi-Bot.
@@ -48,6 +48,7 @@ import com.honiism.discord.lemi.commands.slash.staff.dev.DevTopLevel;
 import com.honiism.discord.lemi.commands.slash.staff.dev.ManageItems;
 import com.honiism.discord.lemi.commands.slash.staff.dev.ModifyAdmins;
 import com.honiism.discord.lemi.commands.slash.staff.dev.ModifyMods;
+import com.honiism.discord.lemi.commands.slash.staff.dev.SetDebug;
 import com.honiism.discord.lemi.commands.slash.staff.dev.Shutdown;
 import com.honiism.discord.lemi.commands.slash.staff.mods.AddCurrProfile;
 import com.honiism.discord.lemi.commands.slash.staff.mods.GuildList;
@@ -108,11 +109,16 @@ public class SlashCmdManager {
         Cook cookCmd = new Cook();
         ManageItems manageItemsCmd = new ManageItems();
         ViewItems viewItemsCmd = new ViewItems();
+        SetDebug setDebugCmd = new SetDebug();
 
-        DevTopLevel devTopLevelCmd = new DevTopLevel(modifyAdminsCmd, modifyModsCmd, shutdownCmd, compileCmd, manageItemsCmd);
+        DevTopLevel devTopLevelCmd = new DevTopLevel(modifyAdminsCmd, modifyModsCmd, shutdownCmd, compileCmd,
+                manageItemsCmd, setDebugCmd);
+
         AdminsTopLevel adminsTopLevelCmd = new AdminsTopLevel(userBanCmd, shardRestartCmd, embedCmd, resetCurrDataCmd);
+
         ModsTopLevel modsTopLevelCmd = new ModsTopLevel(testCmd, guildListCmd, shardStatusCmd,
                 addCurrProfileCmd, modifyBalCmd, modifyInvCmd, viewItemsCmd);
+
         CurrencyTopLevel currencyTopLevelCmd = new CurrencyTopLevel(balanceCmd, inventoryCmd, bankrobCmd, begCmd,
                 cookCmd);
 
@@ -153,6 +159,8 @@ public class SlashCmdManager {
         allSlashCmds.add(cookCmd);
         allSlashCmds.add(manageItemsCmd);
         allSlashCmds.add(viewItemsCmd);
+        allSlashCmds.add(setDebugCmd);
+
         allSlashCmds.add(devTopLevelCmd);
         allSlashCmds.add(adminsTopLevelCmd);
         allSlashCmds.add(modsTopLevelCmd);

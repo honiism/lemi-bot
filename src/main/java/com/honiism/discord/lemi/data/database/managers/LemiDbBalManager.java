@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2022 Honiism
  * 
  * This file is part of Lemi-Bot.

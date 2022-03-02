@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2022 Honiism
  * 
  * This file is part of Lemi-Bot.
@@ -36,14 +36,16 @@ public class DevTopLevel extends SlashCmd {
     private Shutdown shutdownCmd;
     private Compile compileCmd;
     private ManageItems manageItemsGroup;
+    private SetDebug setDebugCmd;
 
     public DevTopLevel(ModifyAdmins modifyAdminsGroup, ModifyMods modifyModsGroup, Shutdown shutdownCmd,
-                       Compile compileCmd, ManageItems manageItemsGroup) {
+                       Compile compileCmd, ManageItems manageItemsGroup, SetDebug setDebugCmd) {
         this.compileCmd = compileCmd;
         this.modifyModsGroup = modifyModsGroup;
         this.modifyAdminsGroup = modifyAdminsGroup;
         this.shutdownCmd = shutdownCmd;
         this.manageItemsGroup = manageItemsGroup;
+        this.setDebugCmd = setDebugCmd;
 
         setCommandData(Commands.slash("dev", "Commands for the developer of Lemi the discord bot.")
                 .addSubcommands(
@@ -51,7 +53,10 @@ public class DevTopLevel extends SlashCmd {
                                 .addOptions(this.shutdownCmd.getOptions()),
                                      
                         new SubcommandData(this.compileCmd.getName(), this.compileCmd.getDesc())
-                                .addOptions(this.compileCmd.getOptions())
+                                .addOptions(this.compileCmd.getOptions()),
+
+                        new SubcommandData(this.setDebugCmd.getName(), this.setDebugCmd.getDesc())
+                                .addOptions(this.setDebugCmd.getOptions())
                 )
                 .addSubcommandGroups(
                         new SubcommandGroupData(this.modifyAdminsGroup.getName(), this.modifyAdminsGroup.getDesc())
@@ -101,6 +106,10 @@ public class DevTopLevel extends SlashCmd {
 
                 case "compile":
                     this.compileCmd.action(event);
+                    break;
+
+                case "setdebug":
+                    this.setDebugCmd.action(event);
             }
         }
     }
