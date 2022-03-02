@@ -1,6 +1,10 @@
 ---
 name: Bug report
 about: Create a bug report to help improve Lemi.
+title: ''
+labels: ''
+assignees: ''
+
 ---
 
 ## 🌷 Bug Details
@@ -19,7 +23,7 @@ Please do remember that this is NOT the place to ask questions. You can instead,
 
 ### 1. Description
 <!--
-Please provide some brief description about this bug report.
+Please provide a brief description of this bug report.
 -->
 
 ### 2. Expected Behavior
