@@ -19,6 +19,6 @@ Please provide general description of your changes and what this PR does.
 Please list all the changes you've made here.
 You may reference other PRs or issues.
 
-If this PR is a respond to an issue, please change N/A with an issue number.
+If this PR is a response to an issue, please change N/A with an issue number.
 -->
 - Closes issue: N/A
