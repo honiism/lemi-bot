@@ -25,6 +25,9 @@
 > - 🍰 I operate **currently** with only slash commands (`/commandName`).
 > - 🍓 This bot is made possible by the [JDA][jda-link] library and is hosted using [DanBot Hosting][dbh-link].
 
+> - ⚠ This bot is mostly a passion project made by a beginner.
+> - ⚠ If you'd like to contribute, please do remember to be patient.
+
 # 🥥 Commands
 <img align="right" src="https://github.com/honiism/lemi-bot/blob/assets/assets/LemiSleep.png?raw=true" height="auto" width="200">
 
