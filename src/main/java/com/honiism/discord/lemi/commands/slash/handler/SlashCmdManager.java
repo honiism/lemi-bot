@@ -52,6 +52,7 @@ import com.honiism.discord.lemi.commands.slash.staff.dev.ModifyMods;
 import com.honiism.discord.lemi.commands.slash.staff.dev.SetDebug;
 import com.honiism.discord.lemi.commands.slash.staff.dev.Shutdown;
 import com.honiism.discord.lemi.commands.slash.staff.mods.AddCurrProfile;
+import com.honiism.discord.lemi.commands.slash.staff.mods.Dashboard;
 import com.honiism.discord.lemi.commands.slash.staff.mods.GuildList;
 import com.honiism.discord.lemi.commands.slash.staff.mods.ModifyBal;
 import com.honiism.discord.lemi.commands.slash.staff.mods.ModifyInv;
@@ -112,6 +113,7 @@ public class SlashCmdManager {
         ViewItems viewItemsCmd = new ViewItems();
         SetDebug setDebugCmd = new SetDebug();
         Announce announceCmd = new Announce();
+        Dashboard dashboardCmd = new Dashboard();
 
         DevTopLevel devTopLevelCmd = new DevTopLevel(modifyAdminsCmd, modifyModsCmd, shutdownCmd, compileCmd,
                 manageItemsCmd, setDebugCmd);
@@ -120,7 +122,7 @@ public class SlashCmdManager {
                 resetCurrDataCmd, announceCmd);
 
         ModsTopLevel modsTopLevelCmd = new ModsTopLevel(testCmd, guildListCmd, shardStatusCmd,
-                addCurrProfileCmd, modifyBalCmd, modifyInvCmd, viewItemsCmd);
+                addCurrProfileCmd, modifyBalCmd, modifyInvCmd, viewItemsCmd, dashboardCmd);
 
         CurrencyTopLevel currencyTopLevelCmd = new CurrencyTopLevel(balanceCmd, inventoryCmd, bankrobCmd, begCmd,
                 cookCmd);
@@ -164,6 +166,7 @@ public class SlashCmdManager {
         allSlashCmds.add(viewItemsCmd);
         allSlashCmds.add(setDebugCmd);
         allSlashCmds.add(announceCmd);
+        allSlashCmds.add(dashboardCmd);
 
         allSlashCmds.add(devTopLevelCmd);
         allSlashCmds.add(adminsTopLevelCmd);
