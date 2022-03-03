@@ -56,7 +56,7 @@ public class Announce extends SlashCmd {
                 .addOption(OptionType.ROLE, "role", "Role to ping while announcing.", false)
         );
 
-        setUsage("/admins announce <message> <channel> [role]");
+        setUsage("/admins announce <message> <channel> [publishable] [role]");
         setCategory(CommandCategory.ADMINS);
         setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
