@@ -5,7 +5,7 @@ For your pull request to be merged, there are a few guidelines that you must fol
 -->
 
 - [ ] I have checked the PRs and branches for this feature/bug fix.
-- [ ] I have used the code style that is used all over Lemi.
+- [ ] I have read the [contributing manual](https://github.com/honiism/lemi-bot/wiki/Contributing)
 
 ## 🎀 Changes
 
