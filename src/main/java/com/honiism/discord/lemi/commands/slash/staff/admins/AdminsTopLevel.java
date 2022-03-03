@@ -35,13 +35,15 @@ public class AdminsTopLevel extends SlashCmd {
     private ShardRestart shardRestartSubCmd;
     private Embed embedGroup;
     private ResetCurrData resetCurrDataCmd;
+    private Announce announceCmd;
 
     public AdminsTopLevel(UserBan userBanGroup, ShardRestart shardRestartGroup, Embed embedGroup,
-                          ResetCurrData resetCurrData) {
+                          ResetCurrData resetCurrDataCmd, Announce announceCmd) {
         this.userBanGroup = userBanGroup;
         this.shardRestartSubCmd = shardRestartGroup;
         this.embedGroup = embedGroup;
-        this.resetCurrDataCmd = resetCurrData;
+        this.resetCurrDataCmd = resetCurrDataCmd;
+        this.announceCmd = announceCmd;
 
         setCommandData(Commands.slash("admins", "Commands for the admins of Lemi the discord bot.")
                 .addSubcommands(
@@ -49,7 +51,10 @@ public class AdminsTopLevel extends SlashCmd {
                                 .addOptions(this.shardRestartSubCmd.getOptions()),
 
                         new SubcommandData(this.resetCurrDataCmd.getName(), this.resetCurrDataCmd.getDesc())
-                                .addOptions(this.resetCurrDataCmd.getOptions())
+                                .addOptions(this.resetCurrDataCmd.getOptions()),
+
+                        new SubcommandData(this.announceCmd.getName(), this.announceCmd.getDesc())
+                                .addOptions(this.announceCmd.getOptions())
                 )
                 .addSubcommandGroups(
                         new SubcommandGroupData(this.userBanGroup.getName(), this.userBanGroup.getDesc())
@@ -91,6 +96,10 @@ public class AdminsTopLevel extends SlashCmd {
 
                 case "resetcurrdata":
                     this.resetCurrDataCmd.action(event);
+                    break;
+
+                case "announce":
+                    this.announceCmd.action(event);
             }
         }
     }

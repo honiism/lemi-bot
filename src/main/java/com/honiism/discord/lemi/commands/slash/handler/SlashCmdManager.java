@@ -41,6 +41,7 @@ import com.honiism.discord.lemi.commands.slash.main.Donate;
 import com.honiism.discord.lemi.commands.slash.main.Help;
 import com.honiism.discord.lemi.commands.slash.main.Ping;
 import com.honiism.discord.lemi.commands.slash.staff.admins.AdminsTopLevel;
+import com.honiism.discord.lemi.commands.slash.staff.admins.Announce;
 import com.honiism.discord.lemi.commands.slash.staff.admins.ShardRestart;
 import com.honiism.discord.lemi.commands.slash.staff.admins.UserBan;
 import com.honiism.discord.lemi.commands.slash.staff.dev.Compile;
@@ -110,11 +111,13 @@ public class SlashCmdManager {
         ManageItems manageItemsCmd = new ManageItems();
         ViewItems viewItemsCmd = new ViewItems();
         SetDebug setDebugCmd = new SetDebug();
+        Announce announceCmd = new Announce();
 
         DevTopLevel devTopLevelCmd = new DevTopLevel(modifyAdminsCmd, modifyModsCmd, shutdownCmd, compileCmd,
                 manageItemsCmd, setDebugCmd);
 
-        AdminsTopLevel adminsTopLevelCmd = new AdminsTopLevel(userBanCmd, shardRestartCmd, embedCmd, resetCurrDataCmd);
+        AdminsTopLevel adminsTopLevelCmd = new AdminsTopLevel(userBanCmd, shardRestartCmd, embedCmd,
+                resetCurrDataCmd, announceCmd);
 
         ModsTopLevel modsTopLevelCmd = new ModsTopLevel(testCmd, guildListCmd, shardStatusCmd,
                 addCurrProfileCmd, modifyBalCmd, modifyInvCmd, viewItemsCmd);
@@ -160,6 +163,7 @@ public class SlashCmdManager {
         allSlashCmds.add(manageItemsCmd);
         allSlashCmds.add(viewItemsCmd);
         allSlashCmds.add(setDebugCmd);
+        allSlashCmds.add(announceCmd);
 
         allSlashCmds.add(devTopLevelCmd);
         allSlashCmds.add(adminsTopLevelCmd);
