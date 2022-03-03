@@ -41,13 +41,7 @@
     <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
-        <version>20210307</version>
-    </dependency>
-    
-    <dependency>
-        <groupId>com.vdurmont</groupId>
-        <artifactId>emoji-java</artifactId>
-        <version>5.1.1</version>
+        <version>20211205</version>
     </dependency>
     
     <dependency>
@@ -81,27 +75,15 @@
     </dependency>
 
     <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.13.1</version>
-    </dependency>
-
-    <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>31.0.1-jre</version>
     </dependency>
-    
+
     <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-text</artifactId>
-        <version>1.9</version>
-    </dependency>
-    
-    <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.12.0</version>
+        <groupId>com.github.oshi</groupId>
+        <artifactId>oshi-core</artifactId>
+        <version>5.3.4</version>
     </dependency>
 </dependencies>
 
