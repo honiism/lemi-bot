@@ -37,10 +37,11 @@ public class ModsTopLevel extends SlashCmd {
     private ModifyBal modifyBalGroup;
     private ModifyInv modifyInvGroup;
     private ViewItems viewItemsCmd;
+    private Dashboard dashboardCmd;
 
     public ModsTopLevel(Test testSubCmd, GuildList guildListCmd, ShardStatus shardStatusCmd,
                         AddCurrProfile addCurrProfileCmd, ModifyBal modifyBalGroup,
-                        ModifyInv modifyInvGroup, ViewItems viewItemsCmd) {
+                        ModifyInv modifyInvGroup, ViewItems viewItemsCmd, Dashboard dashboardCmd) {
         this.shardStatusCmd = shardStatusCmd;
         this.testSubCmd = testSubCmd;
         this.guildListCmd = guildListCmd;
@@ -48,6 +49,7 @@ public class ModsTopLevel extends SlashCmd {
         this.modifyBalGroup = modifyBalGroup;
         this.modifyInvGroup = modifyInvGroup;
         this.viewItemsCmd = viewItemsCmd;
+        this.dashboardCmd = dashboardCmd;
 
         setCommandData(Commands.slash("mods", "Commands for the moderators of Lemi the discord bot.")
                 .addSubcommands(
@@ -63,7 +65,9 @@ public class ModsTopLevel extends SlashCmd {
                                 .addOptions(this.addCurrProfileCmd.getOptions()),
 
                         new SubcommandData(this.viewItemsCmd.getName(), this.viewItemsCmd.getDesc())
-                                .addOptions(this.viewItemsCmd.getOptions())
+                                .addOptions(this.viewItemsCmd.getOptions()),
+
+                        new SubcommandData(this.dashboardCmd.getName(), this.dashboardCmd.getDesc())
                 )
                 .addSubcommandGroups(
                         new SubcommandGroupData(this.modifyBalGroup.getName(), this.modifyBalGroup.getDesc())
@@ -117,6 +121,10 @@ public class ModsTopLevel extends SlashCmd {
 
                 case "viewitems":
                     this.viewItemsCmd.action(event);
+                    break;
+
+                case "dashboard":
+                    this.dashboardCmd.action(event);
             }
         }
     }    
