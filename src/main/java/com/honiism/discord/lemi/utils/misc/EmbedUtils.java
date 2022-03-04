@@ -35,6 +35,12 @@ public class EmbedUtils {
     private static final String ERROR_UNICODE = Emojis.CROSS_MARK;
     private static final String WARNING_UNICODE = Emojis.EXCLAMATION_MARK;
 
+    public static EmbedBuilder getSimpleEmbedBuilder(CharSequence content) {
+        return new EmbedBuilder()
+            .setColor(0xffd1dc)
+            .setDescription(content);
+    }
+
     public static MessageEmbed getSimpleEmbed(CharSequence content) {
         return new EmbedBuilder()
             .setColor(0xffd1dc)
