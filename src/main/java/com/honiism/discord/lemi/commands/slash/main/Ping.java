@@ -52,6 +52,8 @@ public class Ping extends SlashCmd {
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
+        
         InteractionHook hook = event.getHook();
         User user = event.getUser();
 

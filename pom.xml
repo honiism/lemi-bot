@@ -63,9 +63,9 @@
     </dependency>
 
     <dependency>
-        <groupId>net.dv8tion</groupId>
+        <groupId>com.github.xirado</groupId>
         <artifactId>JDA</artifactId>
-        <version>5.0.0-alpha.9</version>
+        <version>36eea2a</version>
     </dependency>
 
     <dependency>

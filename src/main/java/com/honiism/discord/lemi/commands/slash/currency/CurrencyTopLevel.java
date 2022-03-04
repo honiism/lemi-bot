@@ -70,6 +70,8 @@ public class CurrencyTopLevel extends SlashCmd {
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
+        
         String subCmdName = event.getSubcommandName();
 
         if (subCmdName != null) {

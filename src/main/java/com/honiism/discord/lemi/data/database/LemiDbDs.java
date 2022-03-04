@@ -1055,7 +1055,6 @@ public class LemiDbDs implements LemiDbManager {
 
     @Override
     public void checkIfBanned(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
         Guild guild = event.getGuild();
         Member member = event.getMember();
             
@@ -1068,12 +1067,12 @@ public class LemiDbDs implements LemiDbManager {
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
                     String reason = rs.getString("reason");
-                    hook.sendMessage("Sorry, you're banned from using Lemi for : " + reason).queue();
+                    event.reply("Sorry, you're banned from using Lemi for : " + reason).queue();
                     return;
                 }
 
                 if (event.getOptions().contains(guild.getMemberById(member.getIdLong()))) {
-                    hook.sendMessage("Sorry, that person is banned from using Lemi.").queue();
+                    event.reply("Sorry, that person is banned from using Lemi.").queue();
                     return;
                 }
             }

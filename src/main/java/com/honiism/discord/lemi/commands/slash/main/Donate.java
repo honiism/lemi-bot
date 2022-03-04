@@ -50,6 +50,8 @@ public class Donate extends SlashCmd {
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
+        
         InteractionHook hook = event.getHook();
         User user = event.getUser();
 
