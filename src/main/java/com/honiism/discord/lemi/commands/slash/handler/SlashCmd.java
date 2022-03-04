@@ -32,7 +32,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -49,7 +48,6 @@ public abstract class SlashCmd implements ISlashCmd {
 
     @Override
     public void executeAction(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
         Member member = event.getMember();
 
         if (getUserCategory().equals(UserCategory.DEV) 
@@ -75,7 +73,7 @@ public abstract class SlashCmd implements ISlashCmd {
                 .setThumbnail(member.getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
             
-            hook.sendMessageEmbeds(needUserPermsMsg.build()).queue();
+            event.replyEmbeds(needUserPermsMsg.build()).queue();
             return;
         }
 
@@ -88,7 +86,7 @@ public abstract class SlashCmd implements ISlashCmd {
                 .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
 
-            hook.sendMessageEmbeds(needUserPermsMsg.build()).queue();
+            event.replyEmbeds(needUserPermsMsg.build()).queue();
             return;
         }
 

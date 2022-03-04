@@ -76,6 +76,8 @@ public class AdminsTopLevel extends SlashCmd {
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
+        
         String subCmdGroupName = event.getSubcommandGroup();
         String subCmdName = event.getSubcommandName();
 

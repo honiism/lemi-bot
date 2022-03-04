@@ -31,14 +31,12 @@ public class SlashCmdListener extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        event.deferReply().queue();
-
         if (!event.isFromGuild() || event.getMember().getUser().isBot()) {
             return;
         }
 
         if (Lemi.getInstance().isDebug() && !Tools.isAuthorMod(event.getMember(), event)) {
-            event.getHook().sendMessage(":no_entry_sign: "
+            event.reply(":no_entry_sign: "
                     + "The bot is currently in debug mode and only whitelisted users can execute commands.")
                 .queue();
             return;

@@ -65,6 +65,8 @@ public class Help extends SlashCmd {
     
     @Override
     public void action(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
+        
         InteractionHook hook = event.getHook();
         User author = event.getUser();
         
