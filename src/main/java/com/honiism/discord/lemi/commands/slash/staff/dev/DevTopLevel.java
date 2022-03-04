@@ -37,15 +37,17 @@ public class DevTopLevel extends SlashCmd {
     private Compile compileCmd;
     private ManageItems manageItemsGroup;
     private SetDebug setDebugCmd;
+    private Eval evalCmd;
 
     public DevTopLevel(ModifyAdmins modifyAdminsGroup, ModifyMods modifyModsGroup, Shutdown shutdownCmd,
-                       Compile compileCmd, ManageItems manageItemsGroup, SetDebug setDebugCmd) {
+                       Compile compileCmd, ManageItems manageItemsGroup, SetDebug setDebugCmd, Eval evalCmd) {
         this.compileCmd = compileCmd;
         this.modifyModsGroup = modifyModsGroup;
         this.modifyAdminsGroup = modifyAdminsGroup;
         this.shutdownCmd = shutdownCmd;
         this.manageItemsGroup = manageItemsGroup;
         this.setDebugCmd = setDebugCmd;
+        this.evalCmd = evalCmd;
 
         setCommandData(Commands.slash("dev", "Commands for the developer of Lemi the discord bot.")
                 .addSubcommands(
@@ -56,7 +58,9 @@ public class DevTopLevel extends SlashCmd {
                                 .addOptions(this.compileCmd.getOptions()),
 
                         new SubcommandData(this.setDebugCmd.getName(), this.setDebugCmd.getDesc())
-                                .addOptions(this.setDebugCmd.getOptions())
+                                .addOptions(this.setDebugCmd.getOptions()),
+
+                        new SubcommandData(this.evalCmd.getName(), this.evalCmd.getDesc())
                 )
                 .addSubcommandGroups(
                         new SubcommandGroupData(this.modifyAdminsGroup.getName(), this.modifyAdminsGroup.getDesc())
@@ -110,6 +114,10 @@ public class DevTopLevel extends SlashCmd {
 
                 case "setdebug":
                     this.setDebugCmd.action(event);
+                    break;
+
+                case "eval":
+                    this.evalCmd.action(event);
             }
         }
     }

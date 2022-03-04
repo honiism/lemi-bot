@@ -46,6 +46,7 @@ import com.honiism.discord.lemi.commands.slash.staff.admins.ShardRestart;
 import com.honiism.discord.lemi.commands.slash.staff.admins.UserBan;
 import com.honiism.discord.lemi.commands.slash.staff.dev.Compile;
 import com.honiism.discord.lemi.commands.slash.staff.dev.DevTopLevel;
+import com.honiism.discord.lemi.commands.slash.staff.dev.Eval;
 import com.honiism.discord.lemi.commands.slash.staff.dev.ManageItems;
 import com.honiism.discord.lemi.commands.slash.staff.dev.ModifyAdmins;
 import com.honiism.discord.lemi.commands.slash.staff.dev.ModifyMods;
@@ -114,9 +115,10 @@ public class SlashCmdManager {
         SetDebug setDebugCmd = new SetDebug();
         Announce announceCmd = new Announce();
         Dashboard dashboardCmd = new Dashboard();
+        Eval evalCmd = new Eval();
 
         DevTopLevel devTopLevelCmd = new DevTopLevel(modifyAdminsCmd, modifyModsCmd, shutdownCmd, compileCmd,
-                manageItemsCmd, setDebugCmd);
+                manageItemsCmd, setDebugCmd, evalCmd);
 
         AdminsTopLevel adminsTopLevelCmd = new AdminsTopLevel(userBanCmd, shardRestartCmd, embedCmd,
                 resetCurrDataCmd, announceCmd);
@@ -167,6 +169,7 @@ public class SlashCmdManager {
         allSlashCmds.add(setDebugCmd);
         allSlashCmds.add(announceCmd);
         allSlashCmds.add(dashboardCmd);
+        allSlashCmds.add(evalCmd);
 
         allSlashCmds.add(devTopLevelCmd);
         allSlashCmds.add(adminsTopLevelCmd);
