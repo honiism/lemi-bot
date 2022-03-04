@@ -154,13 +154,6 @@ public class Eval extends SlashCmd {
 
                         hook.sendMessage(output == null ? ":cherry_blossom: Executed without error." : output.toString()).queue();
                     } catch (Exception e) {
-                        log.error("\r\nSomething went wrong while trying to "
-                                + "evaluate the code\r\n"
-                                + "Message : " + e.getMessage() + "\r\n"
-                                + "\r\n");
-
-                        e.printStackTrace();
-
                         hook.sendMessage("--------------------------\r\n" 
                                 + "**Something went wrong while trying to "
                                 + "evaluate the code :no_entry:**\r\n"
@@ -169,18 +162,6 @@ public class Eval extends SlashCmd {
                                 + "Message : " + e.getMessage() + "\r\n"
                                 + "Cause : " + e.getCause() + "\r\n"
                                 + "```")
-        	            .queue();
-            
-                        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	            .getTextChannelById(Config.get("logs_channel_id"))
-        	            .sendMessage("--------------------------\r\n" 
-                                    + "**Something went wrong while trying to "
-                                    + "evaluate the code :no_entry:**\r\n"
-                                    + "--------------------------\r\n"
-                                    + "```\r\n"
-                                    + "Message : " + e.getMessage() + "\r\n"
-                                    + "Cause : " + e.getCause() + "\r\n"
-                                    + "```")
         	            .queue();
                     }
                 },
