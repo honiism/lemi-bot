@@ -41,6 +41,7 @@ import com.honiism.discord.lemi.commands.slash.main.Donate;
 import com.honiism.discord.lemi.commands.slash.main.Help;
 import com.honiism.discord.lemi.commands.slash.main.Ping;
 import com.honiism.discord.lemi.commands.slash.main.Report;
+import com.honiism.discord.lemi.commands.slash.main.Suggest;
 import com.honiism.discord.lemi.commands.slash.staff.admins.AdminsTopLevel;
 import com.honiism.discord.lemi.commands.slash.staff.admins.Announce;
 import com.honiism.discord.lemi.commands.slash.staff.admins.ShardRestart;
@@ -118,6 +119,7 @@ public class SlashCmdManager {
         Dashboard dashboardCmd = new Dashboard();
         Eval evalCmd = new Eval();
         Report reportCmd = new Report();
+        Suggest suggestCmd = new Suggest();
 
         DevTopLevel devTopLevelCmd = new DevTopLevel(modifyAdminsCmd, modifyModsCmd, shutdownCmd, compileCmd,
                 manageItemsCmd, setDebugCmd, evalCmd);
@@ -141,6 +143,7 @@ public class SlashCmdManager {
         registerCmd(pingCmd);
         registerCmd(donateCmd);
         registerCmd(reportCmd);
+        registerCmd(suggestCmd);
 
         // currency
         registerCmd(currencyTopLevelCmd);
@@ -174,6 +177,7 @@ public class SlashCmdManager {
         allSlashCmds.add(dashboardCmd);
         allSlashCmds.add(evalCmd);
         allSlashCmds.add(reportCmd);
+        allSlashCmds.add(suggestCmd);
 
         allSlashCmds.add(devTopLevelCmd);
         allSlashCmds.add(adminsTopLevelCmd);
