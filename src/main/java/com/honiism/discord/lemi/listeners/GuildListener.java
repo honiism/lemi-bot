@@ -95,7 +95,7 @@ public class GuildListener extends ListenerAdapter {
     @Override
     public void onGuildTimeout(GuildTimeoutEvent event) {
         if (event.getGuildIdLong() == Config.getLong("honeys_sweets_id")) {
-            BaseListener.getJDA().retrieveUserById(Config.getLong("dev_id")).queue(
+            Lemi.getInstance().getJDA().retrieveUserById(Config.getLong("dev_id")).queue(
                 (dev) -> {
                     dev.openPrivateChannel().queue(
                         (channel) -> {
