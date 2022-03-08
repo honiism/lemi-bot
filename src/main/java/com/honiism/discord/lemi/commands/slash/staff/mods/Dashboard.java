@@ -45,7 +45,7 @@ public class Dashboard extends SlashCmd {
     private long timeDelayed;
 
     public Dashboard() {
-        setCommandData(Commands.slash("dashboard", "View detials about Lemi's memory usage, uptime, etc."));
+        setCommandData(Commands.slash("dashboard", "View details about Lemi's memory usage, uptime, etc."));
         setUsage("/mods dashboard");
         setCategory(CommandCategory.MODS);
         setUserCategory(UserCategory.MODS);

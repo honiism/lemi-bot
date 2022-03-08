@@ -74,7 +74,7 @@ public class GuildListener extends ListenerAdapter {
         Guild guild = event.getGuild();
         Long guildId = guild.getIdLong();
 
-        if (guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))) {
+        if (guildId.equals(Config.getLong("honeys_sweets_id"))) {
             return;
         }
 

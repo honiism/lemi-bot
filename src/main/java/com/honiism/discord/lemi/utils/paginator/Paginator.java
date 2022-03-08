@@ -247,10 +247,10 @@ public class Paginator {
         int start = page == 1 ? 0 : ((page - 1) * itemsPerPage);
         int end = Math.min(items.size(), page * itemsPerPage);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder itemsStringBuilder = new StringBuilder();
 
         for (int i = start; i < end; i++) {
-            sb.append(numbered ? "`" + (i + 1) + ".` " : "").append(this.items.get(i)).append("\n");
+            itemsStringBuilder.append(numbered ? "`" + (i + 1) + ".` " : "").append(this.items.get(i)).append("\n");
         }
 
         EmbedBuilder builder = new EmbedBuilder()
@@ -259,7 +259,7 @@ public class Paginator {
             .setImage(imageUrl)
             .setFooter("Page " + page + "/" + pages + (footer != null ? " • " + footer : ""))
             .setColor(color)
-            .setDescription(embedDesc + "\r\n๑‧˚₊꒷꒦︶︶︶︶︶꒷꒦︶︶︶︶︶✦‧₊˚⊹\r\n" + sb.toString().trim());
+            .setDescription(embedDesc + "\r\n๑‧˚₊꒷꒦︶︶︶︶︶꒷꒦︶︶︶︶︶✦‧₊˚⊹\r\n" + itemsStringBuilder.toString().trim());
 
         if (timestamp) {
             builder.setTimestamp(Instant.now());
@@ -271,10 +271,11 @@ public class Paginator {
     public static class Builder {
 
         private final JDA jda;
+        private final Set<Long> allowedUsers = new HashSet<Long>();
+
         private EventWaiter waiter;
         private long timeout = -1;
         private List<String> items;
-        private final Set<Long> allowedUsers = new HashSet<>();
         private int itemsPerPage = 10;
         private boolean numberItems = true;
         private String msgContent = null;

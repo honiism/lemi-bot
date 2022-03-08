@@ -128,10 +128,6 @@ public class LemiDbDs implements LemiDbManager {
         }
     }
 
-    private Connection getConnection() throws SQLException {
-	return dataSource.getConnection();
-    }
-
     @Override
     public List<String> getBannedReasons(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
@@ -1252,5 +1248,9 @@ public class LemiDbDs implements LemiDbManager {
             }
     
         return false;
+    }
+
+    private Connection getConnection() throws SQLException {
+	return dataSource.getConnection();
     }
 }

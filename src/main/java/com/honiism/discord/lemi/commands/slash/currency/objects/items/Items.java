@@ -62,6 +62,165 @@ public abstract class Items implements ItemInterface {
     SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
     String currentDateString = dateFormatter.format(new Date());
 
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public String getDescription() {
+        return this.desc;
+    }
+
+    @Override
+    public String getId() {
+        if (getName().contains(" ")) {
+            return this.name.replaceAll(" ", "_");
+        } else {
+            return this.name;
+        }
+    }
+
+    @Override
+    public String getEmoji() {
+        return this.emoji;
+    }
+
+    @Override
+    public boolean isSellable() {
+        return this.isSellable;
+    }
+
+    @Override
+    public boolean isBuyable() {
+        return this.isBuyable;
+    }
+
+    @Override
+    public boolean isGiftAble() {
+        return this.isGiftable;
+    }
+
+    @Override
+    public boolean isLimited() {
+        return this.isLimited;
+    }
+
+    @Override
+    public boolean isUsable() {
+        return this.isUsable;
+    }
+
+    @Override
+    public boolean useableAfterLimit() {
+        return this.useableAfterLimit;
+    }
+
+    @Override
+    public String getLimitedDate() {
+        return this.itemLimitDate;
+    }
+
+    @Override
+    public long getBuyingPrice() {
+        return this.buyingPrice;
+    }
+
+    @Override
+    public long getSellingPrice() {
+        return this.sellingPrice;
+    }
+
+    @Override
+    public boolean disappearAfterUsage() {
+        return this.disappearAfterUsage;
+    }
+
+    @Override
+    public ItemCategory getCategory() {
+        return this.category;
+    }
+
+    @Override
+    public ItemType getType() {
+        return this.type;
+    }
+
+    @Override
+    public EventType getEventType() {
+        return this.eventType;
+    }
+
+    @Override
+    public void useItem(InteractionHook hook) {
+        if (!isUsable()) {
+            return;
+        }
+
+        try {
+            Date limitDate = dateFormatter.parse(getLimitedDate());
+            Date currentDate = dateFormatter.parse(currentDateString);
+
+            if (isLimited()) {
+                if (!useableAfterLimit() && limitDate.after(currentDate)) {
+                    hook.sendMessage(":tulip: The item is only useable until " + getLimitedDate() + ".").queue();
+                    return;
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if (disappearAfterUsage()) {
+            useAction(hook);
+            CurrencyTools.removeItemFromUser(hook.getInteraction().getUser().getIdLong(), getName(), 1);
+            return;
+        }
+
+        useAction(hook);
+    }
+
+    public static void addItemsToList() {
+        allItems.add(new FishingRod());
+        allItems.add(new Notebook());
+        allItems.add(new Basket());
+        allItems.add(new Pickaxe());
+        allItems.add(new CoinSprikler());
+        allItems.add(new LotteryTicket());
+
+        allItems.add(new Lemon());
+        allItems.add(new HoneyPot());
+        allItems.add(new Cookie());
+        allItems.add(new Donut());
+        allItems.add(new LenSushi());
+
+        allItems.add(new CommonChest());
+        allItems.add(new RareChest());
+        allItems.add(new LegendaryChest());
+        
+        allItems.add(new Fish());
+        allItems.add(new Duck());
+        allItems.add(new TropicalFish());
+        allItems.add(new Whale());
+        allItems.add(new Strawberry());
+        allItems.add(new Blueberry());
+        allItems.add(new Grapes());
+        allItems.add(new SmallFossil());
+        allItems.add(new LargeFossil());
+        allItems.add(new GiganticFish());
+        allItems.add(new Junk());
+
+        allItems.add(new BankNote());
+        allItems.add(new Coupon());
+        allItems.add(new Sticker());
+        
+        log.info("Added all the items to the list.");
+
+        CurrencyTools.createInvDb();
+    }
+
+    public abstract void useAction(InteractionHook hook);
+
     public static class FishingRod extends Items {
 
         public FishingRod() {
@@ -770,163 +929,4 @@ public abstract class Items implements ItemInterface {
             
         }
     }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public String getDescription() {
-        return this.desc;
-    }
-
-    @Override
-    public String getId() {
-        if (getName().contains(" ")) {
-            return this.name.replaceAll(" ", "_");
-        } else {
-            return this.name;
-        }
-    }
-
-    @Override
-    public String getEmoji() {
-        return this.emoji;
-    }
-
-    @Override
-    public boolean isSellable() {
-        return this.isSellable;
-    }
-
-    @Override
-    public boolean isBuyable() {
-        return this.isBuyable;
-    }
-
-    @Override
-    public boolean isGiftAble() {
-        return this.isGiftable;
-    }
-
-    @Override
-    public boolean isLimited() {
-        return this.isLimited;
-    }
-
-    @Override
-    public boolean isUsable() {
-        return this.isUsable;
-    }
-
-    @Override
-    public boolean useableAfterLimit() {
-        return this.useableAfterLimit;
-    }
-
-    @Override
-    public String getLimitedDate() {
-        return this.itemLimitDate;
-    }
-
-    @Override
-    public long getBuyingPrice() {
-        return this.buyingPrice;
-    }
-
-    @Override
-    public long getSellingPrice() {
-        return this.sellingPrice;
-    }
-
-    @Override
-    public boolean disappearAfterUsage() {
-        return this.disappearAfterUsage;
-    }
-
-    @Override
-    public ItemCategory getCategory() {
-        return this.category;
-    }
-
-    @Override
-    public ItemType getType() {
-        return this.type;
-    }
-
-    @Override
-    public EventType getEventType() {
-        return this.eventType;
-    }
-
-    @Override
-    public void useItem(InteractionHook hook) {
-        if (!isUsable()) {
-            return;
-        }
-
-        try {
-            Date limitDate = dateFormatter.parse(getLimitedDate());
-            Date currentDate = dateFormatter.parse(currentDateString);
-
-            if (isLimited()) {
-                if (!useableAfterLimit() && limitDate.after(currentDate)) {
-                    hook.sendMessage(":tulip: The item is only useable until " + getLimitedDate() + ".").queue();
-                    return;
-                }
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        if (disappearAfterUsage()) {
-            useAction(hook);
-            CurrencyTools.removeItemFromUser(hook.getInteraction().getUser().getIdLong(), getName(), 1);
-            return;
-        }
-
-        useAction(hook);
-    }
-
-    public static void addItemsToList() {
-        allItems.add(new FishingRod());
-        allItems.add(new Notebook());
-        allItems.add(new Basket());
-        allItems.add(new Pickaxe());
-        allItems.add(new CoinSprikler());
-        allItems.add(new LotteryTicket());
-
-        allItems.add(new Lemon());
-        allItems.add(new HoneyPot());
-        allItems.add(new Cookie());
-        allItems.add(new Donut());
-        allItems.add(new LenSushi());
-
-        allItems.add(new CommonChest());
-        allItems.add(new RareChest());
-        allItems.add(new LegendaryChest());
-        
-        allItems.add(new Fish());
-        allItems.add(new Duck());
-        allItems.add(new TropicalFish());
-        allItems.add(new Whale());
-        allItems.add(new Strawberry());
-        allItems.add(new Blueberry());
-        allItems.add(new Grapes());
-        allItems.add(new SmallFossil());
-        allItems.add(new LargeFossil());
-        allItems.add(new GiganticFish());
-        allItems.add(new Junk());
-
-        allItems.add(new BankNote());
-        allItems.add(new Coupon());
-        allItems.add(new Sticker());
-        
-        log.info("Added all the items to the list.");
-
-        CurrencyTools.createInvDb();
-    }
-
-    public abstract void useAction(InteractionHook hook);
 }

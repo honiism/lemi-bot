@@ -52,7 +52,7 @@ public class Suggest extends SlashCmd {
 
     public Suggest() {
         setCommandData(Commands.slash("suggest", "Suggest a feature for Lemi."));
-        setUsage("/donate");
+        setUsage("/suggest");
         setCategory(CommandCategory.MAIN);
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});

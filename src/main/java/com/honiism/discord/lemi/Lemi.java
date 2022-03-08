@@ -54,7 +54,7 @@ public class Lemi {
     private static Lemi instance;
 
     private final ShardManager shardManager;
-    private final ExecutorService cmdExecutor;
+    private final ExecutorService cmdExecService;
     private final EventWaiter waiter;
     private final SlashCmdManager slashCmdManager;
     private final EmbedTools embedTools;
@@ -64,11 +64,12 @@ public class Lemi {
     
     public Lemi() throws LoginException {
         instance = this;
+        
         waiter = new EventWaiter();
         slashCmdManager = new SlashCmdManager();
         embedTools = new EmbedTools();
 
-        cmdExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
+        cmdExecService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
                 new ThreadFactoryBuilder()
                         .setNameFormat("Lemi's Cmd Thread %d")
                         .setUncaughtExceptionHandler((t, e) -> log.error("An uncaught error happened on the Lemi's Cmd Thread!\r\n" 
@@ -125,6 +126,14 @@ public class Lemi {
         }
     }
 
+    public static Logger getLemiLogger() {
+        return log;
+    }
+
+    public static Lemi getInstance() {
+        return instance;
+    }
+
     public void shutdown() {
         if (shuttingDown) {
             return;
@@ -132,24 +141,15 @@ public class Lemi {
 
         shuttingDown = true;
 
-        cmdExecutor.shutdownNow();
-
         getShardManager().getGuilds().stream().forEach(guild -> {
             if (guild.getAudioManager().getConnectedChannel() != null) {
                 guild.getAudioManager().closeAudioConnection();
             }
         });
 
+        cmdExecService.shutdownNow();
         getShardManager().shutdown();
         BotCommons.shutdown(getShardManager());
-    }
-
-    public static Logger getLemiLogger() {
-        return log;
-    }
-
-    public static Lemi getInstance() {
-        return instance;
     }
 
     public EmbedTools getEmbedTools() {
@@ -177,6 +177,6 @@ public class Lemi {
     }
 
     public ExecutorService getCmdExecutor() {
-        return cmdExecutor;
+        return cmdExecService;
     }
 }

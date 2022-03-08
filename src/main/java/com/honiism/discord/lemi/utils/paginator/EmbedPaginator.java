@@ -45,12 +45,6 @@ import net.dv8tion.jda.internal.utils.Checks;
 
 public class EmbedPaginator {
 
-    private Button first = Button.secondary("first", Emoji.fromMarkdown(Emojis.SKIP_TO_START_BUTTON));
-    private Button previous = Button.secondary("previous", Emoji.fromMarkdown(Emojis.LEFT_ARROW));
-    private Button next = Button.secondary("next", Emoji.fromMarkdown(Emojis.RIGHT_ARROW));
-    private Button last = Button.secondary("last", Emoji.fromMarkdown(Emojis.SKIP_TO_END_BUTTON));
-    private Button delete = Button.danger("stop", Emoji.fromMarkdown(Emojis.CROSS_MARK));
-
     private final EventWaiter waiter;
     private final int pages;
     private final long timeout;
@@ -59,6 +53,12 @@ public class EmbedPaginator {
     private final Set<Long> allowedUsers;
     private final String msgContent;
     private final String footer;
+
+    private Button first = Button.secondary("first", Emoji.fromMarkdown(Emojis.SKIP_TO_START_BUTTON));
+    private Button previous = Button.secondary("previous", Emoji.fromMarkdown(Emojis.LEFT_ARROW));
+    private Button next = Button.secondary("next", Emoji.fromMarkdown(Emojis.RIGHT_ARROW));
+    private Button last = Button.secondary("last", Emoji.fromMarkdown(Emojis.SKIP_TO_END_BUTTON));
+    private Button delete = Button.danger("stop", Emoji.fromMarkdown(Emojis.CROSS_MARK));
 
     private int page = 1;
     private boolean interactionStopped = false;
@@ -235,10 +235,11 @@ public class EmbedPaginator {
     public static class Builder {
 
         private final JDA jda;
+        private final Set<Long> allowedUsers = new HashSet<>();
+
         private EventWaiter waiter;
         private long timeout = -1;
         private List<EmbedBuilder> items;
-        private final Set<Long> allowedUsers = new HashSet<>();
         private String msgContent = null;
         private String footer;
 

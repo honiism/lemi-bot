@@ -100,10 +100,6 @@ public class LemiDbBalDs implements LemiDbBalManager {
         }
     }
 
-    private Connection getConnection() throws SQLException {
-	return dataSource.getConnection();
-    }
-
     @Override
     public void createInvDb() {
         List<String> queries = new ArrayList<String>();
@@ -357,5 +353,9 @@ public class LemiDbBalDs implements LemiDbBalManager {
         hook.sendMessage(":grapes: Altered table to remove " + itemId + " from the database, shutting down.").queue();
 
         Lemi.getInstance().shutdown();
+    }
+
+    private Connection getConnection() throws SQLException {
+	return dataSource.getConnection();
     }
 }

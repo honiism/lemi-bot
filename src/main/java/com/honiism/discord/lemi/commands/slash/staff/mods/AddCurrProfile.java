@@ -43,7 +43,7 @@ public class AddCurrProfile extends SlashCmd {
     private long timeDelayed;
 
     public AddCurrProfile() {
-        setCommandData(Commands.slash("addcurrprofile", "Add a currency profile for members that doesn't have one.")
+        setCommandData(Commands.slash("addcurrprofile", "Add a currency profile for a member that doesn't have one.")
                 .addOption(OptionType.USER, "user", "User you'd like to give a currency profile.", true)
         );
 

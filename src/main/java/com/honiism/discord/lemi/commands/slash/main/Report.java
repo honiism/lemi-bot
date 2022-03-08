@@ -52,7 +52,7 @@ public class Report extends SlashCmd {
 
     public Report() {
         setCommandData(Commands.slash("report", "Report a bug by using the forms (ONLY FOR LEMI RELATED ISSUES)."));
-        setUsage("/donate");
+        setUsage("/report");
         setCategory(CommandCategory.MAIN);
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});

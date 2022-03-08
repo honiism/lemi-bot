@@ -54,7 +54,7 @@ public class EmbedTools {
                 MessageReceivedEvent.class,
                 (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
                     && e.isFromGuild()
-                    && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id"))
+                    && e.getGuild().getIdLong() == Config.getLong("honeys_sweets_id")
                     && e.getMessage().getContentRaw().length() < 20,
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
@@ -92,7 +92,7 @@ public class EmbedTools {
                 MessageReceivedEvent.class,
                 (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
                     && e.isFromGuild()
-                    && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id"))
+                    && e.getGuild().getIdLong() == Config.getLong("honeys_sweets_id")
                     && e.getMessage().getContentRaw().length() < 246,
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
@@ -135,7 +135,7 @@ public class EmbedTools {
                 MessageReceivedEvent.class,
                 (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
                     && e.isFromGuild()
-                    && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id")),
+                    && e.getGuild().getIdLong() == Config.getLong("honeys_sweets_id"),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
                         hook.editOriginal(":sunflower: Interaction cancelled.").queue();
@@ -183,7 +183,7 @@ public class EmbedTools {
                 MessageReceivedEvent.class,
                 (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
                     && e.isFromGuild()
-                    && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id")),
+                    && e.getGuild().getIdLong() == Config.getLong("honeys_sweets_id"),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
                         hook.editOriginal(":sunflower: Interaction cancelled.").queue();
@@ -243,7 +243,7 @@ public class EmbedTools {
                 MessageReceivedEvent.class,
                 (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
                     && e.isFromGuild()
-                    && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id")),
+                    && e.getGuild().getIdLong() == Config.getLong("honeys_sweets_id"),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
                         hook.editOriginal(":sunflower: Interaction cancelled.").queue();
@@ -291,7 +291,7 @@ public class EmbedTools {
                 MessageReceivedEvent.class,
                 (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
                     && e.isFromGuild()
-                    && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id"))
+                    && e.getGuild().getIdLong() == Config.getLong("honeys_sweets_id")
                     && e.getMessage().getContentRaw().length() < 4000,
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
@@ -340,7 +340,7 @@ public class EmbedTools {
                 MessageReceivedEvent.class,
                 (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
                     && e.isFromGuild()
-                    && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id")),
+                    && e.getGuild().getIdLong() == Config.getLong("honeys_sweets_id"),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
                         hook.editOriginal(":sunflower: Interaction cancelled.").queue();
@@ -390,7 +390,7 @@ public class EmbedTools {
                 MessageReceivedEvent.class,
                 (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
                     && e.isFromGuild()
-                    && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id")),
+                    && e.getGuild().getIdLong() == Config.getLong("honeys_sweets_id"),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
                         hook.editOriginal(":sunflower: Interaction cancelled.").queue();
@@ -453,7 +453,7 @@ public class EmbedTools {
                 MessageReceivedEvent.class,
                 (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
                     && e.isFromGuild()
-                    && e.getGuild().getIdLong() == Long.parseLong(Config.get("honeys_sweets_id")),
+                    && e.getGuild().getIdLong() == Config.getLong("honeys_sweets_id"),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
                         hook.editOriginal(":sunflower: Interaction cancelled.").queue();
@@ -480,6 +480,11 @@ public class EmbedTools {
         );
     }
 
+    public void sendCreatedEmbed(InteractionHook hook) {
+        hook.editOriginalEmbeds(createEmbed(hook).build()).queue();
+        LemiDbEmbedManager.INS.saveCreatedEmbed(hook, embedProperties);
+    }
+
     private String processField(String field, InteractionHook hook) {
         return Tools.processPlaceholders(field,
                 hook.getInteraction().getMember(),
@@ -500,10 +505,5 @@ public class EmbedTools {
             .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), hook))
             .setFooter(embedProperties.get("footer-text") == null ? null : processField(embedProperties.get("footer-text"), hook), 
                     embedProperties.get("footer-icon") == null ? null : processField(embedProperties.get("footer-icon"), hook));
-    }
-
-    public void sendCreatedEmbed(InteractionHook hook) {
-        hook.editOriginalEmbeds(createEmbed(hook).build()).queue();
-        LemiDbEmbedManager.INS.saveCreatedEmbed(hook, embedProperties);
     }
 }

@@ -79,10 +79,9 @@ public class SlashCmdManager {
 
     private static final Logger log = LoggerFactory.getLogger(SlashCmdManager.class);
 
-    private static Map<CommandCategory, List<ISlashCmd>> cmdsByCategory = new HashMap<>();
-    
-    private List<ISlashCmd> allSlashCmds = new ArrayList<>();
-    private Map<String, ISlashCmd> commandsMap = new HashMap<>();
+    private Map<CommandCategory, List<SlashCmd>> cmdsByCategory = new HashMap<>();
+    private Map<String, SlashCmd> commandsMap = new HashMap<>();
+    private List<SlashCmd> allSlashCmds = new ArrayList<>();
 
     public void initialize() {
         registerAllCmds();
@@ -184,7 +183,7 @@ public class SlashCmdManager {
         allSlashCmds.add(modsTopLevelCmd);
         allSlashCmds.add(currencyTopLevelCmd);
 
-        List<CommandData> cmdsToAdd = commandsMap.values().stream().map(ISlashCmd::getCommandData).collect(Collectors.toList());
+        List<CommandData> cmdsToAdd = commandsMap.values().stream().map(SlashCmd::getCommandData).collect(Collectors.toList());
 
         Lemi.getInstance().getShardManager()
             .getGuildById(Config.get("honeys_sweets_id"))
@@ -196,6 +195,64 @@ public class SlashCmdManager {
                         cmds
                 );
             });
+    }
+
+    public List<SlashCmd> getAllCmds() {
+        return allSlashCmds;
+    }
+
+    public SlashCmd getCmdByName(String name) {
+        for (SlashCmd cmd : getAllCmds()) {
+            if (cmd.getName().equalsIgnoreCase(name)) {
+                return cmd;
+            }
+        }
+        return null;
+    }
+
+    public Collection<SlashCmd> getCmdByCategory(CommandCategory category) {
+        if (cmdsByCategory.get(category) == null) {
+            return null;
+        }
+        return cmdsByCategory.get(category);
+    }
+
+    public List<String> getCmdNamesByCategory(Collection<SlashCmd> cmdsByCategory) {
+        List<String> cmdNames = new ArrayList<>();
+
+        if (Tools.isEmpty(cmdsByCategory)) {
+            cmdNames.add("No commands for this category yet.");
+            return cmdNames;
+        }
+
+        cmdsByCategory.forEach(cmd -> {
+            if (cmd.getSubCmdGroups() != null) {
+                cmd.getSubCmdGroups().forEach((subGroup) -> {
+                    cmdNames.add("/" + cmd.getName() + " " + subGroup.getName());
+                });
+            }
+
+            if (cmd.getSubCmds() != null) {
+                cmd.getSubCmds().forEach((subCmd) -> {
+                    cmdNames.add("/" + cmd.getName() + " " + subCmd.getName());
+                });
+            }
+
+            if (cmd.getCategory().equals(CommandCategory.MAIN)) {
+                cmdNames.add("/" + cmd.getName());
+            }
+        });
+
+        return cmdNames;
+    }
+
+    public void handle(SlashCommandInteractionEvent event) {
+        String executedCmdName = event.getName();
+        SlashCmd slashCmd = commandsMap.get(executedCmdName);
+
+        if (slashCmd != null) {
+            slashCmd.executeAction(event);
+        }
     }
 
     private void updateCmdPrivileges(Guild guild, List<Command> cmds) {
@@ -245,7 +302,7 @@ public class SlashCmdManager {
         });
     }
 
-    private void registerCmd(ISlashCmd cmd) {
+    private void registerCmd(SlashCmd cmd) {
         if (commandsMap.containsKey(cmd.getName())) {
             return;
         }
@@ -262,63 +319,5 @@ public class SlashCmdManager {
             );
         }
         log.info("Updated all commands according to it's categories.");
-    }
-
-    public List<ISlashCmd> getAllCmds() {
-        return allSlashCmds;
-    }
-
-    public ISlashCmd getCmdByName(String name) {
-        for (ISlashCmd cmd : getAllCmds()) {
-            if (cmd.getName().equalsIgnoreCase(name)) {
-                return cmd;
-            }
-        }
-        return null;
-    }
-
-    public Collection<ISlashCmd> getCmdByCategory(CommandCategory category) {
-        if (cmdsByCategory.get(category) == null) {
-            return null;
-        }
-        return cmdsByCategory.get(category);
-    }
-
-    public List<String> getCmdNamesByCategory(Collection<ISlashCmd> cmdsByCategory) {
-        List<String> cmdNames = new ArrayList<>();
-
-        if (Tools.isEmpty(cmdNames)) {
-            cmdNames.add("No commands for this category yet.");
-            return cmdNames;
-        }
-
-        cmdsByCategory.forEach(cmd -> {
-            if (cmd.getSubCmdGroups() != null) {
-                cmd.getSubCmdGroups().forEach((subGroup) -> {
-                    cmdNames.add("/" + cmd.getName() + " " + subGroup.getName());
-                });
-            }
-
-            if (cmd.getSubCmds() != null) {
-                cmd.getSubCmds().forEach((subCmd) -> {
-                    cmdNames.add("/" + cmd.getName() + " " + subCmd.getName());
-                });
-            }
-
-            if (cmd.getCategory().equals(CommandCategory.MAIN)) {
-                cmdNames.add("/" + cmd.getName());
-            }
-        });
-
-        return cmdNames;
-    }
-
-    public void handle(SlashCommandInteractionEvent event) {
-        String executedCmdName = event.getName();
-        ISlashCmd slashCmd = commandsMap.get(executedCmdName);
-
-        if (slashCmd != null) {
-            slashCmd.executeAction(event);
-        }
     }
 }

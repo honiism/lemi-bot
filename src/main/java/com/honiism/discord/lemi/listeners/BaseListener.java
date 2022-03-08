@@ -31,8 +31,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class BaseListener extends ListenerAdapter {
     
-    private static final Logger log = LoggerFactory.getLogger(BaseListener.class);
     public static JDA jda;
+    private static final Logger log = LoggerFactory.getLogger(BaseListener.class);
 
     @Override
     public void onReady(ReadyEvent event) {

@@ -56,7 +56,6 @@ public class Tools {
         return array[randomEntry];
     }
 
-
     public static String processPlaceholders(String msgToProcess, Member member, Guild guild, TextChannel channel) {
         StringBuilder stringBuilder = new StringBuilder();
         String temp;
@@ -450,7 +449,7 @@ public class Tools {
     
     public static boolean isAuthorDev(User author) {
         Long authorId = author.getIdLong();
-        return authorId.equals(Long.parseLong(Config.get("dev_id")));
+        return authorId.equals(Config.getLong("dev_id"));
     }
     
     public static boolean isAuthorAdmin(User author) {
@@ -463,7 +462,7 @@ public class Tools {
 
     public static boolean isAuthorDev(Member member) {
         Long memberId = member.getIdLong();
-        return memberId.equals(Long.parseLong(Config.get("dev_id")));
+        return memberId.equals(Config.getLong("dev_id"));
     }
     
     public static boolean isAuthorAdmin(Member member, SlashCommandInteractionEvent event) {

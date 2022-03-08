@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.ISlashCmd;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmdManager;
 import com.honiism.discord.lemi.utils.misc.CustomEmojis;
@@ -111,7 +110,7 @@ public class Help extends SlashCmd {
                     return;
                 }
 
-                ISlashCmd cmd = Lemi.getInstance().getSlashCmdManager().getCmdByName(cmdName);
+                SlashCmd cmd = Lemi.getInstance().getSlashCmdManager().getCmdByName(cmdName);
 
                 hook.sendMessageEmbeds(cmd.getHelp(event)).queue();
                 return;
