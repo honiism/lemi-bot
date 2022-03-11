@@ -33,21 +33,12 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public class CurrencyTools {
 
-    public static boolean userHasCurrProfile(long userId) {
-        return LemiDbBalManager.INS.userHasCurrProfile(userId);
+    public static boolean userHasData(long userId) {
+        return LemiDbBalManager.INS.userHasData(userId);
     }
 
-    public static void addAllProfiles(long userId) {
-        addUserCurrProfile(userId);
-        addUserInvProfile(userId);
-    }
-
-    public static void addUserCurrProfile(long userId) {
-        LemiDbBalManager.INS.addUserCurrProfile(userId);
-    }
-
-    public static void addUserInvProfile(long userId) {
-        LemiDbBalManager.INS.addUserInvProfile(userId);
+    public static void addUserData(long userId) {
+        LemiDbBalManager.INS.addUserData(userId);
     }
 
     public static String getBalName() {
@@ -55,15 +46,15 @@ public class CurrencyTools {
     }
 
     public static long getUserBal(Long userId) {
-        if (!userHasCurrProfile(userId)) {
-            addAllProfiles(userId);
+        if (!userHasData(userId)) {
+            addUserData(userId);
         }
         return LemiDbBalManager.INS.getUserBal(userId); 
     }
 
     public static void addBalToUser(Long userId, long balToAdd) {
-        if (!userHasCurrProfile(userId)) {
-            addAllProfiles(userId);
+        if (!userHasData(userId)) {
+            addUserData(userId);
         }
         
         long userBal = getUserBal(userId);
@@ -73,8 +64,8 @@ public class CurrencyTools {
     }
 
     public static void removeBalFromUser(Long userId, long balToRemove) {
-        if (!userHasCurrProfile(userId)) {
-            addAllProfiles(userId);
+        if (!userHasData(userId)) {
+            addUserData(userId);
         }
 
         long userBal = getUserBal(userId);
@@ -88,15 +79,15 @@ public class CurrencyTools {
     }
 
     public static List<String> getOwnedItems(Long userId) {
-        if (!userHasCurrProfile(userId)) {
-            addAllProfiles(userId);
+        if (!userHasData(userId)) {
+            addUserData(userId);
         }
         return LemiDbBalManager.INS.getOwnedItems(userId);
     }
 
     public static long getItemFromUserInv(Long userId, String itemName) {
-        if (!userHasCurrProfile(userId)) {
-            addAllProfiles(userId);
+        if (!userHasData(userId)) {
+            addUserData(userId);
         }
         return LemiDbBalManager.INS.getItemFromUserInv(userId, itemName);
     }
@@ -109,87 +100,9 @@ public class CurrencyTools {
         return Items.allItems;
     }
 
-    public static List<Items> getCommonItems() {
-        List<Items> commonItems = new ArrayList<Items>();
-
-        for (Items item : getItems()) {
-            if (!item.getEventType().equals(EventType.NONE)) {
-                continue;
-            }
-            commonItems.add(item);
-        }
-
-        return commonItems;
-    }
-
-    public static List<Items> getEventItems() {
-        List<Items> eventItems = new ArrayList<Items>();
-
-        for (Items item : getItems()) {
-            if (item.getEventType().equals(EventType.NONE)) {
-                continue;
-            }
-            eventItems.add(item);
-        }
-
-        return eventItems;
-    }
-
-    public static List<Items> getItemsByType(ItemType itemType) {
-        List<Items> itemsByType = new ArrayList<Items>();
-
-        for (Items item : getItems()) {
-            if (!item.getType().equals(itemType)) {
-                continue;
-            }
-            itemsByType.add(item);
-        }
-
-        return itemsByType;
-    }
-
-    public static List<Items> getItemsByName(String itemName) {
-        List<Items> itemsByName = new ArrayList<Items>();
-
-        for (Items item : getItems()) {
-            if (!item.getName().equals(itemName)) {
-                continue;
-            }
-            itemsByName.add(item);
-        }
-
-        return itemsByName;
-    }
-
-    public static List<Items> getItemsById(String itemId) {
-        List<Items> itemsById = new ArrayList<Items>();
-
-        for (Items item : getItems()) {
-            if (!item.getId().equals(itemId)) {
-                continue;
-            }
-            itemsById.add(item);
-        }
-
-        return itemsById;
-    }
-
-    public static List<Items> getEventItemsByType(EventType eventType) {
-        List<Items> eventItemsByType = new ArrayList<Items>();
-
-        for (Items item : getItems()) {
-            if (!item.getEventType().equals(eventType)) {
-                continue;
-            }
-            eventItemsByType.add(item);
-        }
-
-        return eventItemsByType;
-    }
-
     public static boolean userHasItem(Long userId, String itemName) {
-        if (!userHasCurrProfile(userId)) {
-            addAllProfiles(userId);
+        if (!userHasData(userId)) {
+            addUserData(userId);
         }
 
         if (CurrencyTools.getOwnedItems(userId).contains(itemName)) {
@@ -199,29 +112,29 @@ public class CurrencyTools {
     }
 
     public static void addItemToUser(Long userId, String itemName, long amountToAdd) {
-        if (!userHasCurrProfile(userId)) {
-            addAllProfiles(userId);
+        if (!userHasData(userId)) {
+            addUserData(userId);
         }
 
         long userItemAmount = getItemFromUserInv(userId, itemName);
         long itemAfterAdd = userItemAmount + amountToAdd;
 
-        updateItemUser(userId, itemName, itemAfterAdd);
+        updateUserInv(userId, itemName, itemAfterAdd);
     }
 
-    public static void updateItemUser(Long userId, String itemName, long amountToUpdate) {
-        LemiDbBalManager.INS.updateItemUser(userId, itemName, amountToUpdate);
+    public static void updateUserInv(Long userId, String itemName, long amountToUpdate) {
+        LemiDbBalManager.INS.updateUserInv(userId, itemName, amountToUpdate);
     }
 
     public static void removeItemFromUser(Long userId, String itemName, long amountToRemove) {
-        if (!userHasCurrProfile(userId)) {
-            addAllProfiles(userId);
+        if (!userHasData(userId)) {
+            addUserData(userId);
         }
 
         long userItemAmount = getItemFromUserInv(userId, itemName);
         long itemAfterRemove = userItemAmount - amountToRemove;
         
-        updateItemUser(userId, itemName, itemAfterRemove);
+        updateUserInv(userId, itemName, itemAfterRemove);
     }
 
     public static void removeAllItems(Long userId, Guild guild) {

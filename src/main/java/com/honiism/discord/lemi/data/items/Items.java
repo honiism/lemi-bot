@@ -180,6 +180,84 @@ public abstract class Items implements ItemInterface {
         useAction(hook);
     }
 
+    public static List<Items> getCommonItems() {
+        List<Items> commonItems = new ArrayList<Items>();
+
+        for (Items item : allItems) {
+            if (!item.getEventType().equals(EventType.NONE)) {
+                continue;
+            }
+            commonItems.add(item);
+        }
+
+        return commonItems;
+    }
+
+    public static List<Items> getEventItems() {
+        List<Items> eventItems = new ArrayList<Items>();
+
+        for (Items item : allItems) {
+            if (item.getEventType().equals(EventType.NONE)) {
+                continue;
+            }
+            eventItems.add(item);
+        }
+
+        return eventItems;
+    }
+
+    public static List<Items> getItemsByType(ItemType itemType) {
+        List<Items> itemsByType = new ArrayList<Items>();
+
+        for (Items item : allItems) {
+            if (!item.getType().equals(itemType)) {
+                continue;
+            }
+            itemsByType.add(item);
+        }
+
+        return itemsByType;
+    }
+
+    public static List<Items> getItemsByName(String itemName) {
+        List<Items> itemsByName = new ArrayList<Items>();
+
+        for (Items item : allItems) {
+            if (!item.getName().equals(itemName)) {
+                continue;
+            }
+            itemsByName.add(item);
+        }
+
+        return itemsByName;
+    }
+
+    public static List<Items> getItemsById(String itemId) {
+        List<Items> itemsById = new ArrayList<Items>();
+
+        for (Items item : allItems) {
+            if (!item.getId().equals(itemId)) {
+                continue;
+            }
+            itemsById.add(item);
+        }
+
+        return itemsById;
+    }
+
+    public static List<Items> getEventItemsByType(EventType eventType) {
+        List<Items> eventItemsByType = new ArrayList<Items>();
+
+        for (Items item : allItems) {
+            if (!item.getEventType().equals(eventType)) {
+                continue;
+            }
+            eventItemsByType.add(item);
+        }
+
+        return eventItemsByType;
+    }
+
     public static void addItemsToList() {
         allItems.add(new FishingRod());
         allItems.add(new Notebook());

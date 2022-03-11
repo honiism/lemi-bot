@@ -24,6 +24,7 @@ import java.util.HashMap;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
@@ -89,7 +90,7 @@ public class ManageItems extends SlashCmd {
                         return;
                     }
 
-                    if (Tools.isEmpty(CurrencyTools.getItemsByName(itemName))) {
+                    if (Tools.isEmpty(Items.getItemsByName(itemName))) {
                         hook.sendMessage(":sunflower: You haven't added this item in the internal list manually.").queue();
                         return;
                     }
@@ -103,7 +104,7 @@ public class ManageItems extends SlashCmd {
                         return;
                     }
 
-                    if (CurrencyTools.getItemsByName(itemName).get(0) != null) {
+                    if (Items.getItemsByName(itemName).get(0) != null) {
                         hook.sendMessage(":tulip: You haven't removed this item in the internal list manually.").queue();
                         return;
                     }
