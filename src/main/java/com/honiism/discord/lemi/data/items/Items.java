@@ -38,8 +38,9 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public abstract class Items implements ItemInterface {
 
-    private static final Logger log = LoggerFactory.getLogger(Items.class);
     public static List<Items> allItems = new ArrayList<Items>();
+
+    private static final Logger log = LoggerFactory.getLogger(Items.class);
 
     protected String name = "";
     protected String desc = "";
@@ -60,95 +61,94 @@ public abstract class Items implements ItemInterface {
     protected EventType eventType = EventType.NONE;
     
     SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
-    String currentDateString = dateFormatter.format(new Date());
 
     @Override
     public String getName() {
-        return this.name;
+        return name;
     }
 
     @Override
     public String getDescription() {
-        return this.desc;
+        return desc;
     }
 
     @Override
     public String getId() {
         if (getName().contains(" ")) {
-            return this.name.replaceAll(" ", "_");
+            return name.replaceAll(" ", "_");
         } else {
-            return this.name;
+            return name;
         }
     }
 
     @Override
     public String getEmoji() {
-        return this.emoji;
+        return emoji;
     }
 
     @Override
     public boolean isSellable() {
-        return this.isSellable;
+        return isSellable;
     }
 
     @Override
     public boolean isBuyable() {
-        return this.isBuyable;
+        return isBuyable;
     }
 
     @Override
     public boolean isGiftAble() {
-        return this.isGiftable;
+        return isGiftable;
     }
 
     @Override
     public boolean isLimited() {
-        return this.isLimited;
+        return isLimited;
     }
 
     @Override
     public boolean isUsable() {
-        return this.isUsable;
+        return isUsable;
     }
 
     @Override
     public boolean useableAfterLimit() {
-        return this.useableAfterLimit;
+        return useableAfterLimit;
     }
 
     @Override
     public String getLimitedDate() {
-        return this.itemLimitDate;
+        return itemLimitDate;
     }
 
     @Override
     public long getBuyingPrice() {
-        return this.buyingPrice;
+        return buyingPrice;
     }
 
     @Override
     public long getSellingPrice() {
-        return this.sellingPrice;
+        return sellingPrice;
     }
 
     @Override
     public boolean disappearAfterUsage() {
-        return this.disappearAfterUsage;
+        return disappearAfterUsage;
     }
 
     @Override
     public ItemCategory getCategory() {
-        return this.category;
+        return category;
     }
 
     @Override
     public ItemType getType() {
-        return this.type;
+        return type;
     }
 
     @Override
     public EventType getEventType() {
-        return this.eventType;
+        return eventType;
     }
 
     @Override
@@ -159,7 +159,7 @@ public abstract class Items implements ItemInterface {
 
         try {
             Date limitDate = dateFormatter.parse(getLimitedDate());
-            Date currentDate = dateFormatter.parse(currentDateString);
+            Date currentDate = dateFormatter.parse(dateFormatter.format(new Date()));
 
             if (isLimited()) {
                 if (!useableAfterLimit() && limitDate.after(currentDate)) {
@@ -222,22 +222,22 @@ public abstract class Items implements ItemInterface {
     public static class FishingRod extends Items {
 
         public FishingRod() {
-            this.name = "fishing rod";
-            this.desc = "Catch fish and different type of collectables.";
-            this.emoji = ":fishing_pole_and_fish:";
-            this.isSellable = true;
-            this.isBuyable = true;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = true;
-            this.disappearAfterUsage = false;
-            this.isBreakable = true;
-            this.itemLimitDate = null;
-            this.buyingPrice = 25000;
-            this.sellingPrice = 2500;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.TOOL;
+            name = "fishing rod";
+            desc = "Catch fish and different type of collectables.";
+            emoji = ":fishing_pole_and_fish:";
+            isSellable = true;
+            isBuyable = true;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = true;
+            disappearAfterUsage = false;
+            isBreakable = true;
+            itemLimitDate = null;
+            buyingPrice = 25000;
+            sellingPrice = 2500;
+            category = ItemCategory.COMMON;
+            type = ItemType.TOOL;
         }
 
         @Override
@@ -248,22 +248,22 @@ public abstract class Items implements ItemInterface {
     public static class Notebook extends Items {
 
         public Notebook() {
-            this.name = "notebook";
-            this.desc = "Use this item to study!";
-            this.emoji = ":notebook:";
-            this.isSellable = true;
-            this.isBuyable = true;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = true;
-            this.disappearAfterUsage = false;
-            this.isBreakable = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 15000;
-            this.sellingPrice = 2000;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.TOOL;
+            name = "notebook";
+            desc = "Use this item to study!";
+            emoji = ":notebook:";
+            isSellable = true;
+            isBuyable = true;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = true;
+            disappearAfterUsage = false;
+            isBreakable = false;
+            itemLimitDate = null;
+            buyingPrice = 15000;
+            sellingPrice = 2000;
+            category = ItemCategory.COMMON;
+            type = ItemType.TOOL;
         }
 
         @Override
@@ -274,22 +274,22 @@ public abstract class Items implements ItemInterface {
     public static class Basket extends Items {
 
         public Basket() {
-            this.name = "basket";
-            this.desc = "Pick some fruits!";
-            this.emoji = ":basket:";
-            this.isSellable = true;
-            this.isBuyable = true;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.isUsable = true;
-            this.useableAfterLimit = false;
-            this.disappearAfterUsage = false;
-            this.isBreakable = true;
-            this.itemLimitDate = null;
-            this.buyingPrice = 15000;   
-            this.sellingPrice = 2000;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.TOOL;
+            name = "basket";
+            desc = "Pick some fruits!";
+            emoji = ":basket:";
+            isSellable = true;
+            isBuyable = true;
+            isGiftable = true;
+            isLimited = false;
+            isUsable = true;
+            useableAfterLimit = false;
+            disappearAfterUsage = false;
+            isBreakable = true;
+            itemLimitDate = null;
+            buyingPrice = 15000;   
+            sellingPrice = 2000;
+            category = ItemCategory.COMMON;
+            type = ItemType.TOOL;
         }
 
         @Override
@@ -300,22 +300,22 @@ public abstract class Items implements ItemInterface {
     public static class Pickaxe extends Items {
 
         public Pickaxe() {
-            this.name = "pickaxe";
-            this.desc = "Find some fossils, or more!";
-            this.emoji = ":pick:";
-            this.isSellable = true;
-            this.isBuyable = true;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = true;
-            this.disappearAfterUsage = false;
-            this.isBreakable = true;
-            this.itemLimitDate = null;
-            this.buyingPrice = 25000;
-            this.sellingPrice = 2500;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.TOOL;
+            name = "pickaxe";
+            desc = "Find some fossils, or more!";
+            emoji = ":pick:";
+            isSellable = true;
+            isBuyable = true;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = true;
+            disappearAfterUsage = false;
+            isBreakable = true;
+            itemLimitDate = null;
+            buyingPrice = 25000;
+            sellingPrice = 2500;
+            category = ItemCategory.COMMON;
+            type = ItemType.TOOL;
         }
 
         @Override
@@ -326,21 +326,21 @@ public abstract class Items implements ItemInterface {
     public static class CoinSprikler extends Items {
 
         public CoinSprikler() {
-            this.name = "coin sprinkler";
-            this.desc = "Give you and 5 other random members a random amount of coins.";
-            this.emoji = ":coin:";
-            this.isSellable = true;
-            this.isBuyable = true;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = true;
-            this.disappearAfterUsage = true;
-            this.itemLimitDate = null;
-            this.buyingPrice = 10000;
-            this.sellingPrice = 4500;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.TOOL;
+            name = "coin sprinkler";
+            desc = "Give you and 5 other random members a random amount of coins.";
+            emoji = ":coin:";
+            isSellable = true;
+            isBuyable = true;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = true;
+            disappearAfterUsage = true;
+            itemLimitDate = null;
+            buyingPrice = 10000;
+            sellingPrice = 4500;
+            category = ItemCategory.COMMON;
+            type = ItemType.TOOL;
         }
 
         @Override
@@ -351,21 +351,21 @@ public abstract class Items implements ItemInterface {
     public static class LotteryTicket extends Items {
 
         public LotteryTicket() {
-            this.name = "lottery ticket";
-            this.desc = "Get a chance of winning the lottery ticket!";
-            this.emoji = ":ticket:";
-            this.isSellable = false;
-            this.isBuyable = true;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = true;
-            this.disappearAfterUsage = true;
-            this.itemLimitDate = null;
-            this.buyingPrice = 10000;
-            this.sellingPrice = 4500;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.TOOL;
+            name = "lottery ticket";
+            desc = "Get a chance of winning the lottery ticket!";
+            emoji = ":ticket:";
+            isSellable = false;
+            isBuyable = true;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = true;
+            disappearAfterUsage = true;
+            itemLimitDate = null;
+            buyingPrice = 10000;
+            sellingPrice = 4500;
+            category = ItemCategory.COMMON;
+            type = ItemType.TOOL;
         }
 
         @Override
@@ -377,21 +377,21 @@ public abstract class Items implements ItemInterface {
     public static class Lemon extends Items {
 
         public Lemon() {
-            this.name = "lemon";
-            this.desc = "Lemon, *nom nom* **AAAAAAAAAAAA**! This one extremely cutie <3!";
-            this.emoji = ":lemon:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 50000;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.COLLECTABLE;
+            name = "lemon";
+            desc = "Lemon, *nom nom* **AAAAAAAAAAAA**! This one extremely cutie <3!";
+            emoji = ":lemon:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 50000;
+            category = ItemCategory.COMMON;
+            type = ItemType.COLLECTABLE;
         }
 
         @Override
@@ -402,21 +402,21 @@ public abstract class Items implements ItemInterface {
     public static class HoneyPot extends Items {
 
         public HoneyPot() {
-            this.name = "honey pot";
-            this.desc = "Uh- don't put your hand inside a honey pot.";
-            this.emoji = ":honey_pot:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 100000;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.COLLECTABLE;
+            name = "honey pot";
+            desc = "Uh- don't put your hand inside a honey pot.";
+            emoji = ":honey_pot:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 100000;
+            category = ItemCategory.COMMON;
+            type = ItemType.COLLECTABLE;
         }
 
         @Override
@@ -427,21 +427,21 @@ public abstract class Items implements ItemInterface {
     public static class Cookie extends Items {
 
         public Cookie() {
-            this.name = "cookie";
-            this.desc = "Share some cookies with some friends!";
-            this.emoji = ":cookie:";
-            this.isSellable = true;
-            this.isBuyable = true;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 2000;
-            this.sellingPrice = 500;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.COLLECTABLE;
+            name = "cookie";
+            desc = "Share some cookies with some friends!";
+            emoji = ":cookie:";
+            isSellable = true;
+            isBuyable = true;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 2000;
+            sellingPrice = 500;
+            category = ItemCategory.COMMON;
+            type = ItemType.COLLECTABLE;
         }
 
         @Override
@@ -452,21 +452,21 @@ public abstract class Items implements ItemInterface {
     public static class Donut extends Items {
 
         public Donut() {
-            this.name = "donut";
-            this.desc = "Share or eat this delicious chocolate donut. Remember, sharing is caring!";
-            this.emoji = ":doughnut:";
-            this.isSellable = true;
-            this.isBuyable = true;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 2000;
-            this.sellingPrice = 500;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.COLLECTABLE;
+            name = "donut";
+            desc = "Share or eat this delicious chocolate donut. Remember, sharing is caring!";
+            emoji = ":doughnut:";
+            isSellable = true;
+            isBuyable = true;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 2000;
+            sellingPrice = 500;
+            category = ItemCategory.COMMON;
+            type = ItemType.COLLECTABLE;
         }
 
         @Override
@@ -477,21 +477,21 @@ public abstract class Items implements ItemInterface {
     public static class LenSushi extends Items {
 
         public LenSushi() {
-            this.name = "len sushi";
-            this.desc = "This sushi smells fishy... is it made properly??";
-            this.emoji = ":sushi:";
-            this.isSellable = true;
-            this.isBuyable = true;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 2000;
-            this.sellingPrice = 500;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.COLLECTABLE;
+            name = "len sushi";
+            desc = "This sushi smells fishy... is it made properly??";
+            emoji = ":sushi:";
+            isSellable = true;
+            isBuyable = true;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 2000;
+            sellingPrice = 500;
+            category = ItemCategory.COMMON;
+            type = ItemType.COLLECTABLE;
         }
 
         @Override
@@ -503,21 +503,21 @@ public abstract class Items implements ItemInterface {
     public static class CommonChest extends Items {
 
         public CommonChest() {
-            this.name = "common chest";
-            this.desc = "Wowza! You got a common loot chest.";
-            this.emoji = ":package:";
-            this.isSellable = false;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = true;
-            this.disappearAfterUsage = true;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 0;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.LOOT_CHESTS;
+            name = "common chest";
+            desc = "Wowza! You got a common loot chest.";
+            emoji = ":package:";
+            isSellable = false;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = true;
+            disappearAfterUsage = true;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 0;
+            category = ItemCategory.COMMON;
+            type = ItemType.LOOT_CHESTS;
         }
 
         @Override
@@ -528,21 +528,21 @@ public abstract class Items implements ItemInterface {
     public static class RareChest extends Items {
 
         public RareChest() {
-            this.name = "rare chest";
-            this.desc = "Wowza! You got a rare loot chest.";
-            this.emoji = ":diamond_shape_with_a_dot_inside: :package:";
-            this.isSellable = false;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = true;
-            this.disappearAfterUsage = true;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 0;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.LOOT_CHESTS;
+            name = "rare chest";
+            desc = "Wowza! You got a rare loot chest.";
+            emoji = ":diamond_shape_with_a_dot_inside: :package:";
+            isSellable = false;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = true;
+            disappearAfterUsage = true;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 0;
+            category = ItemCategory.COMMON;
+            type = ItemType.LOOT_CHESTS;
         }
 
         @Override
@@ -553,21 +553,21 @@ public abstract class Items implements ItemInterface {
     public static class LegendaryChest extends Items {
 
         public LegendaryChest() {
-            this.name = "legendary chest";
-            this.desc = "Wowza! You got a legendary loot chest.";
-            this.emoji = ":trident: :package:";
-            this.isSellable = false;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = true;
-            this.disappearAfterUsage = true;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 0;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.LOOT_CHESTS;
+            name = "legendary chest";
+            desc = "Wowza! You got a legendary loot chest.";
+            emoji = ":trident: :package:";
+            isSellable = false;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = true;
+            disappearAfterUsage = true;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 0;
+            category = ItemCategory.COMMON;
+            type = ItemType.LOOT_CHESTS;
         }
 
         @Override
@@ -579,21 +579,21 @@ public abstract class Items implements ItemInterface {
     public static class Fish extends Items {
 
         public Fish() {
-            this.name = "fish";
-            this.desc = "A common fish!";
-            this.emoji = ":fish:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 750;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.SELLABLE;
+            name = "fish";
+            desc = "A common fish!";
+            emoji = ":fish:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 750;
+            category = ItemCategory.COMMON;
+            type = ItemType.SELLABLE;
         }
 
         @Override
@@ -604,21 +604,21 @@ public abstract class Items implements ItemInterface {
     public static class Duck extends Items {
 
         public Duck() {
-            this.name = "duck";
-            this.desc = "Quack quack.";
-            this.emoji = ":duck:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 1750;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.SELLABLE;
+            name = "duck";
+            desc = "Quack quack.";
+            emoji = ":duck:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 1750;
+            category = ItemCategory.COMMON;
+            type = ItemType.SELLABLE;
         }
 
         @Override
@@ -629,21 +629,21 @@ public abstract class Items implements ItemInterface {
     public static class TropicalFish extends Items {
 
         public TropicalFish() {
-            this.name = "tropical fish";
-            this.desc = "Fish! But... pretty!";
-            this.emoji = ":tropical_fish:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 5000;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.SELLABLE;
+            name = "tropical fish";
+            desc = "Fish! But... pretty!";
+            emoji = ":tropical_fish:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 5000;
+            category = ItemCategory.COMMON;
+            type = ItemType.SELLABLE;
         }
 
         @Override
@@ -654,21 +654,21 @@ public abstract class Items implements ItemInterface {
     public static class Whale extends Items {
 
         public Whale() {
-            this.name = "whale";
-            this.desc = "WOAAAH BIG FISHY";
-            this.emoji = ":whale:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 20000;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.SELLABLE;
+            name = "whale";
+            desc = "WOAAAH BIG FISHY";
+            emoji = ":whale:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 20000;
+            category = ItemCategory.COMMON;
+            type = ItemType.SELLABLE;
         }
 
         @Override
@@ -679,21 +679,21 @@ public abstract class Items implements ItemInterface {
     public static class Strawberry extends Items {
 
         public Strawberry() {
-            this.name = "strawberry";
-            this.desc = "Sweet and juicy one! Perfect for jam.";
-            this.emoji = ":strawberry:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 750;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.SELLABLE;
+            name = "strawberry";
+            desc = "Sweet and juicy one! Perfect for jam.";
+            emoji = ":strawberry:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 750;
+            category = ItemCategory.COMMON;
+            type = ItemType.SELLABLE;
         }
 
         @Override
@@ -704,21 +704,21 @@ public abstract class Items implements ItemInterface {
     public static class Blueberry extends Items {
 
         public Blueberry() {
-            this.name = "blueberry";
-            this.desc = "Did you know that blueberries are yum?";
-            this.emoji = ":blueberries:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 1750;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.SELLABLE;
+            name = "blueberry";
+            desc = "Did you know that blueberries are yum?";
+            emoji = ":blueberries:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 1750;
+            category = ItemCategory.COMMON;
+            type = ItemType.SELLABLE;
         }
 
         @Override
@@ -729,21 +729,21 @@ public abstract class Items implements ItemInterface {
     public static class Grapes extends Items {
 
         public Grapes() {
-            this.name = "grapes";
-            this.desc = "Grapes are Honey's favorite.";
-            this.emoji = ":grapes:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 5000;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.SELLABLE;
+            name = "grapes";
+            desc = "Grapes are Honey's favorite.";
+            emoji = ":grapes:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 5000;
+            category = ItemCategory.COMMON;
+            type = ItemType.SELLABLE;
         }
 
         @Override
@@ -754,21 +754,21 @@ public abstract class Items implements ItemInterface {
     public static class SmallFossil extends Items {
 
         public SmallFossil() {
-            this.name = "small fossil";
-            this.desc = "small one, but hey that was lucky!";
-            this.emoji = ":shell:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 1750;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.SELLABLE;
+            name = "small fossil";
+            desc = "small one, but hey that was lucky!";
+            emoji = ":shell:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 1750;
+            category = ItemCategory.COMMON;
+            type = ItemType.SELLABLE;
         }
 
         @Override
@@ -779,21 +779,21 @@ public abstract class Items implements ItemInterface {
     public static class LargeFossil extends Items {
 
         public LargeFossil() {
-            this.name = "large fossil";
-            this.desc = "BIG FOSSIL WOWIE";
-            this.emoji = ":diamond_shape_with_a_dot_inside: :shell:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 5000;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.SELLABLE;
+            name = "large fossil";
+            desc = "BIG FOSSIL WOWIE";
+            emoji = ":diamond_shape_with_a_dot_inside: :shell:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 5000;
+            category = ItemCategory.COMMON;
+            type = ItemType.SELLABLE;
         }
 
         @Override
@@ -804,21 +804,21 @@ public abstract class Items implements ItemInterface {
     public static class GiganticFish extends Items {
 
         public GiganticFish() {
-            this.name = "gigantic fossil";
-            this.desc = "WHAT HOW?? UH OK?";
-            this.emoji = ":trident: :shell:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 20000;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.SELLABLE;
+            name = "gigantic fossil";
+            desc = "WHAT HOW?? UH OK?";
+            emoji = ":trident: :shell:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 20000;
+            category = ItemCategory.COMMON;
+            type = ItemType.SELLABLE;
         }
 
         @Override
@@ -829,21 +829,21 @@ public abstract class Items implements ItemInterface {
     public static class Junk extends Items {
 
         public Junk() {
-            this.name = "junk";
-            this.desc = "Bad luck :(";
-            this.emoji = ":rock:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 200;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.SELLABLE;
+            name = "junk";
+            desc = "Bad luck :(";
+            emoji = ":rock:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 200;
+            category = ItemCategory.COMMON;
+            type = ItemType.SELLABLE;
         }
 
         @Override
@@ -855,21 +855,21 @@ public abstract class Items implements ItemInterface {
     public static class BankNote extends Items {
 
         public BankNote() {
-            this.name = "bank note";
-            this.desc = "Ooh! Yippe! Use it to get some extra money.";
-            this.emoji = ":ticket:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = true;
-            this.disappearAfterUsage = true;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 4000;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.POWER_UP;
+            name = "bank note";
+            desc = "Ooh! Yippe! Use it to get some extra money.";
+            emoji = ":ticket:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = true;
+            disappearAfterUsage = true;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 4000;
+            category = ItemCategory.COMMON;
+            type = ItemType.POWER_UP;
         }
 
         @Override
@@ -880,21 +880,21 @@ public abstract class Items implements ItemInterface {
     public static class Coupon extends Items {
 
         public Coupon() {
-            this.name = "coupon";
-            this.desc = "Set a 5% discount on any item! (Prompted when you are going to buy an item).";
-            this.emoji = ":receipt:";
-            this.isSellable = true;
-            this.isBuyable = false;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 0;
-            this.sellingPrice = 5000;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.POWER_UP;
+            name = "coupon";
+            desc = "Set a 5% discount on any item! (Prompted when you are going to buy an item).";
+            emoji = ":receipt:";
+            isSellable = true;
+            isBuyable = false;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 0;
+            sellingPrice = 5000;
+            category = ItemCategory.COMMON;
+            type = ItemType.POWER_UP;
         }
 
         @Override
@@ -905,21 +905,21 @@ public abstract class Items implements ItemInterface {
     public static class Sticker extends Items {
 
         public Sticker() {
-            this.name = "sticker";
-            this.desc = "Get better chances to ace your exams! (Prompted when using your notebook).";
-            this.emoji = ":receipt:";
-            this.isSellable = true;
-            this.isBuyable = true;
-            this.isGiftable = true;
-            this.isLimited = false;
-            this.useableAfterLimit = false;
-            this.isUsable = false;
-            this.disappearAfterUsage = false;
-            this.itemLimitDate = null;
-            this.buyingPrice = 2000;
-            this.sellingPrice = 1000;
-            this.category = ItemCategory.COMMON;
-            this.type = ItemType.POWER_UP;
+            name = "sticker";
+            desc = "Get better chances to ace your exams! (Prompted when using your notebook).";
+            emoji = ":receipt:";
+            isSellable = true;
+            isBuyable = true;
+            isGiftable = true;
+            isLimited = false;
+            useableAfterLimit = false;
+            isUsable = false;
+            disappearAfterUsage = false;
+            itemLimitDate = null;
+            buyingPrice = 2000;
+            sellingPrice = 1000;
+            category = ItemCategory.COMMON;
+            type = ItemType.POWER_UP;
         }
 
         @Override
