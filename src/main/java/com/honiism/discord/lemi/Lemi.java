@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 
 import javax.security.auth.login.LoginException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmdManager;
 import com.honiism.discord.lemi.data.items.Items;
@@ -59,6 +60,7 @@ public class Lemi {
     private final EventWaiter waiter;
     private final SlashCmdManager slashCmdManager;
     private final EmbedTools embedTools;
+    private final ObjectMapper objectMapper;
 
     private JDA jda;
     private boolean shuttingDown = false;
@@ -70,6 +72,7 @@ public class Lemi {
         waiter = new EventWaiter();
         slashCmdManager = new SlashCmdManager();
         embedTools = new EmbedTools();
+        objectMapper = new ObjectMapper();
 
         cmdExecService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
                 new ThreadFactoryBuilder()
@@ -152,6 +155,10 @@ public class Lemi {
         cmdExecService.shutdownNow();
         getShardManager().shutdown();
         BotCommons.shutdown(getShardManager());
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
     }
 
     public EmbedTools getEmbedTools() {
