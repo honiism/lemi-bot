@@ -17,14 +17,27 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.currency.objects.items.handler;
+package com.honiism.discord.lemi.data.items.handler;
 
-public enum EventType {
-    CHINESE_NEW_YEAR,
-    VALENTNE,
-    EASTER,
-    HALLOWEEN,
-    CHRISTMAS,
-    NEW_YEAR,
-    NONE
+import net.dv8tion.jda.api.interactions.InteractionHook;
+
+public interface ItemInterface {
+    String getName();
+    String getDescription();
+    String getId();
+    String getEmoji();
+    boolean isSellable();
+    boolean isBuyable();
+    boolean isGiftAble();
+    boolean isLimited();
+    boolean isUsable();
+    boolean useableAfterLimit();
+    boolean disappearAfterUsage();
+    String getLimitedDate();
+    long getBuyingPrice();
+    long getSellingPrice();
+    ItemCategory getCategory();
+    ItemType getType();
+    EventType getEventType();
+    void useItem(InteractionHook hook);
 }

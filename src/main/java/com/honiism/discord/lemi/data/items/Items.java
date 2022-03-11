@@ -17,7 +17,7 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.currency.objects.items;
+package com.honiism.discord.lemi.data.items;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.honiism.discord.lemi.commands.slash.currency.objects.items.handler.EventType;
-import com.honiism.discord.lemi.commands.slash.currency.objects.items.handler.ItemCategory;
-import com.honiism.discord.lemi.commands.slash.currency.objects.items.handler.ItemInterface;
-import com.honiism.discord.lemi.commands.slash.currency.objects.items.handler.ItemType;
+import com.honiism.discord.lemi.data.items.handler.EventType;
+import com.honiism.discord.lemi.data.items.handler.ItemCategory;
+import com.honiism.discord.lemi.data.items.handler.ItemInterface;
+import com.honiism.discord.lemi.data.items.handler.ItemType;
 import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 
 import org.slf4j.Logger;

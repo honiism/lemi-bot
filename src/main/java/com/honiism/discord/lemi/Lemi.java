@@ -25,8 +25,8 @@ import java.util.concurrent.Executors;
 import javax.security.auth.login.LoginException;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.honiism.discord.lemi.commands.slash.currency.objects.items.Items;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmdManager;
+import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.listeners.BaseListener;
 import com.honiism.discord.lemi.listeners.CustomEmbedListener;
 import com.honiism.discord.lemi.listeners.GuildListener;
