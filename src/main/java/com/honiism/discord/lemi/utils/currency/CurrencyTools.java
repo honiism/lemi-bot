@@ -271,8 +271,4 @@ public class CurrencyTools {
     public static void removeItemFromDb(String itemId, InteractionHook hook) {
         LemiDbBalManager.INS.removeItemFromDb(itemId, hook);
     }
-
-    public static void createInvDb() {
-        LemiDbBalManager.INS.createInvDb();
-    }
 }

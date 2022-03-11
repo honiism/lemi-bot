@@ -215,8 +215,6 @@ public abstract class Items implements ItemInterface {
         allItems.add(new Sticker());
         
         log.info("Added all the items to the list.");
-
-        CurrencyTools.createInvDb();
     }
 
     public abstract void useAction(InteractionHook hook);

@@ -43,5 +43,4 @@ public interface LemiDbBalManager {
     void removeCurrData(Long userId, Guild guild);
     void addNewItemToDb(String itemId, InteractionHook hook);
     void removeItemFromDb(String itemId, InteractionHook hook);
-    void createInvDb();
 }

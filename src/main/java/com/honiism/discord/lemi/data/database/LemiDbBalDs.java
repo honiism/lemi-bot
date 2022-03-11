@@ -81,44 +81,15 @@ public class LemiDbBalDs implements LemiDbBalManager {
         dataSource = new HikariDataSource(config);
 
         try (Statement statement = getConnection().createStatement()) {
-            // user_balance
-            statement.execute("CREATE TABLE IF NOT EXISTS user_balance ("
+            // user_currency_data
+            statement.execute("CREATE TABLE IF NOT EXISTS user_currency_data ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "user_id VARCHAR(20) NOT NULL DEFAULT '0',"
-                    + "wallet VARCHAR(20) NOT NULL DEFAULT '1000'"
+                    + "user_id VARCHAR(20) NOT NULL,"
+                    + "json_data VARCHAR(20) NOT NULL"
                     + ");"
             );
     
-            log.info("user_balance table initialised");   
-        } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "create / connect to database tables\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-    
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void createInvDb() {
-        List<String> queries = new ArrayList<String>();
-
-        for (Items item : CurrencyTools.getItems()) {
-            queries.add(item.getId() + " INTEGER NOT NULL DEFAULT '0'");
-        }
-
-        String query = "CREATE TABLE IF NOT EXISTS user_inv ("
-                + "user_id VARCHAR(20) NOT NULL DEFAULT '0',"
-                + String.join(",", queries)
-                + ");";
-
-        try (Connection conn = getConnection();
-                PreparedStatement createInvDbStatement = conn.prepareStatement(query)) {
-            createInvDbStatement.execute();
-            log.info("user_inv table initialised");
-            log.info("added items to database.");
-
+            log.info("user_currency_data table initialised");   
         } catch (SQLException e) {
             log.error("\r\nSomething went wrong while trying to "
                     + "create / connect to database tables\r\n"
