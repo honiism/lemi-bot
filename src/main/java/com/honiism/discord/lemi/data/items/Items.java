@@ -21,13 +21,14 @@ package com.honiism.discord.lemi.data.items;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.honiism.discord.lemi.data.items.handler.EventType;
 import com.honiism.discord.lemi.data.items.handler.ItemCategory;
-import com.honiism.discord.lemi.data.items.handler.ItemInterface;
 import com.honiism.discord.lemi.data.items.handler.ItemType;
 import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 
@@ -36,15 +37,17 @@ import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
-public abstract class Items implements ItemInterface {
-
-    public static List<Items> allItems = new ArrayList<Items>();
+public abstract class Items {
 
     private static final Logger log = LoggerFactory.getLogger(Items.class);
+
+    public static Map<String, Items> allItems = new HashMap<>();
 
     protected String name = "";
     protected String desc = "";
     protected String emoji = "";
+    protected String itemLimitDate = null;
+
     protected boolean isSellable = false;
     protected boolean isBuyable = false;
     protected boolean isGiftable = false;
@@ -53,26 +56,98 @@ public abstract class Items implements ItemInterface {
     protected boolean isUsable = false;
     protected boolean disappearAfterUsage = false;
     protected boolean isBreakable = false;
-    protected String itemLimitDate = null;
+    
     protected long sellingPrice = 0;
     protected long buyingPrice = 0;
+
     protected ItemCategory category = ItemCategory.COMMON;
     protected ItemType type = ItemType.COLLECTABLE;
     protected EventType eventType = EventType.NONE;
     
     SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
 
-    @Override
+    public static List<Items> getItemsByCategory(ItemCategory category) {
+        return allItems.values().stream()
+                .filter(item -> item.getCategory().equals(category))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Items> getItemsByType(ItemType itemType) {
+        return allItems.values().stream()
+                .filter(item -> item.getType().equals(itemType))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Items> getItemsByName(String itemName) {
+        return allItems.values().stream()
+                .filter(item -> item.getName().equals(itemName))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Items> getItemsById(String itemId) {
+        return allItems.values().stream()
+                .filter(item -> item.getId().equals(itemId))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Items> getEventItemsByType(EventType eventType) {
+        return allItems.values().stream()
+                .filter(item -> item.getEventType().equals(eventType))
+                .collect(Collectors.toList());
+    }
+
+    public static void registerItems() {
+        addItem(new FishingRod());
+        addItem(new Notebook());
+        addItem(new Basket());
+        addItem(new Pickaxe());
+        addItem(new CoinSprikler());
+        addItem(new LotteryTicket());
+
+        addItem(new Lemon());
+        addItem(new HoneyPot());
+        addItem(new Cookie());
+        addItem(new Donut());
+        addItem(new LenSushi());
+
+        addItem(new CommonChest());
+        addItem(new RareChest());
+        addItem(new LegendaryChest());
+        
+        addItem(new Fish());
+        addItem(new Duck());
+        addItem(new TropicalFish());
+        addItem(new Whale());
+        addItem(new Strawberry());
+        addItem(new Blueberry());
+        addItem(new Grapes());
+        addItem(new SmallFossil());
+        addItem(new LargeFossil());
+        addItem(new GiganticFish());
+        addItem(new Junk());
+
+        addItem(new BankNote());
+        addItem(new Coupon());
+        addItem(new Sticker());
+        
+        log.info("Added all the items to the list.");
+    }
+
+    private static void addItem(Items item) {
+        if (allItems.containsKey(item.getId())) {
+            return;
+        }
+        allItems.put(item.getId(), item);
+    }
+
     public String getName() {
         return name;
     }
 
-    @Override
     public String getDescription() {
         return desc;
     }
 
-    @Override
     public String getId() {
         if (getName().contains(" ")) {
             return name.replaceAll(" ", "_");
@@ -81,77 +156,62 @@ public abstract class Items implements ItemInterface {
         }
     }
 
-    @Override
     public String getEmoji() {
         return emoji;
     }
 
-    @Override
     public boolean isSellable() {
         return isSellable;
     }
 
-    @Override
     public boolean isBuyable() {
         return isBuyable;
     }
 
-    @Override
     public boolean isGiftAble() {
         return isGiftable;
     }
 
-    @Override
     public boolean isLimited() {
         return isLimited;
     }
 
-    @Override
     public boolean isUsable() {
         return isUsable;
     }
 
-    @Override
     public boolean useableAfterLimit() {
         return useableAfterLimit;
     }
 
-    @Override
     public String getLimitedDate() {
         return itemLimitDate;
     }
 
-    @Override
     public long getBuyingPrice() {
         return buyingPrice;
     }
 
-    @Override
     public long getSellingPrice() {
         return sellingPrice;
     }
 
-    @Override
     public boolean disappearAfterUsage() {
         return disappearAfterUsage;
     }
 
-    @Override
     public ItemCategory getCategory() {
         return category;
     }
 
-    @Override
     public ItemType getType() {
         return type;
     }
 
-    @Override
     public EventType getEventType() {
         return eventType;
     }
 
-    @Override
     public void useItem(InteractionHook hook) {
         if (!isUsable()) {
             return;
@@ -178,121 +238,6 @@ public abstract class Items implements ItemInterface {
         }
 
         useAction(hook);
-    }
-
-    public static List<Items> getCommonItems() {
-        List<Items> commonItems = new ArrayList<Items>();
-
-        for (Items item : allItems) {
-            if (!item.getEventType().equals(EventType.NONE)) {
-                continue;
-            }
-            commonItems.add(item);
-        }
-
-        return commonItems;
-    }
-
-    public static List<Items> getEventItems() {
-        List<Items> eventItems = new ArrayList<Items>();
-
-        for (Items item : allItems) {
-            if (item.getEventType().equals(EventType.NONE)) {
-                continue;
-            }
-            eventItems.add(item);
-        }
-
-        return eventItems;
-    }
-
-    public static List<Items> getItemsByType(ItemType itemType) {
-        List<Items> itemsByType = new ArrayList<Items>();
-
-        for (Items item : allItems) {
-            if (!item.getType().equals(itemType)) {
-                continue;
-            }
-            itemsByType.add(item);
-        }
-
-        return itemsByType;
-    }
-
-    public static List<Items> getItemsByName(String itemName) {
-        List<Items> itemsByName = new ArrayList<Items>();
-
-        for (Items item : allItems) {
-            if (!item.getName().equals(itemName)) {
-                continue;
-            }
-            itemsByName.add(item);
-        }
-
-        return itemsByName;
-    }
-
-    public static List<Items> getItemsById(String itemId) {
-        List<Items> itemsById = new ArrayList<Items>();
-
-        for (Items item : allItems) {
-            if (!item.getId().equals(itemId)) {
-                continue;
-            }
-            itemsById.add(item);
-        }
-
-        return itemsById;
-    }
-
-    public static List<Items> getEventItemsByType(EventType eventType) {
-        List<Items> eventItemsByType = new ArrayList<Items>();
-
-        for (Items item : allItems) {
-            if (!item.getEventType().equals(eventType)) {
-                continue;
-            }
-            eventItemsByType.add(item);
-        }
-
-        return eventItemsByType;
-    }
-
-    public static void addItemsToList() {
-        allItems.add(new FishingRod());
-        allItems.add(new Notebook());
-        allItems.add(new Basket());
-        allItems.add(new Pickaxe());
-        allItems.add(new CoinSprikler());
-        allItems.add(new LotteryTicket());
-
-        allItems.add(new Lemon());
-        allItems.add(new HoneyPot());
-        allItems.add(new Cookie());
-        allItems.add(new Donut());
-        allItems.add(new LenSushi());
-
-        allItems.add(new CommonChest());
-        allItems.add(new RareChest());
-        allItems.add(new LegendaryChest());
-        
-        allItems.add(new Fish());
-        allItems.add(new Duck());
-        allItems.add(new TropicalFish());
-        allItems.add(new Whale());
-        allItems.add(new Strawberry());
-        allItems.add(new Blueberry());
-        allItems.add(new Grapes());
-        allItems.add(new SmallFossil());
-        allItems.add(new LargeFossil());
-        allItems.add(new GiganticFish());
-        allItems.add(new Junk());
-
-        allItems.add(new BankNote());
-        allItems.add(new Coupon());
-        allItems.add(new Sticker());
-        
-        log.info("Added all the items to the list.");
     }
 
     public abstract void useAction(InteractionHook hook);
