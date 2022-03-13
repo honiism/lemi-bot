@@ -19,28 +19,20 @@
 
 package com.honiism.discord.lemi.data.database.managers;
 
-import java.util.List;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.data.database.LemiDbBalDs;
 
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public interface LemiDbBalManager {
     LemiDbBalManager INS = new LemiDbBalDs();
 
-    // currency
-    boolean userHasCurrProfile(long userId);
-    void addUserCurrProfile(long userId);
-    void addUserInvProfile(long userId);
-    long getUserBal(Long userId);
-    void updateUserBal(Long userId, long balToUpdate);
-    List<String> getOwnedItems(Long userId);
-    long getItemFromUserInv(Long userId, String itemName);
-    boolean checkIfItemExists(String itemName);
-    void updateItemUser(Long userId, String itemName, long amountToUpdate);
-    void removeAllItems(Long userId, Guild guild);
-    void removeCurrData(Long userId, Guild guild);
-    void addNewItemToDb(String itemId, InteractionHook hook);
-    void removeItemFromDb(String itemId, InteractionHook hook);
+    // users
+    boolean userHasData(long userId);
+    void addUserData(long userId);
+    void update(long userId, String jsonData);
+    String getUserData(long userId);
+    void removeItemFromDb(String itemId, InteractionHook hook) throws JsonMappingException, JsonProcessingException;
 }
+    
