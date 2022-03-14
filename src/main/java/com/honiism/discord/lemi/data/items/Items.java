@@ -27,10 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.honiism.discord.lemi.data.items.handler.EventType;
 import com.honiism.discord.lemi.data.items.handler.ItemCategory;
 import com.honiism.discord.lemi.data.items.handler.ItemType;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +43,7 @@ public abstract class Items {
 
     private static final Logger log = LoggerFactory.getLogger(Items.class);
 
-    public static Map<String, Items> allItems = new HashMap<>();
+    private static Map<String, Items> allItems = new HashMap<>();
 
     protected String name = "";
     protected String desc = "";
@@ -66,6 +68,10 @@ public abstract class Items {
     
     SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
 
+    public static Map<String, Items> getItems() {
+        return allItems;
+    }
+
     public static List<Items> getItemsByCategory(ItemCategory category) {
         return allItems.values().stream()
                 .filter(item -> item.getCategory().equals(category))
@@ -78,22 +84,33 @@ public abstract class Items {
                 .collect(Collectors.toList());
     }
 
-    public static List<Items> getItemsByName(String itemName) {
-        return allItems.values().stream()
-                .filter(item -> item.getName().equals(itemName))
-                .collect(Collectors.toList());
-    }
-
-    public static List<Items> getItemsById(String itemId) {
-        return allItems.values().stream()
-                .filter(item -> item.getId().equals(itemId))
-                .collect(Collectors.toList());
-    }
-
     public static List<Items> getEventItemsByType(EventType eventType) {
         return allItems.values().stream()
                 .filter(item -> item.getEventType().equals(eventType))
                 .collect(Collectors.toList());
+    }
+
+    public static Items getItemByName(String itemName) {
+        return allItems.values().stream()
+                .filter(item -> item.getName().equals(itemName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static Items getItemById(String itemId) {
+        return allItems.get(itemId);
+    }
+
+    public static boolean checkIfItemExists(String key) {
+        if (getItemById(key) != null) {
+            return true;
+        }
+        
+        if (getItemByName(key) != null) {
+            return true;
+        }
+
+        return false;
     }
 
     public static void registerItems() {
@@ -233,7 +250,17 @@ public abstract class Items {
 
         if (disappearAfterUsage()) {
             useAction(hook);
-            CurrencyTools.removeItemFromUser(hook.getInteraction().getUser().getIdLong(), getName(), 1);
+
+            long userId = hook.getInteraction().getUser().getIdLong();
+
+            try {
+                UserDataManager userDataManager = new UserDataManager(userId, LemiDbBalManager.INS.getUserData(userId));
+                userDataManager.removeItemFromUser(getId(), 1);
+
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+
             return;
         }
 

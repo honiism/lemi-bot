@@ -21,6 +21,8 @@ package com.honiism.discord.lemi.commands.slash.handler;
 
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
@@ -89,10 +91,14 @@ public abstract class SlashCmd {
             return;
         }
 
-        action(event);      
+        try {
+            action(event);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }      
     }
 
-    public abstract void action(SlashCommandInteractionEvent event);
+    public abstract void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException;
 
     public SlashCommandData getCommandData() {
         return commandData;    

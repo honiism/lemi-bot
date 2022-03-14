@@ -120,7 +120,7 @@ public class Lemi {
         shardManager = builder.build();
 
         embedTools.registerEmbedListener(new CustomEmbedListener());
-        Items.addItemsToList();
+        Items.registerItems();
     }
 
     public static void main(String[] args) {

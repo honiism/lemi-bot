@@ -80,13 +80,12 @@ public class AddCurrProfile extends SlashCmd {
                 return;
             }
 
-            if (CurrencyTools.userHasCurrProfile(member.getIdLong())) {
+            if (CurrencyTools.userHasData(member.getIdLong())) {
                 hook.sendMessage(":snowflake: This user already has a currency profile.").queue();
                 return;
             }
 
-            CurrencyTools.addUserCurrProfile(member.getIdLong());
-            CurrencyTools.addUserInvProfile(member.getIdLong());
+            CurrencyTools.addUserData(member.getIdLong());
 
             hook.sendMessage(":seedling: Successfully added currency profiles to them.").queue();
         } else {
