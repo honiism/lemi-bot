@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.data.UserDataManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -82,7 +83,9 @@ public class ResetCurrData extends SlashCmd {
 
             setUserDataManager(member.getIdLong());
 
-            getUserDataManager().removeData();
+            UserDataManager dataManager = getUserDataManager();
+
+            dataManager.removeData();
 
             hook.sendMessage(":tulip: Successfully reset the user's data.").queue();
 

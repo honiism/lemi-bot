@@ -20,11 +20,13 @@
 package com.honiism.discord.lemi.commands.slash.currency;
 
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.data.UserDataManager;
 import com.honiism.discord.lemi.data.items.Items;
 
 import java.util.HashMap;
 import java.util.Random;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.utils.currency.WeightedRandom;
@@ -33,7 +35,6 @@ import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -51,11 +52,10 @@ public class Beg extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
 
@@ -72,6 +72,8 @@ public class Beg extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
+            setUserDataManager(author.getIdLong());
+
             WeightedRandom<String> randomRarity = new WeightedRandom<>();
             WeightedRandom<String> randomLootType = new WeightedRandom<>();
 
@@ -83,27 +85,27 @@ public class Beg extends SlashCmd {
 
             randomLootType.add(50, "coins").add(50, "item");
 
-            Guild guild = event.getGuild();
+            UserDataManager dataManager = getUserDataManager();
 
             switch (randomRarity.next()) {
                 case "fail":
-                    failAction(hook, author, guild);
+                    failAction(hook, author, dataManager);
                     break;
 
                 case "common":
-                    commonAction(hook, author, guild);
+                    commonAction(hook, author, dataManager);
                     break;
 
                 case "uncommon":
-                    uncommonAction(hook, author, guild, randomLootType.next());
+                    uncommonAction(hook, author, randomLootType.next(), dataManager);
                     break;
 
                 case "rare":
-                    rareAction(hook, author, guild, randomLootType.next());
+                    rareAction(hook, author, randomLootType.next(), dataManager);
                     break;
 
                 case "super-rare":
-                    superRareAction(hook, author, guild, randomLootType.next());
+                    superRareAction(hook, author, randomLootType.next(), dataManager);
             }
 
         } else {
@@ -120,7 +122,7 @@ public class Beg extends SlashCmd {
         }         
     }
     
-    private void failAction(InteractionHook hook, User author, Guild guild) {
+    private void failAction(InteractionHook hook, User author, UserDataManager dataManager) {
         String[] resultMessages = new String[] {
             "Shoo.",
             "RareItem.exe has stopped working <3!",
@@ -140,20 +142,20 @@ public class Beg extends SlashCmd {
                 + "> :cherry_blossom: " 
                 + Tools.getRandomNPC() + ": \"" + Tools.getRandomEntry(resultMessages) + "\"\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + getUserDataManager().getBal() 
+                + "> :sunflower: You now have " + dataManager.getBal() 
                 + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
 
-    private void commonAction(InteractionHook hook, User author, Guild guild) {
+    private void commonAction(InteractionHook hook, User author, UserDataManager dataManager) {
         Random random = new Random();
         int gainedAmount = random.nextInt(250 - 50) + 50;
         gainedAmount += 1;
         
         String gainedBal = gainedAmount + " " + Tools.getBalName();
 
-        getUserDataManager().addBalToUser(gainedAmount);
+        dataManager.addBalToUser(gainedAmount);
 
         hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **BEGGING . . .**\r\n" 
                 + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -161,13 +163,13 @@ public class Beg extends SlashCmd {
                 + "> :cherry_blossom: " 
                 + Tools.getRandomNPC() + " gave you " + gainedBal + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + getUserDataManager().getBal() 
+                + "> :sunflower: You now have " + dataManager.getBal() 
                 + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
 
-    private void uncommonAction(InteractionHook hook, User author, Guild guild, String lootType) {
+    private void uncommonAction(InteractionHook hook, User author, String lootType, UserDataManager dataManager) {
         if (lootType.equals("coins")) {
             Random random = new Random();
             int gainedAmount = random.nextInt(500 - 200) + 200;
@@ -175,7 +177,7 @@ public class Beg extends SlashCmd {
 
             String gainedBal = gainedAmount + " " + Tools.getBalName();
 
-            getUserDataManager().addBalToUser(gainedAmount);
+            dataManager.addBalToUser(gainedAmount);
         
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **BEGGING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -183,7 +185,7 @@ public class Beg extends SlashCmd {
                     + "> :cherry_blossom: " 
                     + Tools.getRandomNPC() + " gave you " + gainedBal + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + getUserDataManager().getBal() 
+                    + "> :sunflower: You now have " + dataManager.getBal() 
                     + " " + Tools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
@@ -201,7 +203,7 @@ public class Beg extends SlashCmd {
             String itemId = pickedItem.getId();
             String itemEmoji = pickedItem.getEmoji();
 
-            getUserDataManager().addItemToUser(itemId, 1);
+            dataManager.addItemToUser(itemId, 1);
 
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **BEGGING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -210,14 +212,14 @@ public class Beg extends SlashCmd {
                     + Tools.getRandomNPC() 
                     + " gave you a " + itemEmoji + " " + itemId + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + getUserDataManager().getBal() 
+                    + "> :sunflower: You now have " + dataManager.getBal() 
                     + " " + Tools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
         }
     }
 
-    private void rareAction(InteractionHook hook, User author, Guild guild, String lootType) {
+    private void rareAction(InteractionHook hook, User author, String lootType, UserDataManager dataManager) {
         if (lootType.equals("coins")) {
             Random random = new Random();
             int gainedAmount = random.nextInt(800 - 500) + 500;
@@ -225,7 +227,7 @@ public class Beg extends SlashCmd {
 
             String gainedBal = gainedAmount + " " + Tools.getBalName();
 
-            getUserDataManager().addBalToUser(gainedAmount);
+            dataManager.addBalToUser(gainedAmount);
         
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **BEGGING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -233,7 +235,7 @@ public class Beg extends SlashCmd {
                     + "> :cherry_blossom: " 
                     + Tools.getRandomNPC() + " gave you " + gainedBal + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + getUserDataManager().getBal() 
+                    + "> :sunflower: You now have " + dataManager.getBal() 
                     + " " + Tools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
@@ -250,7 +252,7 @@ public class Beg extends SlashCmd {
             String itemId = pickedItem.getId();
             String itemEmoji = pickedItem.getEmoji();
 
-            getUserDataManager().addItemToUser(itemId, 1);
+            dataManager.addItemToUser(itemId, 1);
 
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **BEGGING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -259,14 +261,14 @@ public class Beg extends SlashCmd {
                     + Tools.getRandomNPC() 
                     + " gave you a " + itemEmoji + " " + itemId + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + getUserDataManager().getBal() 
+                    + "> :sunflower: You now have " + dataManager.getBal() 
                     + " " + Tools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
         }
     }
 
-    private void superRareAction(InteractionHook hook, User author, Guild guild, String lootType) {
+    private void superRareAction(InteractionHook hook, User author, String lootType, UserDataManager dataManager) {
         if (lootType.equals("coins")) {
             Random random = new Random();
             int gainedAmount = random.nextInt(1200 - 800) + 800;
@@ -274,7 +276,7 @@ public class Beg extends SlashCmd {
 
             String gainedBal = gainedAmount + " " + Tools.getBalName();
 
-            getUserDataManager().addBalToUser(gainedAmount);
+            dataManager.addBalToUser(gainedAmount);
         
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **BEGGING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -282,7 +284,7 @@ public class Beg extends SlashCmd {
                     + "> :cherry_blossom: " 
                     + Tools.getRandomNPC() + " gave you " + gainedBal + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + getUserDataManager().getBal() 
+                    + "> :sunflower: You now have " + dataManager.getBal() 
                     + " " + Tools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
@@ -297,7 +299,7 @@ public class Beg extends SlashCmd {
             String itemId = pickedItem.getId();
             String itemEmoji = pickedItem.getEmoji();
 
-            getUserDataManager().addItemToUser(itemId, 1);
+            dataManager.addItemToUser(itemId, 1);
 
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **BEGGING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -306,7 +308,7 @@ public class Beg extends SlashCmd {
                     + Tools.getRandomNPC() 
                     + " gave you a " + itemEmoji + " " + itemId + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + getUserDataManager().getBal() 
+                    + "> :sunflower: You now have " + dataManager.getBal() 
                     + " " + Tools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();

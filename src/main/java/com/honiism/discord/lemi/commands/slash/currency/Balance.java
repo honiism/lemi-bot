@@ -76,14 +76,14 @@ public class Balance extends SlashCmd {
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
             Member member = event.getOption("user", event.getMember(), OptionMapping::getAsMember);
-            
-            long bal = getUserDataManager().getBal();
 
+            setUserDataManager(member.getIdLong());
+            
             EmbedBuilder userBal = new EmbedBuilder();
 
             userBal.setDescription("‧₊੭ :cherry_blossom: " + member.getAsMention() + "'s balance ♡ ⋆｡˚\r\n"
                     + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                    + Tools.getBalName() + " " + bal)
+                    + Tools.getBalName() + " " + getUserDataManager().getBal())
                 .setColor(0xffd1dc)
                 .setThumbnail(member.getUser().getEffectiveAvatarUrl())
                 .setAuthor(member.getUser().getAsTag(), null, member.getUser().getEffectiveAvatarUrl());

@@ -95,7 +95,6 @@ public abstract class SlashCmd {
         }
 
         try {
-            setUserDataManager(member.getIdLong());
             action(event);
         } catch (JsonProcessingException e) {
             e.printStackTrace();

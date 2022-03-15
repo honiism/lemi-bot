@@ -75,7 +75,7 @@ public class Tools {
     }
 
     public static String getBalName() {
-        return CustomEmojis.BALANCE;
+        return CustomEmojis.COIN;
     }
 
     public static StringBuilder replaceAllSb(StringBuilder sb, String find, String replace){

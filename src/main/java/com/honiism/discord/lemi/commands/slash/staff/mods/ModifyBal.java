@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.data.UserDataManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -101,15 +102,17 @@ public class ModifyBal extends SlashCmd {
                     }
 
                     setUserDataManager(memberToAddCurr.getIdLong());
+
+                    UserDataManager dataManager = getUserDataManager();
             
-                    getUserDataManager().addBalToUser(addAmount);
+                    dataManager.addBalToUser(addAmount);
             
                     hook.sendMessage(":cherry_blossom: " 
                             + memberToAddCurr.getAsMention() 
                             + ", you have received " + addAmount 
                             + " " + Tools.getBalName() + " from " 
                             + author.getAsMention() + "!\r\n"
-                            + ":blueberries: You now have " + getUserDataManager().getBal()
+                            + ":blueberries: You now have " + dataManager.getBal()
                             + " " + Tools.getBalName() + ".")
                         .queue();
                     break;
@@ -130,15 +133,17 @@ public class ModifyBal extends SlashCmd {
                     }
 
                     setUserDataManager(memberToRemoveCurr.getIdLong());
+
+                    dataManager = getUserDataManager();
             
-                    getUserDataManager().removeBalFromUser(removeAmount);
+                    dataManager.removeBalFromUser(removeAmount);
             
                     hook.sendMessage(":cherry_blossom: " 
                             + memberToRemoveCurr.getAsMention() 
                             + ", " + author.getAsMention()
                             + " has taken " + removeAmount + " " 
                             + Tools.getBalName() + " from " + "you" + "!\r\n"
-                            + ":blueberries: You now have " + getUserDataManager().getBal()
+                            + ":blueberries: You now have " + dataManager.getBal()
                             + " " + Tools.getBalName() + ".")
                         .queue();
             }

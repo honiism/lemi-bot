@@ -31,9 +31,9 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.Lemi;
+import com.honiism.discord.lemi.data.InventoryData;
 import com.honiism.discord.lemi.data.UserData;
 import com.honiism.discord.lemi.data.UserDataManager;
-import com.honiism.discord.lemi.data.UserData.InventoryData;
 import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -85,7 +85,7 @@ public class LemiDbBalDs implements LemiDbBalManager {
             // user_currency_data
             statement.execute("CREATE TABLE IF NOT EXISTS user_currency_data ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "user_id VARCHAR(20) NOT NULL UNIQUE,"
+                    + "user_id VARCHAR(20) NOT NULL,"
                     + "json_data VARCHAR(20) NOT NULL"
                     + ");"
             );
@@ -167,9 +167,9 @@ public class LemiDbBalDs implements LemiDbBalManager {
     public void update(long userId, String jsonData) {
         try (Connection conn = getConnection();
                 PreparedStatement updateStatement =
-    	            conn.prepareStatement("INSERT OR REPLACE INTO user_currency_data(user_id, json_data) VALUES(?, ?)")) {
-    	    updateStatement.setLong(1, userId);
-            updateStatement.setString(2, jsonData);
+    	            conn.prepareStatement("UPDATE user_currency_data SET json_data = ? WHERE user_id = ?")) {
+    	    updateStatement.setString(1, jsonData);
+            updateStatement.setLong(2, userId);
             updateStatement.executeUpdate();
     	} catch (SQLException e) {
             e.printStackTrace();        

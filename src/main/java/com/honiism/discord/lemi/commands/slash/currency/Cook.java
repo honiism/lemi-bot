@@ -20,11 +20,13 @@
 package com.honiism.discord.lemi.commands.slash.currency;
 
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.data.UserDataManager;
 import com.honiism.discord.lemi.data.items.Items;
 
 import java.util.HashMap;
 import java.util.Random;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.utils.currency.WeightedRandom;
@@ -33,7 +35,6 @@ import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -43,65 +44,6 @@ public class Cook extends SlashCmd {
     
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
-
-    public Cook() {
-        setCommandData(Commands.slash("cook", "Let's see if your cooking skills can handle this!"));
-        setUsage("/currency cook");
-        setCategory(CommandCategory.CURRENCY);
-        setUserCategory(UserCategory.USERS);
-        setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
-    }
-
-    @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
-
-        if (delay.containsKey(author.getIdLong())) {
-            timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
-        } else {
-            timeDelayed = (45 * 1000);
-        }
-            
-        if (timeDelayed >= (45 * 1000)) {        
-            if (delay.containsKey(author.getIdLong())) {
-                delay.remove(author.getIdLong());
-            }
-        
-            delay.put(author.getIdLong(), System.currentTimeMillis());
-
-            WeightedRandom<String> randomResult = new WeightedRandom<String>()
-                .add(60, "fail")
-                .add(40, "success");
-
-            String randomResultString = randomResult.next();
-            Guild guild = event.getGuild();
-
-            if (randomResultString.equals("fail")) {
-                failAction(hook, author, guild);
-            } else if (randomResultString.equals("success")) {
-                WeightedRandom<String> randomLootType = new WeightedRandom<String>()
-                    .add(50, "coins")
-                    .add(50, "item");
-
-                successAction(hook, author, guild, randomLootType.next());
-            }
-
-        } else {
-            String time = Tools.secondsToTime(((45 * 1000) - timeDelayed) / 1000);
-                
-            EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
-                .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() 
-                        + ", you can use this command again in `" + time + "`.")
-                .setColor(0xffd1dc);
-                
-            hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
-        }         
-    }
 
     private String[] foodTypes = new String[] {
         ":pizza:", ":hamburger:", ":fries:",
@@ -124,8 +66,69 @@ public class Cook extends SlashCmd {
         ":chocolate_bar:", ":candy:", ":lollipop:",
         ":dango:", ":custard:", ":coffee:", ":tea:"
     };
+
+    public Cook() {
+        setCommandData(Commands.slash("cook", "Let's see if your cooking skills can handle this!"));
+        setUsage("/currency cook");
+        setCategory(CommandCategory.CURRENCY);
+        setUserCategory(UserCategory.USERS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        
+    }
+
+    @Override
+    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
+        InteractionHook hook = event.getHook();
+        User author = event.getUser();
+
+        if (delay.containsKey(author.getIdLong())) {
+            timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
+        } else {
+            timeDelayed = (45 * 1000);
+        }
+            
+        if (timeDelayed >= (45 * 1000)) {        
+            if (delay.containsKey(author.getIdLong())) {
+                delay.remove(author.getIdLong());
+            }
+        
+            delay.put(author.getIdLong(), System.currentTimeMillis());
+
+            setUserDataManager(author.getIdLong());
+
+            WeightedRandom<String> randomResult = new WeightedRandom<String>()
+                .add(60, "fail")
+                .add(40, "success");
+
+            String randomResultString = randomResult.next();
+            UserDataManager dataManager = getUserDataManager();
+
+            if (randomResultString.equals("fail")) {
+                failAction(hook, author, dataManager);
+            } else if (randomResultString.equals("success")) {
+                WeightedRandom<String> randomLootType = new WeightedRandom<String>()
+                    .add(50, "coins")
+                    .add(50, "item");
+
+                successAction(hook, author, dataManager, randomLootType.next());
+            }
+
+        } else {
+            String time = Tools.secondsToTime(((45 * 1000) - timeDelayed) / 1000);
+                
+            EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
+                .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
+                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
+                        + author.getAsMention() 
+                        + ", you can use this command again in `" + time + "`.")
+                .setColor(0xffd1dc);
+                
+            hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
+        }         
+    }
     
-    private void failAction(InteractionHook hook, User author, Guild guild) {
+    private void failAction(InteractionHook hook, User author, UserDataManager dataManager) {
         String[] resultMessages = new String[] {
             "HAHA, TOOK TOO SLOW TO ASK ME FOR THE MONEY BYEE! I ENJOYED THE " + Tools.getRandomEntry(foodTypes) + "!",
             "I need to call your manager, there's something weird about that " + Tools.getRandomEntry(foodTypes) + ".",
@@ -145,20 +148,20 @@ public class Cook extends SlashCmd {
                 + "> :cherry_blossom: " 
                 + Tools.getRandomNPC() + ": \"" + Tools.getRandomEntry(resultMessages) + "\"\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + getUserDataManager().getBal() 
+                + "> :sunflower: You now have " + dataManager.getBal() 
                 + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
 
-    private void successAction(InteractionHook hook, User author, Guild guild, String lootType) {
+    private void successAction(InteractionHook hook, User author, UserDataManager dataManager, String lootType) {
         if (lootType.equals("coins")) {
             Random random = new Random();
             int gainedAmount = random.nextInt(500 - 200) + 200;
             gainedAmount += 1;
             String gainedBal = gainedAmount + " " + Tools.getBalName();
 
-            getUserDataManager().addBalToUser(gainedAmount);
+            dataManager.addBalToUser(gainedAmount);
         
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **COOKING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -167,7 +170,7 @@ public class Cook extends SlashCmd {
                     + Tools.getRandomNPC() + " gave you " + gainedBal 
                     + " for the perfect " + Tools.getRandomEntry(foodTypes) + ".\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + getUserDataManager().getBal()
+                    + "> :sunflower: You now have " + dataManager.getBal()
                     + " " + Tools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
@@ -185,7 +188,7 @@ public class Cook extends SlashCmd {
             String itemId = pickedItem.getId();
             String itemEmoji = pickedItem.getEmoji();
 
-            getUserDataManager().addItemToUser(itemId, 1);
+            dataManager.addItemToUser(itemId, 1);
 
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **COOKING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
@@ -194,7 +197,7 @@ public class Cook extends SlashCmd {
                     + Tools.getRandomNPC() 
                     + " gave you a " + itemEmoji + " " + itemId + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + getUserDataManager().getBal() 
+                    + "> :sunflower: You now have " + dataManager.getBal() 
                     + " " + Tools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();

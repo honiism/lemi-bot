@@ -40,6 +40,12 @@ public class GuildListener extends ListenerAdapter {
     @Override
     public void onGuildReady(GuildReadyEvent event) {
         Guild guild = event.getGuild();
+        Long guildId = guild.getIdLong();
+
+        if (!guildId.equals(Config.getLong("honeys_sweets_id"))) {
+            return;
+        }
+        
         LemiDbManager.INS.insertGuildSettings(guild);
     }
 

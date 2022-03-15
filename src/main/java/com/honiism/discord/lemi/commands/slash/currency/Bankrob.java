@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.data.UserDataManager;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -34,7 +35,6 @@ import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -73,9 +73,11 @@ public class Bankrob extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Guild guild = event.getGuild();
+            setUserDataManager(author.getIdLong());
 
-            if (getUserDataManager().getBal() < 10000) {
+            UserDataManager dataManager = getUserDataManager();
+
+            if (dataManager.getBal() < 10000) {
                 hook.sendMessage(":blossom: You need at least 10,000 " 
                         + Tools.getBalName() + ".")
                     .queue();
@@ -90,11 +92,11 @@ public class Bankrob extends SlashCmd {
             String randomResultString = randomResult.next();
 
             if (randomResultString.equals("fail")) {
-                failAction(hook, author, guild);
+                failAction(hook, author, dataManager);
             } else if (randomResultString.equals("nothing")) {
-                nothingAction(hook, author, guild);
+                nothingAction(hook, author, dataManager);
             } else if (randomResultString.equals("success")) {
-                successAction(hook, author, guild);
+                successAction(hook, author, dataManager);
             }
             
         } else {
@@ -111,14 +113,14 @@ public class Bankrob extends SlashCmd {
         }         
     }
 
-    private void failAction(InteractionHook hook, User author, Guild guild) {
+    private void failAction(InteractionHook hook, User author, UserDataManager dataManager) {
         Random random = new Random();
         int lostAmount = random.nextInt(10000 - 2000) + 2000;
         lostAmount += 1;
         
         String lostBal = lostAmount + " " + Tools.getBalName();
 
-        getUserDataManager().removeBalFromUser(lostAmount);
+        dataManager.removeBalFromUser(lostAmount);
 
         String[] resultMessages = new String[] {
                 "You dropped the money bag and lost " + lostBal + ".",
@@ -133,32 +135,32 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + Tools.getRandomEntry(resultMessages) + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + getUserDataManager().getBal()
+                + "> :sunflower: You now have " + dataManager.getBal()
                 + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
 
-    private void nothingAction(InteractionHook hook, User author, Guild guild) {
+    private void nothingAction(InteractionHook hook, User author, UserDataManager dataManager) {
         hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **ROBBING . . .**\r\n" 
                 + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + "You wake up from the dream, you gained nothing." + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + getUserDataManager().getBal()
+                + "> :sunflower: You now have " + dataManager.getBal()
                 + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
 
-    private void successAction(InteractionHook hook, User author, Guild guild) {
+    private void successAction(InteractionHook hook, User author, UserDataManager dataManager) {
         Random random = new Random();
         
         int gainedAmount = random.nextInt(50000 - 10000) + 10000;
         gainedAmount += 1;
         String gainedBal = gainedAmount + " " + Tools.getBalName();
 
-        getUserDataManager().addBalToUser(gainedAmount);
+        dataManager.addBalToUser(gainedAmount);
 
         String[] resultMessages = new String[] {
                 "You ran away and gained " + gainedBal + ".",
@@ -173,7 +175,7 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + Tools.getRandomEntry(resultMessages) + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + getUserDataManager().getBal()
+                + "> :sunflower: You now have " + dataManager.getBal()
                 + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();

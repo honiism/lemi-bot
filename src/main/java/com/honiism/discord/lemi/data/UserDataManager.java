@@ -25,7 +25,6 @@ import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.data.UserData.InventoryData;
 import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.honiism.discord.lemi.data.items.Items;
 
@@ -173,7 +172,7 @@ public class UserDataManager {
         long amountAfterAdd = userItemAmount + amountToAdd;
 
         if (targetItem == null) {
-            InventoryData newInvItem = getData().new InventoryData(itemId);
+            InventoryData newInvItem = new InventoryData(itemId);
         
             newInvItem.setName(itemId);
             newInvItem.setCount(amountAfterAdd);

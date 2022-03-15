@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.data.UserDataManager;
 import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
@@ -112,7 +113,10 @@ public class ModifyInv extends SlashCmd {
 
                     setUserDataManager(memberAdd.getIdLong());
 
-                    getUserDataManager().addItemToUser(itemNameToAdd, addAmount);
+                    UserDataManager dataManager = getUserDataManager();
+                    String itemId = itemNameToAdd.replaceAll(" ", "_");
+
+                    dataManager.addItemToUser(itemId, addAmount);
             
                     hook.sendMessage(":oden: " 
                             + memberAdd.getAsMention() 
@@ -120,7 +124,7 @@ public class ModifyInv extends SlashCmd {
                             + " " + itemNameToAdd + " from " 
                             + author.getAsMention() + "!\r\n"
                             + ":blueberries: You now have " 
-                            + getUserDataManager().getItemCountFromUser(itemNameToAdd.replaceAll(" ", "_"))
+                            + dataManager.getItemCountFromUser(itemId)
                             + " " + itemNameToAdd + ".")
                         .queue();
                     break;
@@ -149,14 +153,15 @@ public class ModifyInv extends SlashCmd {
 
                     setUserDataManager(memberRemove.getIdLong());
 
-                    String itemId = itemNameToRemove.replaceAll(" ", "_");
+                    dataManager = getUserDataManager();
+                    itemId = itemNameToRemove.replaceAll(" ", "_");
 
-                    if (getUserDataManager().getItemCountFromUser(itemId) < removeAmount) {
+                    if (dataManager.getItemCountFromUser(itemId) < removeAmount) {
                         hook.sendMessage(":hibiscus: You cannot take more than what they have.").queue();
                         return;
                     }
 
-                    getUserDataManager().removeItemFromUser(itemId, removeAmount);
+                    dataManager.removeItemFromUser(itemId, removeAmount);
             
                     hook.sendMessage(":oden: " 
                             + memberRemove.getAsMention() 
@@ -164,7 +169,7 @@ public class ModifyInv extends SlashCmd {
                             + " has taken " + removeAmount + " " + itemNameToRemove + " from " 
                             + "you" + "!\r\n"
                             + ":blueberries: You now have " 
-                            + getUserDataManager().getItemCountFromUser(itemId)
+                            + dataManager.getItemCountFromUser(itemId)
                             + " " + itemNameToRemove + ".")
                         .queue();
             }
