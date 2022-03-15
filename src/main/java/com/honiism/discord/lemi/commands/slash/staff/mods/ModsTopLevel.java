@@ -18,6 +18,7 @@
  */
 
 package com.honiism.discord.lemi.commands.slash.staff.mods;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
@@ -88,7 +89,7 @@ public class ModsTopLevel extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
         event.deferReply().queue();
         
         String subCmdGroupName = event.getSubcommandGroup();

@@ -19,6 +19,8 @@
 
 package com.honiism.discord.lemi.commands.slash.currency;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
@@ -69,7 +71,7 @@ public class CurrencyTopLevel extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException {
         event.deferReply().queue();
         
         String subCmdName = event.getSubcommandName();

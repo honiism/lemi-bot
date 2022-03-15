@@ -21,10 +21,10 @@ package com.honiism.discord.lemi.commands.slash.staff.mods;
 
 import java.util.HashMap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -65,7 +65,7 @@ public class ModifyBal extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
         
@@ -99,16 +99,18 @@ public class ModifyBal extends SlashCmd {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
+
+                    setUserDataManager(memberToAddCurr.getIdLong());
             
-                    CurrencyTools.addBalToUser(memberToAddCurr.getIdLong(), addAmount);
+                    getUserDataManager().addBalToUser(addAmount);
             
                     hook.sendMessage(":cherry_blossom: " 
                             + memberToAddCurr.getAsMention() 
                             + ", you have received " + addAmount 
-                            + " " + CurrencyTools.getBalName() + " from " 
+                            + " " + Tools.getBalName() + " from " 
                             + author.getAsMention() + "!\r\n"
-                            + ":blueberries: You now have " + CurrencyTools.getUserBal(memberToAddCurr.getIdLong())
-                            + " " + CurrencyTools.getBalName() + ".")
+                            + ":blueberries: You now have " + getUserDataManager().getBal()
+                            + " " + Tools.getBalName() + ".")
                         .queue();
                     break;
 
@@ -126,16 +128,18 @@ public class ModifyBal extends SlashCmd {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
+
+                    setUserDataManager(memberToRemoveCurr.getIdLong());
             
-                    CurrencyTools.removeBalFromUser(memberToRemoveCurr.getIdLong(), removeAmount);
+                    getUserDataManager().removeBalFromUser(removeAmount);
             
                     hook.sendMessage(":cherry_blossom: " 
                             + memberToRemoveCurr.getAsMention() 
                             + ", " + author.getAsMention()
                             + " has taken " + removeAmount + " " 
-                            + CurrencyTools.getBalName() + " from " + "you" + "!\r\n"
-                            + ":blueberries: You now have " + CurrencyTools.getUserBal(memberToRemoveCurr.getIdLong())
-                            + " " + CurrencyTools.getBalName() + ".")
+                            + Tools.getBalName() + " from " + "you" + "!\r\n"
+                            + ":blueberries: You now have " + getUserDataManager().getBal()
+                            + " " + Tools.getBalName() + ".")
                         .queue();
             }
         } else {

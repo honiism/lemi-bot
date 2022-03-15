@@ -27,7 +27,6 @@ import java.util.Random;
 
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.currency.WeightedRandom;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
@@ -144,10 +143,10 @@ public class Cook extends SlashCmd {
                 + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " 
-                + CurrencyTools.getRandomNPC() + ": \"" + Tools.getRandomEntry(resultMessages) + "\"\r\n"
+                + Tools.getRandomNPC() + ": \"" + Tools.getRandomEntry(resultMessages) + "\"\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
-                + " " + CurrencyTools.getBalName() + "\r\n"
+                + "> :sunflower: You now have " + getUserDataManager().getBal() 
+                + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
@@ -157,19 +156,19 @@ public class Cook extends SlashCmd {
             Random random = new Random();
             int gainedAmount = random.nextInt(500 - 200) + 200;
             gainedAmount += 1;
-            String gainedBal = gainedAmount + " " + CurrencyTools.getBalName();
+            String gainedBal = gainedAmount + " " + Tools.getBalName();
 
-            CurrencyTools.addBalToUser(author.getIdLong(), gainedAmount);
+            getUserDataManager().addBalToUser(gainedAmount);
         
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **COOKING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
                     + "> " + author.getAsMention() + "\r\n"
                     + "> :cherry_blossom: " 
-                    + CurrencyTools.getRandomNPC() + " gave you " + gainedBal 
+                    + Tools.getRandomNPC() + " gave you " + gainedBal 
                     + " for the perfect " + Tools.getRandomEntry(foodTypes) + ".\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong())
-                    + " " + CurrencyTools.getBalName() + "\r\n"
+                    + "> :sunflower: You now have " + getUserDataManager().getBal()
+                    + " " + Tools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
                 
@@ -182,22 +181,21 @@ public class Cook extends SlashCmd {
                 .add(20, new Items.Fish())
                 .add(20, new Items.Duck());
 
-            long userId = author.getIdLong();
             Items pickedItem = randomItem.next();
-            String itemName = pickedItem.getName();
+            String itemId = pickedItem.getId();
             String itemEmoji = pickedItem.getEmoji();
 
-            CurrencyTools.addItemToUser(userId, itemName, 1);
+            getUserDataManager().addItemToUser(itemId, 1);
 
             hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **COOKING . . .**\r\n" 
                     + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
                     + "> " + author.getAsMention() + "\r\n"
                     + "> :cherry_blossom: " 
-                    + CurrencyTools.getRandomNPC() 
-                    + " gave you a " + itemEmoji + " " + itemName + "\r\n"
+                    + Tools.getRandomNPC() 
+                    + " gave you a " + itemEmoji + " " + itemId + "\r\n"
                     + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                    + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
-                    + " " + CurrencyTools.getBalName() + "\r\n"
+                    + "> :sunflower: You now have " + getUserDataManager().getBal() 
+                    + " " + Tools.getBalName() + "\r\n"
                     + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
                 .queue();
         }

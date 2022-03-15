@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.honiism.discord.lemi.utils.paginator.Paginator;
@@ -80,7 +79,7 @@ public class Inventory extends SlashCmd {
 
             Member member = event.getOption("user", event.getMember(), OptionMapping::getAsMember);
 
-            if (Tools.isEmpty(CurrencyTools.getOwnedItems(member.getIdLong()))) {
+            if (Tools.isEmpty(getUserDataManager().getOwnedItems())) {
                 hook.editOriginal(":fish_cake: This user has no items! Sadge :(").queue();
                 return;
             }
@@ -89,7 +88,7 @@ public class Inventory extends SlashCmd {
                 .setEventWaiter(Lemi.getInstance().getEventWaiter())
                 .setItemsPerPage(10)
                 .setTimeout(1, TimeUnit.MINUTES)
-                .setItems(CurrencyTools.getOwnedItems(member.getIdLong()))
+                .setItems(getUserDataManager().getFormattedItems())
                 .useNumberedItems(true)
                 .useTimestamp(true)
                 .addAllowedUsers(author.getIdLong())

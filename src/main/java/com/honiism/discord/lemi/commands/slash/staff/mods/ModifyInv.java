@@ -21,10 +21,11 @@ package com.honiism.discord.lemi.commands.slash.staff.mods;
 
 import java.util.HashMap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
+import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -67,7 +68,7 @@ public class ModifyInv extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
         
@@ -97,7 +98,7 @@ public class ModifyInv extends SlashCmd {
 
                     String itemNameToAdd = event.getOption("item_name", OptionMapping::getAsString);
 
-                    if (!CurrencyTools.checkIfItemExists(itemNameToAdd)) {
+                    if (!Items.checkIfItemExists(itemNameToAdd)) {
                         hook.sendMessage(":tea: That item does not exist.").queue();
                         return;
                     }
@@ -108,8 +109,10 @@ public class ModifyInv extends SlashCmd {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
-            
-                    CurrencyTools.addItemToUser(memberAdd.getIdLong(), itemNameToAdd, addAmount);
+
+                    setUserDataManager(memberAdd.getIdLong());
+
+                    getUserDataManager().addItemToUser(itemNameToAdd, addAmount);
             
                     hook.sendMessage(":oden: " 
                             + memberAdd.getAsMention() 
@@ -117,7 +120,7 @@ public class ModifyInv extends SlashCmd {
                             + " " + itemNameToAdd + " from " 
                             + author.getAsMention() + "!\r\n"
                             + ":blueberries: You now have " 
-                            + CurrencyTools.getItemFromUserInv(memberAdd.getIdLong(), itemNameToAdd)
+                            + getUserDataManager().getItemCountFromUser(itemNameToAdd.replaceAll(" ", "_"))
                             + " " + itemNameToAdd + ".")
                         .queue();
                     break;
@@ -132,7 +135,7 @@ public class ModifyInv extends SlashCmd {
 
                     String itemNameToRemove = event.getOption("item_name", OptionMapping::getAsString);
 
-                    if (!CurrencyTools.checkIfItemExists(itemNameToRemove)) {
+                    if (!Items.checkIfItemExists(itemNameToRemove)) {
                         hook.sendMessage(":tea: That item does not exist.").queue();
                         return;
                     }
@@ -144,12 +147,16 @@ public class ModifyInv extends SlashCmd {
                         return;
                     }
 
-                    if (CurrencyTools.getItemFromUserInv(memberRemove.getIdLong(), itemNameToRemove) < removeAmount) {
+                    setUserDataManager(memberRemove.getIdLong());
+
+                    String itemId = itemNameToRemove.replaceAll(" ", "_");
+
+                    if (getUserDataManager().getItemCountFromUser(itemId) < removeAmount) {
                         hook.sendMessage(":hibiscus: You cannot take more than what they have.").queue();
                         return;
                     }
 
-                    CurrencyTools.removeItemFromUser(memberRemove.getIdLong(), itemNameToRemove, removeAmount);
+                    getUserDataManager().removeItemFromUser(itemId, removeAmount);
             
                     hook.sendMessage(":oden: " 
                             + memberRemove.getAsMention() 
@@ -157,7 +164,7 @@ public class ModifyInv extends SlashCmd {
                             + " has taken " + removeAmount + " " + itemNameToRemove + " from " 
                             + "you" + "!\r\n"
                             + ":blueberries: You now have " 
-                            + CurrencyTools.getItemFromUserInv(memberRemove.getIdLong(), itemNameToRemove)
+                            + getUserDataManager().getItemCountFromUser(itemId)
                             + " " + itemNameToRemove + ".")
                         .queue();
             }

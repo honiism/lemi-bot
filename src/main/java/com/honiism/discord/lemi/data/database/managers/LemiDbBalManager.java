@@ -33,6 +33,6 @@ public interface LemiDbBalManager {
     void addUserData(long userId);
     void update(long userId, String jsonData);
     String getUserData(long userId);
-    void removeItemFromDb(String itemId, InteractionHook hook) throws JsonMappingException, JsonProcessingException;
+    void removeItemFromUsers(String itemId, InteractionHook hook) throws JsonMappingException, JsonProcessingException;
 }
     

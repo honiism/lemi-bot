@@ -24,8 +24,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.data.UserDataManager;
-import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 
 import java.util.HashMap;
 
@@ -79,10 +77,7 @@ public class Balance extends SlashCmd {
 
             Member member = event.getOption("user", event.getMember(), OptionMapping::getAsMember);
             
-            UserDataManager userDataManager = new UserDataManager(member.getIdLong(),
-                    LemiDbBalManager.INS.getUserData(member.getIdLong()));
-            
-            long bal = userDataManager.getBal();
+            long bal = getUserDataManager().getBal();
 
             EmbedBuilder userBal = new EmbedBuilder();
 

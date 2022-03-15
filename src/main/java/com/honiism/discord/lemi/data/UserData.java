@@ -38,7 +38,7 @@ public class UserData {
     @JsonProperty("inventory")
     private List<InventoryData> InventoryData;
 
-    public UserData(long id) {
+    public UserData(@JsonProperty("id") long id) {
         this.id = id;
     }
 
@@ -92,7 +92,7 @@ public class UserData {
         @JsonProperty("count")
         private long count;
 
-        public InventoryData(String id) {
+        public InventoryData(@JsonProperty("id") String id) {
             this.id = id;
         }
 

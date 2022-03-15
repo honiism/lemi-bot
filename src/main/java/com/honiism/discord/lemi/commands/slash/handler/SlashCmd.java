@@ -26,6 +26,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
+import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
@@ -47,6 +49,7 @@ public abstract class SlashCmd {
     private UserCategory userCategory = UserCategory.USERS;
     private Permission[] userPermissions = new Permission[0];
     private Permission[] botPermissions = new Permission[0];
+    private UserDataManager userDataManager;
 
     public void executeAction(SlashCommandInteractionEvent event) {
         Member member = event.getMember();
@@ -92,6 +95,7 @@ public abstract class SlashCmd {
         }
 
         try {
+            setUserDataManager(member.getIdLong());
             action(event);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -99,6 +103,14 @@ public abstract class SlashCmd {
     }
 
     public abstract void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException;
+
+    public UserDataManager getUserDataManager() {
+        return userDataManager;
+    }
+
+    public void setUserDataManager(long userId) throws JsonProcessingException {
+        this.userDataManager = new UserDataManager(userId, LemiDbBalManager.INS.getUserData(userId));
+    }
 
     public SlashCommandData getCommandData() {
         return commandData;    

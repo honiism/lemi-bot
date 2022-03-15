@@ -106,6 +106,13 @@ public class UserDataManager {
         return ownedItems;
     }
 
+    public Items getItemFromInv(String itemId) {
+        return getOwnedItems().stream()
+                .filter(itemData -> itemData.getId().equals(itemId))
+                .findFirst()
+                .orElse(null);
+    }
+
     public List<String> getFormattedItems() {
         List<String> ownedItems = new ArrayList<>();
         

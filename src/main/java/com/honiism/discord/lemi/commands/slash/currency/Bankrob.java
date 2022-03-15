@@ -24,8 +24,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.data.UserDataManager;
-import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -46,7 +44,6 @@ public class Bankrob extends SlashCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
-    private UserDataManager userDataManager;
 
     public Bankrob() {
         setCommandData(Commands.slash("bankrob", "Attempt to bankrob."));
@@ -55,6 +52,7 @@ public class Bankrob extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        
     }
 
     @Override
@@ -76,9 +74,8 @@ public class Bankrob extends SlashCmd {
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
             Guild guild = event.getGuild();
-            userDataManager = new UserDataManager(author.getIdLong(), LemiDbBalManager.INS.getUserData(author.getIdLong()));
 
-            if (userDataManager.getBal() < 10000) {
+            if (getUserDataManager().getBal() < 10000) {
                 hook.sendMessage(":blossom: You need at least 10,000 " 
                         + Tools.getBalName() + ".")
                     .queue();
@@ -121,7 +118,7 @@ public class Bankrob extends SlashCmd {
         
         String lostBal = lostAmount + " " + Tools.getBalName();
 
-        userDataManager.removeBalFromUser(lostAmount);
+        getUserDataManager().removeBalFromUser(lostAmount);
 
         String[] resultMessages = new String[] {
                 "You dropped the money bag and lost " + lostBal + ".",
@@ -136,7 +133,7 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + Tools.getRandomEntry(resultMessages) + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + userDataManager.getBal()
+                + "> :sunflower: You now have " + getUserDataManager().getBal()
                 + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
@@ -148,7 +145,7 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + "You wake up from the dream, you gained nothing." + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + userDataManager.getBal()
+                + "> :sunflower: You now have " + getUserDataManager().getBal()
                 + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
@@ -161,7 +158,7 @@ public class Bankrob extends SlashCmd {
         gainedAmount += 1;
         String gainedBal = gainedAmount + " " + Tools.getBalName();
 
-        userDataManager.addBalToUser(gainedAmount);
+        getUserDataManager().addBalToUser(gainedAmount);
 
         String[] resultMessages = new String[] {
                 "You ran away and gained " + gainedBal + ".",
@@ -176,7 +173,7 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + Tools.getRandomEntry(resultMessages) + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + userDataManager.getBal()
+                + "> :sunflower: You now have " + getUserDataManager().getBal()
                 + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();

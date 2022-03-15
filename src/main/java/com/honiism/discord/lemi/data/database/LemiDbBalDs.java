@@ -85,7 +85,7 @@ public class LemiDbBalDs implements LemiDbBalManager {
             // user_currency_data
             statement.execute("CREATE TABLE IF NOT EXISTS user_currency_data ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "user_id VARCHAR(20) NOT NULL type UNIQUE,"
+                    + "user_id VARCHAR(20) NOT NULL UNIQUE,"
                     + "json_data VARCHAR(20) NOT NULL"
                     + ");"
             );
@@ -177,7 +177,7 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void removeItemFromDb(String itemId, InteractionHook hook) throws JsonMappingException, JsonProcessingException {
+    public void removeItemFromUsers(String itemId, InteractionHook hook) throws JsonMappingException, JsonProcessingException {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
     	            conn.prepareStatement("SELECT * FROM user_currency_data")) {
