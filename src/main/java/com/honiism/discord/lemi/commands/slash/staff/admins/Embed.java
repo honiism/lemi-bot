@@ -92,8 +92,8 @@ public class Embed extends SlashCmd {
                     break;
 
                 case "remove":
-                    String embedIdToDelete = event.getOption("embed_id").getAsString();
-                    LemiDbEmbedManager.INS.deleteCustomEmbed(hook, embedIdToDelete);
+                    String embedId = event.getOption("embed_id").getAsString();
+                    LemiDbEmbedManager.INS.deleteCustomEmbed(hook, embedId);
                     break;
 
                 case "list":
@@ -101,8 +101,8 @@ public class Embed extends SlashCmd {
                     break;
 
                 case "show":
-                    String embedIdToShow = event.getOption("embed_id").getAsString();
-                    LemiDbEmbedManager.INS.showSavedEmbed(hook, embedIdToShow);
+                    embedId = event.getOption("embed_id").getAsString();
+                    LemiDbEmbedManager.INS.showSavedEmbed(hook, embedId);
             }
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);

@@ -87,29 +87,29 @@ public class ModifyBal extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
-                    long addAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
+                    long amount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
-                    if (addAmount < 0 || addAmount == 0) {
+                    if (amount < 0 || amount == 0) {
                         hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of currency.").queue();
                         return;
                     } 
                         
-                    Member memberToAddCurr = event.getOption("user", OptionMapping::getAsMember);
+                    Member targetMember = event.getOption("user", OptionMapping::getAsMember);
 
-                    if (memberToAddCurr == null) {
+                    if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    setUserDataManager(memberToAddCurr.getIdLong());
+                    setUserDataManager(targetMember.getIdLong());
 
                     UserDataManager dataManager = getUserDataManager();
             
-                    dataManager.addBalToUser(addAmount);
+                    dataManager.addBalToUser(amount);
             
                     hook.sendMessage(":cherry_blossom: " 
-                            + memberToAddCurr.getAsMention() 
-                            + ", you have received " + addAmount 
+                            + targetMember.getAsMention() 
+                            + ", you have received " + amount 
                             + " " + Tools.getBalName() + " from " 
                             + author.getAsMention() + "!\r\n"
                             + ":blueberries: You now have " + dataManager.getBal()
@@ -118,30 +118,30 @@ public class ModifyBal extends SlashCmd {
                     break;
 
                 case "remove":
-                    long removeAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
+                    amount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
-                    if (removeAmount < 0 || removeAmount == 0) {
+                    if (amount < 0 || amount == 0) {
                         hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of currency.").queue();
                         return;
                     } 
                         
-                    Member memberToRemoveCurr = event.getOption("user", OptionMapping::getAsMember);
+                    targetMember = event.getOption("user", OptionMapping::getAsMember);
 
-                    if (memberToRemoveCurr == null) {
+                    if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    setUserDataManager(memberToRemoveCurr.getIdLong());
+                    setUserDataManager(targetMember.getIdLong());
 
                     dataManager = getUserDataManager();
             
-                    dataManager.removeBalFromUser(removeAmount);
+                    dataManager.removeBalFromUser(amount);
             
                     hook.sendMessage(":cherry_blossom: " 
-                            + memberToRemoveCurr.getAsMention() 
+                            + targetMember.getAsMention() 
                             + ", " + author.getAsMention()
-                            + " has taken " + removeAmount + " " 
+                            + " has taken " + amount + " " 
                             + Tools.getBalName() + " from " + "you" + "!\r\n"
                             + ":blueberries: You now have " + dataManager.getBal()
                             + " " + Tools.getBalName() + ".")

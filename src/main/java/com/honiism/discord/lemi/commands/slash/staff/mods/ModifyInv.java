@@ -90,87 +90,87 @@ public class ModifyInv extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
-                    long addAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
+                    long amount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
-                    if (addAmount < 0 || addAmount == 0) {
+                    if (amount < 0 || amount == 0) {
                         hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of item.").queue();
                         return;
                     }
 
-                    String itemNameToAdd = event.getOption("item_name", OptionMapping::getAsString);
+                    String itemName = event.getOption("item_name", OptionMapping::getAsString);
 
-                    if (!Items.checkIfItemExists(itemNameToAdd)) {
+                    if (!Items.checkIfItemExists(itemName)) {
                         hook.sendMessage(":tea: That item does not exist.").queue();
                         return;
                     }
 
-                    Member memberAdd = event.getOption("user", OptionMapping::getAsMember);
+                    Member targetMember = event.getOption("user", OptionMapping::getAsMember);
 
-                    if (memberAdd == null) {
+                    if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    setUserDataManager(memberAdd.getIdLong());
+                    setUserDataManager(targetMember.getIdLong());
 
                     UserDataManager dataManager = getUserDataManager();
-                    String itemId = itemNameToAdd.replaceAll(" ", "_");
+                    String itemId = itemName.replaceAll(" ", "_");
 
-                    dataManager.addItemToUser(itemId, addAmount);
+                    dataManager.addItemToUser(itemId, amount);
             
                     hook.sendMessage(":oden: " 
-                            + memberAdd.getAsMention() 
-                            + ", you have received " + addAmount 
-                            + " " + itemNameToAdd + " from " 
+                            + targetMember.getAsMention() 
+                            + ", you have received " + amount 
+                            + " " + itemName + " from " 
                             + author.getAsMention() + "!\r\n"
                             + ":blueberries: You now have " 
                             + dataManager.getItemCountFromUser(itemId)
-                            + " " + itemNameToAdd + ".")
+                            + " " + itemName + ".")
                         .queue();
                     break;
 
                 case "remove":
-                    long removeAmount = event.getOption("amount", OptionMapping::getAsLong);
+                    amount = event.getOption("amount", OptionMapping::getAsLong);
 
-                    if (removeAmount < 0 || removeAmount == 0) {
+                    if (amount < 0 || amount == 0) {
                         hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of items").queue();
                         return;
                     }
 
-                    String itemNameToRemove = event.getOption("item_name", OptionMapping::getAsString);
+                    itemName = event.getOption("item_name", OptionMapping::getAsString);
 
-                    if (!Items.checkIfItemExists(itemNameToRemove)) {
+                    if (!Items.checkIfItemExists(itemName)) {
                         hook.sendMessage(":tea: That item does not exist.").queue();
                         return;
                     }
 
-                    Member memberRemove = event.getOption("user", OptionMapping::getAsMember);
+                    targetMember = event.getOption("user", OptionMapping::getAsMember);
 
-                    if (memberRemove == null) {
+                    if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    setUserDataManager(memberRemove.getIdLong());
+                    setUserDataManager(targetMember.getIdLong());
 
                     dataManager = getUserDataManager();
-                    itemId = itemNameToRemove.replaceAll(" ", "_");
+                    itemId = itemName.replaceAll(" ", "_");
 
-                    if (dataManager.getItemCountFromUser(itemId) < removeAmount) {
+                    if (dataManager.getItemCountFromUser(itemId) < amount) {
                         hook.sendMessage(":hibiscus: You cannot take more than what they have.").queue();
                         return;
                     }
 
-                    dataManager.removeItemFromUser(itemId, removeAmount);
+                    dataManager.removeItemFromUser(itemId, amount);
             
                     hook.sendMessage(":oden: " 
-                            + memberRemove.getAsMention() 
+                            + targetMember.getAsMention() 
                             + ", " + author.getAsMention()
-                            + " has taken " + removeAmount + " " + itemNameToRemove + " from " 
+                            + " has taken " + amount + " " + itemName + " from " 
                             + "you" + "!\r\n"
                             + ":blueberries: You now have " 
                             + dataManager.getItemCountFromUser(itemId)
-                            + " " + itemNameToRemove + ".")
+                            + " " + itemName + ".")
                         .queue();
             }
         } else {

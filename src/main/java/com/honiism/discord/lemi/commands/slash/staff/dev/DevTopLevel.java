@@ -62,6 +62,8 @@ public class DevTopLevel extends SlashCmd {
                         new SubcommandData(this.setDebugCmd.getName(), this.setDebugCmd.getDesc())
                                 .addOptions(this.setDebugCmd.getOptions()),
 
+                        new SubcommandData(this.manageItemsGroup.getName(), this.manageItemsGroup.getDesc()),
+
                         new SubcommandData(this.evalCmd.getName(), this.evalCmd.getDesc())
                 )
                 .addSubcommandGroups(
@@ -69,10 +71,7 @@ public class DevTopLevel extends SlashCmd {
                                 .addSubcommands(this.modifyAdminsGroup.getSubCmds()),
 
                         new SubcommandGroupData(this.modifyModsGroup.getName(), this.modifyModsGroup.getDesc())
-                                .addSubcommands(this.modifyModsGroup.getSubCmds()),
-
-                        new SubcommandGroupData(this.manageItemsGroup.getName(), this.manageItemsGroup.getDesc())
-                                .addSubcommands(this.manageItemsGroup.getSubCmds())
+                                .addSubcommands(this.modifyModsGroup.getSubCmds())
                 )
                 .setDefaultEnabled(false)
         );
@@ -99,10 +98,6 @@ public class DevTopLevel extends SlashCmd {
 
                 case "modifymods":
                     this.modifyModsGroup.action(event);
-                    break;
-
-                case "manageitems":
-                    this.manageItemsGroup.action(event);
             }
             
         } else {
@@ -117,6 +112,10 @@ public class DevTopLevel extends SlashCmd {
 
                 case "setdebug":
                     this.setDebugCmd.action(event);
+                    break;
+
+                case "manageitems":
+                    this.manageItemsGroup.action(event);
                     break;
 
                 case "eval":
