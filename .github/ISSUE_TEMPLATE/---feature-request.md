@@ -1,5 +1,5 @@
 ---
-name: Feature request
+name: "\U0001F338 Feature request"
 about: Suggest features for Lemi to implement.
 title: ''
 labels: ''

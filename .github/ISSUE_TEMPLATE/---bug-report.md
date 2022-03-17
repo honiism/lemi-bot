@@ -1,5 +1,5 @@
 ---
-name: Bug report
+name: "\U0001F370 Bug report"
 about: Create a bug report to help improve Lemi.
 title: ''
 labels: ''
