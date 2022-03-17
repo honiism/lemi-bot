@@ -21,9 +21,13 @@ package com.honiism.discord.lemi.commands.slash.handler;
 
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
+import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
@@ -32,13 +36,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
-public abstract class SlashCmd implements ISlashCmd {
+public abstract class SlashCmd {
 
     private SlashCommandData commandData;
     private String usage = "";
@@ -46,10 +49,9 @@ public abstract class SlashCmd implements ISlashCmd {
     private UserCategory userCategory = UserCategory.USERS;
     private Permission[] userPermissions = new Permission[0];
     private Permission[] botPermissions = new Permission[0];
+    private UserDataManager userDataManager;
 
-    @Override
     public void executeAction(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
         Member member = event.getMember();
 
         if (getUserCategory().equals(UserCategory.DEV) 
@@ -75,7 +77,7 @@ public abstract class SlashCmd implements ISlashCmd {
                 .setThumbnail(member.getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
             
-            hook.sendMessageEmbeds(needUserPermsMsg.build()).queue();
+            event.replyEmbeds(needUserPermsMsg.build()).queue();
             return;
         }
 
@@ -88,61 +90,63 @@ public abstract class SlashCmd implements ISlashCmd {
                 .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
 
-            hook.sendMessageEmbeds(needUserPermsMsg.build()).queue();
+            event.replyEmbeds(needUserPermsMsg.build()).queue();
             return;
         }
 
-        action(event);      
+        try {
+            action(event);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }      
     }
 
-    public abstract void action(SlashCommandInteractionEvent event);
+    public abstract void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException;
 
-    @Override
+    public UserDataManager getUserDataManager() {
+        return userDataManager;
+    }
+
+    public void setUserDataManager(long userId) throws JsonProcessingException {
+        this.userDataManager = new UserDataManager(userId, LemiDbBalManager.INS.getUserData(userId));
+    }
+
     public SlashCommandData getCommandData() {
         return commandData;    
     }
 
-    @Override
     public void setCommandData(SlashCommandData commandData) {
         this.commandData = commandData;
     }
 
-    @Override
     public String getName() {
         return getCommandData().getName();
     }
 
-    @Override
     public void setCategory(CommandCategory category) {
         this.category = category;
     }
 
-    @Override
     public CommandCategory getCategory() {
         return category;
     }
 
-    @Override
     public void setUserCategory(UserCategory userCategory) {
         this.userCategory = userCategory;
     }
 
-    @Override
     public UserCategory getUserCategory() {
         return userCategory;
     }
 
-    @Override
     public String getCategoryString() {
         return getCategory().toString();
     }
 
-    @Override
     public String getUserCategoryString() {
         return getUserCategory().toString();
     }
 
-    @Override
     public String getUserPermsString() {
         if (userPermissions.length == 0) {
             return "No user permissions needed.";
@@ -151,7 +155,6 @@ public abstract class SlashCmd implements ISlashCmd {
                 + (userPermissions.length > 1 ? " permissions" : " permission");
     }
 
-    @Override
     public String getBotPermsString() {
         if (botPermissions.length == 0) {
             return "No bot permissions needed.";
@@ -160,57 +163,46 @@ public abstract class SlashCmd implements ISlashCmd {
         + (botPermissions.length > 1 ? " permissions" : " permission");
     }
 
-    @Override
     public void setUserPerms(Permission[] userPermissions) {
         this.userPermissions = userPermissions;
     }
 
-    @Override
     public Permission[] getUserPerms() {
         return (userPermissions.length == 0 ? null : userPermissions);
     }
 
-    @Override
     public void setBotPerms(Permission[] botPermissions) {
         this.botPermissions = botPermissions;
     }
 
-    @Override
     public Permission[] getBotPerms() {
         return (botPermissions.length == 0 ? null : botPermissions);
     }
 
-    @Override
     public String getDesc() {
         return getCommandData().getDescription();
     }
 
-    @Override
     public void setUsage(String usage) {
         this.usage = usage;
     }
 
-    @Override
     public String getUsage() {
         return usage;
     }
 
-    @Override
     public List<OptionData> getOptions() {
         return getCommandData().getOptions();
     }
 
-    @Override
     public List<SubcommandData> getSubCmds() {
         return getCommandData().getSubcommands();
     }
 
-    @Override
     public List<SubcommandGroupData> getSubCmdGroups() {
         return getCommandData().getSubcommandGroups();
     }
 
-    @Override
     public MessageEmbed getHelp(SlashCommandInteractionEvent event) {
         SlashCmdManager slashCmdManagerIns = Lemi.getInstance().getSlashCmdManager();
 
@@ -239,7 +231,6 @@ public abstract class SlashCmd implements ISlashCmd {
         return helpEmbed.build();
     }
 
-    @Override
     public EmbedBuilder getHelpBuilder(SlashCommandInteractionEvent event) {
         SlashCmdManager slashCmdManagerIns = Lemi.getInstance().getSlashCmdManager();
         

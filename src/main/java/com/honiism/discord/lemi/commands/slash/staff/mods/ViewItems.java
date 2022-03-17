@@ -27,9 +27,8 @@ import java.util.concurrent.TimeUnit;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.currency.objects.items.Items;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
+import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.honiism.discord.lemi.utils.paginator.Paginator;
@@ -81,11 +80,11 @@ public class ViewItems extends SlashCmd {
             
             List<String> items = new ArrayList<String>();
 
-            for (Items item : CurrencyTools.getItems()) {
-                if (CurrencyTools.checkIfItemExists(item.getName())) {
+            for (Items item : Items.getItems().values()) {
+                if (Items.checkIfItemExists(item.getName())) {
                    items.add(item.getEmoji() + " " + item.getName() + " | " + item.getId()); 
                 } else {
-                    items.add(item.getEmoji() + " " + item.getName() + " | " + item.getId() + " | **NOT IN DATABASE**");
+                    items.add(item.getEmoji() + " " + item.getName() + " | " + item.getId() + " | **NOT IN LIST**");
                 }
             }
 

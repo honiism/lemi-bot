@@ -130,5 +130,5 @@ public class CustomEmojis {
     public static final String PINK_DASH = "<:pinkdash_HP:876167417267646464>";
     public static final String PINK_LEFT_ARROW = "<:left_arrow_hp:885551435079622666>";
     public static final String PINK_RIGHT_ARROW = "<:right_arrow_hp:885551339231404052>";
-    public static final String BALANCE = "<:coin_hs_nosteal:932137408282103818>";
+    public static final String COIN = ":coin:";
 }

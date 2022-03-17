@@ -25,21 +25,18 @@ import com.honiism.discord.lemi.Lemi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class BaseListener extends ListenerAdapter {
     
     private static final Logger log = LoggerFactory.getLogger(BaseListener.class);
-    public static JDA jda;
 
     @Override
     public void onReady(ReadyEvent event) {
-        jda = event.getJDA();
-
-        getJDA().addEventListener(new SlashCmdListener());
-
+        Lemi.getInstance().setJDA(event.getJDA());
+        
+        Lemi.getInstance().getJDA().addEventListener(new SlashCmdListener());
         Lemi.getInstance().getSlashCmdManager().initialize();
         
         log.info("{} is now online and all set up! (Shard : {} / {})",
@@ -56,9 +53,5 @@ public class BaseListener extends ListenerAdapter {
                 .queue();
             
         } catch (NullPointerException ignored) { }
-    }
-
-    public static JDA getJDA() {
-        return jda;
     }
 }

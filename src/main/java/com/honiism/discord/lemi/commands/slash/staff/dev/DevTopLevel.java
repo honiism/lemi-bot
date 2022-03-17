@@ -19,6 +19,8 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.dev;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
@@ -37,15 +39,17 @@ public class DevTopLevel extends SlashCmd {
     private Compile compileCmd;
     private ManageItems manageItemsGroup;
     private SetDebug setDebugCmd;
+    private Eval evalCmd;
 
     public DevTopLevel(ModifyAdmins modifyAdminsGroup, ModifyMods modifyModsGroup, Shutdown shutdownCmd,
-                       Compile compileCmd, ManageItems manageItemsGroup, SetDebug setDebugCmd) {
+                       Compile compileCmd, ManageItems manageItemsGroup, SetDebug setDebugCmd, Eval evalCmd) {
         this.compileCmd = compileCmd;
         this.modifyModsGroup = modifyModsGroup;
         this.modifyAdminsGroup = modifyAdminsGroup;
         this.shutdownCmd = shutdownCmd;
         this.manageItemsGroup = manageItemsGroup;
         this.setDebugCmd = setDebugCmd;
+        this.evalCmd = evalCmd;
 
         setCommandData(Commands.slash("dev", "Commands for the developer of Lemi the discord bot.")
                 .addSubcommands(
@@ -56,17 +60,18 @@ public class DevTopLevel extends SlashCmd {
                                 .addOptions(this.compileCmd.getOptions()),
 
                         new SubcommandData(this.setDebugCmd.getName(), this.setDebugCmd.getDesc())
-                                .addOptions(this.setDebugCmd.getOptions())
+                                .addOptions(this.setDebugCmd.getOptions()),
+
+                        new SubcommandData(this.manageItemsGroup.getName(), this.manageItemsGroup.getDesc()),
+
+                        new SubcommandData(this.evalCmd.getName(), this.evalCmd.getDesc())
                 )
                 .addSubcommandGroups(
                         new SubcommandGroupData(this.modifyAdminsGroup.getName(), this.modifyAdminsGroup.getDesc())
                                 .addSubcommands(this.modifyAdminsGroup.getSubCmds()),
 
                         new SubcommandGroupData(this.modifyModsGroup.getName(), this.modifyModsGroup.getDesc())
-                                .addSubcommands(this.modifyModsGroup.getSubCmds()),
-
-                        new SubcommandGroupData(this.manageItemsGroup.getName(), this.manageItemsGroup.getDesc())
-                                .addSubcommands(this.manageItemsGroup.getSubCmds())
+                                .addSubcommands(this.modifyModsGroup.getSubCmds())
                 )
                 .setDefaultEnabled(false)
         );
@@ -76,11 +81,12 @@ public class DevTopLevel extends SlashCmd {
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException {
+        event.deferReply().queue();
+        
         String subCmdGroupName = event.getSubcommandGroup();
         String subCmdName = event.getSubcommandName();
 
@@ -92,10 +98,6 @@ public class DevTopLevel extends SlashCmd {
 
                 case "modifymods":
                     this.modifyModsGroup.action(event);
-                    break;
-
-                case "manageitems":
-                    this.manageItemsGroup.action(event);
             }
             
         } else {
@@ -110,6 +112,14 @@ public class DevTopLevel extends SlashCmd {
 
                 case "setdebug":
                     this.setDebugCmd.action(event);
+                    break;
+
+                case "manageitems":
+                    this.manageItemsGroup.action(event);
+                    break;
+
+                case "eval":
+                    this.evalCmd.action(event);
             }
         }
     }

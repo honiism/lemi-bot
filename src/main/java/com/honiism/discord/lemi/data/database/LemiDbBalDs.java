@@ -27,19 +27,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.commands.slash.currency.objects.items.Items;
+import com.honiism.discord.lemi.data.InventoryData;
+import com.honiism.discord.lemi.data.UserData;
+import com.honiism.discord.lemi.data.UserDataManager;
 import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public class LemiDbBalDs implements LemiDbBalManager {
@@ -81,15 +82,15 @@ public class LemiDbBalDs implements LemiDbBalManager {
         dataSource = new HikariDataSource(config);
 
         try (Statement statement = getConnection().createStatement()) {
-            // user_balance
-            statement.execute("CREATE TABLE IF NOT EXISTS user_balance ("
+            // user_currency_data
+            statement.execute("CREATE TABLE IF NOT EXISTS user_currency_data ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "user_id VARCHAR(20) NOT NULL DEFAULT '0',"
-                    + "wallet VARCHAR(20) NOT NULL DEFAULT '1000'"
+                    + "user_id VARCHAR(20) NOT NULL,"
+                    + "json_data VARCHAR(20) NOT NULL"
                     + ");"
             );
     
-            log.info("user_balance table initialised");   
+            log.info("user_currency_data table initialised");   
         } catch (SQLException e) {
             log.error("\r\nSomething went wrong while trying to "
                     + "create / connect to database tables\r\n"
@@ -98,264 +99,119 @@ public class LemiDbBalDs implements LemiDbBalManager {
     
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public String getUserData(long userId) {
+        try (Connection conn = getConnection();
+                PreparedStatement selectStatement =
+                    conn.prepareStatement("SELECT json_data FROM user_currency_data WHERE user_id = ?")) {
+            selectStatement.setLong(1, userId);
+
+            try (ResultSet rs = selectStatement.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("json_data");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        addUserData(userId);
+        return getUserData(userId);
+    }
+    
+    @Override
+    public boolean userHasData(long userId) {
+        try (Connection conn = getConnection();
+                PreparedStatement selectStatement =
+                    conn.prepareStatement("SELECT json_data FROM user_currency_data WHERE user_id = ?")) {
+            selectStatement.setLong(1, userId);
+
+            try (ResultSet rs = selectStatement.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return false;
+    }
+    
+    @Override
+    public void addUserData(long userId) {
+        try (Connection conn = getConnection();
+                PreparedStatement insertStatement =
+                    conn.prepareStatement("INSERT INTO user_currency_data(user_id, json_data) VALUES(?, ?)")) {
+
+            UserData userImpl = new UserData(userId);
+
+            userImpl.setBalance(1000);
+            userImpl.setdeaths(0);
+            userImpl.setPassiveMode(false);
+            userImpl.setInventory(new ArrayList<InventoryData>());
+
+            String jsonData = Lemi.getInstance().getObjectMapper().writeValueAsString(userImpl);
+            
+            insertStatement.setLong(1, userId);
+            insertStatement.setString(2, jsonData);
+            insertStatement.executeUpdate();
+        } catch (SQLException | JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void update(long userId, String jsonData) {
+        try (Connection conn = getConnection();
+                PreparedStatement updateStatement =
+    	            conn.prepareStatement("UPDATE user_currency_data SET json_data = ? WHERE user_id = ?")) {
+    	    updateStatement.setString(1, jsonData);
+            updateStatement.setLong(2, userId);
+            updateStatement.executeUpdate();
+    	} catch (SQLException e) {
+            e.printStackTrace();        
+        }
+    }
+
+    @Override
+    public void removeItemFromUsers(String itemId, InteractionHook hook) throws JsonMappingException, JsonProcessingException {
+        try (Connection conn = getConnection();
+                PreparedStatement selectStatement =
+    	            conn.prepareStatement("SELECT * FROM user_currency_data")) {
+            
+            try (ResultSet rs = selectStatement.executeQuery()) {
+                while (rs.next()) {
+                    long userId = rs.getLong("user_id");
+                    String dataJson = rs.getString("json_data");
+
+                    UserDataManager userDataManager = new UserDataManager(userId, dataJson);
+
+                    InventoryData targetItem = userDataManager.getData().getInventory().stream()
+                            .filter(itemData -> itemData.getId().equals(itemId))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (targetItem == null) {
+                        continue;
+                    }
+
+                    userDataManager.getData().getInventory().remove(targetItem);
+                }
+            }
+    	} catch (SQLException e) {
+            e.printStackTrace();        
+        }
+
+        log.info("Removed item with the id of " + itemId + " from all the users.");
+        hook.sendMessage(":grapes: Removed item with the id of " + itemId + " from all the users.").queue();
+
+        Lemi.getInstance().shutdown();
     }
 
     private Connection getConnection() throws SQLException {
 	return dataSource.getConnection();
-    }
-
-    @Override
-    public void createInvDb() {
-        List<String> queries = new ArrayList<String>();
-
-        for (Items item : CurrencyTools.getItems()) {
-            queries.add(item.getId() + " INTEGER NOT NULL DEFAULT '0'");
-        }
-
-        String query = "CREATE TABLE IF NOT EXISTS user_inv ("
-                + "user_id VARCHAR(20) NOT NULL DEFAULT '0',"
-                + String.join(",", queries)
-                + ");";
-
-        try (Connection conn = getConnection();
-                PreparedStatement createInvDbStatement = conn.prepareStatement(query)) {
-            createInvDbStatement.execute();
-            log.info("user_inv table initialised");
-            log.info("added items to database.");
-
-        } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "create / connect to database tables\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-    
-            e.printStackTrace();
-        }
-    }
-    
-    @Override
-    public boolean userHasCurrProfile(long userId) {
-        try (Connection conn = getConnection();
-                PreparedStatement selectStatement =
-                    conn.prepareStatement("SELECT user_id FROM user_balance WHERE user_id = ?")) {
-            selectStatement.setLong(1, userId);
-
-            try (ResultSet rs = selectStatement.executeQuery()) {
-                if (rs.next()) {
-                    return true;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-        return false;
-    }
-    
-    @Override
-    public void addUserCurrProfile(long userId) {
-        try (Connection conn = getConnection();
-                PreparedStatement insertStatement =
-                    conn.prepareStatement("INSERT INTO user_balance(user_id) VALUES(?)")) {
-            insertStatement.setLong(1, userId);
-            insertStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    @Override
-    public void addUserInvProfile(long userId) {
-        try (Connection conn = getConnection();
-                PreparedStatement insertStatement =
-                    conn.prepareStatement("INSERT INTO user_inv(user_id) VALUES(?)")) {
-            insertStatement.setLong(1, userId);
-            insertStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public long getUserBal(Long userId) {
-        try (Connection conn = getConnection();
-                PreparedStatement selectStatement =
-                    conn.prepareStatement("SELECT wallet FROM user_balance WHERE user_id = ?")) {
-            selectStatement.setLong(1, userId);
-            try (ResultSet rs = selectStatement.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getLong("wallet");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-        return 0;
-    }
-    
-    @Override
-    public void updateUserBal(Long userId, long balanceToUpdate) {
-        try (Connection conn = getConnection();
-                PreparedStatement updateStatement =
-    	            conn.prepareStatement("UPDATE user_balance SET wallet = ? WHERE user_id = ?")) {
-    	    updateStatement.setLong(1, balanceToUpdate);
-            updateStatement.setLong(2, userId);
-            updateStatement.executeUpdate();
-    	} catch (SQLException e) {
-            e.printStackTrace();        
-        }
-    }
-
-    @Override
-    public List<String> getOwnedItems(Long userId) {
-        List<String> ownedItems = new ArrayList<>();
-
-        try (Connection conn = getConnection();
-                PreparedStatement selectStatement =
-                    conn.prepareStatement("SELECT * FROM user_inv WHERE user_id = ?")) {
-            selectStatement.setLong(1, userId);
-
-            try (ResultSet rs = selectStatement.executeQuery()) {
-                if (rs.next()) {
-                    for (Items item : CurrencyTools.getItems()) {
-                        if (rs.getLong(item.getId()) == 0
-                                || rs.getLong(item.getId()) < 0) {
-                            continue;
-                        }
-
-                        ownedItems.add(item.getEmoji() + " " + item.getName() + " : " + rs.getLong(item.getId()));
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return ownedItems;
-    }
-
-    @Override
-    public long getItemFromUserInv(Long userId, String itemName) {
-        String itemId = itemName.replaceAll(" ", "_");
-        
-        try (Connection conn = getConnection();
-                PreparedStatement selectStatement =
-                    conn.prepareStatement("SELECT " + itemId + " FROM user_inv WHERE user_id = ?")) {
-            selectStatement.setLong(1, userId);
-            try (ResultSet rs = selectStatement.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getLong(itemId);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-        return 0;
-    }
-
-    @Override
-    public boolean checkIfItemExists(String itemName) {
-        String itemId = itemName.replaceAll(" ", "_");
-
-        try (Connection conn = getConnection();
-                PreparedStatement selectStatement =
-                    conn.prepareStatement("SELECT " + itemId + " FROM user_inv")) {
-            try (ResultSet rs = selectStatement.executeQuery()) {
-                if (rs.next()) {
-                    return true;
-                }
-            }
-        } catch (SQLException e) {}
-        
-        return false;
-    }
-
-    @Override
-    public void updateItemUser(Long userId, String itemName, long amountToUpdate) {
-        String itemId = itemName.replaceAll(" ", "_");
-
-        try (Connection conn = getConnection();
-                PreparedStatement updateStatement =
-    	            conn.prepareStatement("UPDATE user_inv SET " + itemId + " = ? WHERE user_id = ?")) {
-    	    updateStatement.setLong(1, amountToUpdate);
-            updateStatement.setLong(2, userId);
-            updateStatement.executeUpdate();
-    	} catch (SQLException e) {
-            e.printStackTrace();        
-        }
-    }
-
-    @Override
-    public void removeAllItems(Long userId, Guild guild) {
-        try (Connection conn = getConnection();
-                PreparedStatement updateStatement =
-    	            conn.prepareStatement("DELETE FROM user_inv WHERE user_id = ?")) {
-            updateStatement.setLong(1, userId);
-            updateStatement.executeUpdate();
-    	} catch (SQLException e) {
-            e.printStackTrace();        
-        }
-
-        guild.retrieveMemberById(userId)
-            .queue(
-                (member) -> {
-                    CurrencyTools.addUserInvProfile(userId);
-                },
-                (empty) -> {}
-            );
-    }
-
-    @Override
-    public void removeCurrData(Long userId, Guild guild) {
-        try (Connection conn = getConnection();
-                PreparedStatement updateStatement =
-    	            conn.prepareStatement("DELETE FROM user_balance WHERE user_id = ?")) {
-            updateStatement.setLong(1, userId);
-            updateStatement.executeUpdate();
-    	} catch (SQLException e) {
-            e.printStackTrace();        
-        }
-
-        guild.retrieveMemberById(userId)
-            .queue(
-                (member) -> {
-                    CurrencyTools.addUserCurrProfile(userId);
-                },
-                (empty) -> {}
-            );
-    }
-
-    @Override
-    public void addNewItemToDb(String itemId, InteractionHook hook) {
-        try (Connection conn = getConnection();
-                PreparedStatement updateStatement =
-    	            conn.prepareStatement("ALTER TABLE user_inv ADD COLUMN " + itemId + " INTEGER NOT NULL DEFAULT '0'")) {
-            updateStatement.execute();
-    	} catch (SQLException e) {
-            e.printStackTrace();        
-        }
-
-        log.info("Altered table to add " + itemId + " to the database, shutting down.");
-        hook.sendMessage(":seedling: Altered table to add " + itemId + " to the database, shutting down.").queue();
-        
-        Lemi.getInstance().shutdown();
-    }
-
-    @Override
-    public void removeItemFromDb(String itemId, InteractionHook hook) {
-        try (Connection conn = getConnection();
-                PreparedStatement updateStatement =
-    	            conn.prepareStatement("ALTER TABLE user_inv DROP COLUMN " + itemId)) {
-            updateStatement.execute();
-    	} catch (SQLException e) {
-            e.printStackTrace();        
-        }
-
-        log.info("Altered table to remove " + itemId + " from the database, shutting down.");
-        hook.sendMessage(":grapes: Altered table to remove " + itemId + " from the database, shutting down.").queue();
-
-        Lemi.getInstance().shutdown();
     }
 }

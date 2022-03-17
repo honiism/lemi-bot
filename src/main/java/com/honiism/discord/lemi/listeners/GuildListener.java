@@ -40,6 +40,12 @@ public class GuildListener extends ListenerAdapter {
     @Override
     public void onGuildReady(GuildReadyEvent event) {
         Guild guild = event.getGuild();
+        Long guildId = guild.getIdLong();
+
+        if (!guildId.equals(Config.getLong("honeys_sweets_id"))) {
+            return;
+        }
+        
         LemiDbManager.INS.insertGuildSettings(guild);
     }
 
@@ -74,7 +80,7 @@ public class GuildListener extends ListenerAdapter {
         Guild guild = event.getGuild();
         Long guildId = guild.getIdLong();
 
-        if (guildId.equals(Long.parseLong(Config.get("honeys_sweets_id")))) {
+        if (guildId.equals(Config.getLong("honeys_sweets_id"))) {
             return;
         }
 
@@ -95,7 +101,7 @@ public class GuildListener extends ListenerAdapter {
     @Override
     public void onGuildTimeout(GuildTimeoutEvent event) {
         if (event.getGuildIdLong() == Config.getLong("honeys_sweets_id")) {
-            BaseListener.getJDA().retrieveUserById(Config.getLong("dev_id")).queue(
+            Lemi.getInstance().getJDA().retrieveUserById(Config.getLong("dev_id")).queue(
                 (dev) -> {
                     dev.openPrivateChannel().queue(
                         (channel) -> {
