@@ -17,14 +17,13 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.currency.objects.items.handler;
+package com.honiism.discord.lemi.data.items.handler;
 
-public enum EventType {
-    CHINESE_NEW_YEAR,
-    VALENTNE,
-    EASTER,
-    HALLOWEEN,
-    CHRISTMAS,
-    NEW_YEAR,
-    NONE
+public enum ItemType {
+    SELLABLE,
+    ITEM_PACK,
+    POWER_UP,
+    COLLECTABLE,
+    TOOL,
+    LOOT_CHESTS
 }

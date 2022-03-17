@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
+import com.honiism.discord.lemi.utils.currency.WeightedRandom;
 
 import me.duncte123.botcommons.StringUtils;
 import net.dv8tion.jda.api.Permission;
@@ -47,6 +47,37 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 public class Tools {
 
+    public static String[] getNPCs() {
+        String[] npcList = new String[] {
+            "Honey",
+            "HoneyXD",
+            "Fuku",
+            "Lemi",
+            "Hoppy",
+            "Gumdrop",
+            "Swirls",
+            "God",
+            "Dizzy",
+            "Paimon",
+            "Dark enchantress cookie"
+        };
+        return npcList;
+    }
+
+    public static String getRandomNPC() {
+        WeightedRandom<String> randomNPC = new WeightedRandom<String>();
+
+        for (String npcName : getNPCs()) {
+            randomNPC.add(10, npcName);
+        }
+
+        return randomNPC.next();
+    }
+
+    public static String getBalName() {
+        return CustomEmojis.COIN;
+    }
+
     public static StringBuilder replaceAllSb(StringBuilder sb, String find, String replace){
         return new StringBuilder(Pattern.compile(find).matcher(sb).replaceAll(replace));
     }
@@ -55,7 +86,6 @@ public class Tools {
         int randomEntry = new Random().nextInt(array.length);
         return array[randomEntry];
     }
-
 
     public static String processPlaceholders(String msgToProcess, Member member, Guild guild, TextChannel channel) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -141,7 +171,7 @@ public class Tools {
         }
         
         if (stringBuilder.indexOf("%server_currency%") != -1) {
-            temp = replaceAllSb(stringBuilder, "%server_currency%", CurrencyTools.getBalName()).toString();
+            temp = replaceAllSb(stringBuilder, "%server_currency%", getBalName()).toString();
 
             stringBuilder.setLength(0);
             stringBuilder.append(temp);
@@ -450,7 +480,7 @@ public class Tools {
     
     public static boolean isAuthorDev(User author) {
         Long authorId = author.getIdLong();
-        return authorId.equals(Long.parseLong(Config.get("dev_id")));
+        return authorId.equals(Config.getLong("dev_id"));
     }
     
     public static boolean isAuthorAdmin(User author) {
@@ -463,7 +493,7 @@ public class Tools {
 
     public static boolean isAuthorDev(Member member) {
         Long memberId = member.getIdLong();
-        return memberId.equals(Long.parseLong(Config.get("dev_id")));
+        return memberId.equals(Config.getLong("dev_id"));
     }
     
     public static boolean isAuthorAdmin(Member member, SlashCommandInteractionEvent event) {

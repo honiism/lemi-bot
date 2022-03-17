@@ -21,15 +21,15 @@ package com.honiism.discord.lemi.commands.slash.staff.admins;
 
 import java.util.HashMap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
+import com.honiism.discord.lemi.data.UserDataManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -57,7 +57,7 @@ public class ResetCurrData extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
         
@@ -75,14 +75,17 @@ public class ResetCurrData extends SlashCmd {
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
             Member member = event.getOption("user", OptionMapping::getAsMember);
-            Guild guild = event.getGuild();
 
             if (member == null) {
                 hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                 return;
             }
 
-            CurrencyTools.removeUserData(member.getIdLong(), guild);
+            setUserDataManager(member.getIdLong());
+
+            UserDataManager dataManager = getUserDataManager();
+
+            dataManager.removeData();
 
             hook.sendMessage(":tulip: Successfully reset the user's data.").queue();
 

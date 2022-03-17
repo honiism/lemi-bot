@@ -21,10 +21,11 @@ package com.honiism.discord.lemi.commands.slash.staff.mods;
 
 import java.util.HashMap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
+import com.honiism.discord.lemi.data.UserDataManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -65,7 +66,7 @@ public class ModifyBal extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
         
@@ -86,56 +87,64 @@ public class ModifyBal extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
-                    long addAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
+                    long amount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
-                    if (addAmount < 0 || addAmount == 0) {
+                    if (amount < 0 || amount == 0) {
                         hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of currency.").queue();
                         return;
                     } 
                         
-                    Member memberToAddCurr = event.getOption("user", OptionMapping::getAsMember);
+                    Member targetMember = event.getOption("user", OptionMapping::getAsMember);
 
-                    if (memberToAddCurr == null) {
+                    if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
+
+                    setUserDataManager(targetMember.getIdLong());
+
+                    UserDataManager dataManager = getUserDataManager();
             
-                    CurrencyTools.addBalToUser(memberToAddCurr.getIdLong(), addAmount);
+                    dataManager.addBalToUser(amount);
             
                     hook.sendMessage(":cherry_blossom: " 
-                            + memberToAddCurr.getAsMention() 
-                            + ", you have received " + addAmount 
-                            + " " + CurrencyTools.getBalName() + " from " 
+                            + targetMember.getAsMention() 
+                            + ", you have received " + amount 
+                            + " " + Tools.getBalName() + " from " 
                             + author.getAsMention() + "!\r\n"
-                            + ":blueberries: You now have " + CurrencyTools.getUserBal(memberToAddCurr.getIdLong())
-                            + " " + CurrencyTools.getBalName() + ".")
+                            + ":blueberries: You now have " + dataManager.getBal()
+                            + " " + Tools.getBalName() + ".")
                         .queue();
                     break;
 
                 case "remove":
-                    long removeAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
+                    amount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
-                    if (removeAmount < 0 || removeAmount == 0) {
+                    if (amount < 0 || amount == 0) {
                         hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of currency.").queue();
                         return;
                     } 
                         
-                    Member memberToRemoveCurr = event.getOption("user", OptionMapping::getAsMember);
+                    targetMember = event.getOption("user", OptionMapping::getAsMember);
 
-                    if (memberToRemoveCurr == null) {
+                    if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
+
+                    setUserDataManager(targetMember.getIdLong());
+
+                    dataManager = getUserDataManager();
             
-                    CurrencyTools.removeBalFromUser(memberToRemoveCurr.getIdLong(), removeAmount);
+                    dataManager.removeBalFromUser(amount);
             
                     hook.sendMessage(":cherry_blossom: " 
-                            + memberToRemoveCurr.getAsMention() 
+                            + targetMember.getAsMention() 
                             + ", " + author.getAsMention()
-                            + " has taken " + removeAmount + " " 
-                            + CurrencyTools.getBalName() + " from " + "you" + "!\r\n"
-                            + ":blueberries: You now have " + CurrencyTools.getUserBal(memberToRemoveCurr.getIdLong())
-                            + " " + CurrencyTools.getBalName() + ".")
+                            + " has taken " + amount + " " 
+                            + Tools.getBalName() + " from " + "you" + "!\r\n"
+                            + ":blueberries: You now have " + dataManager.getBal()
+                            + " " + Tools.getBalName() + ".")
                         .queue();
             }
         } else {

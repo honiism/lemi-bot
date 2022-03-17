@@ -19,12 +19,14 @@
 
 package com.honiism.discord.lemi.commands.slash.currency;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+
 import java.util.HashMap;
 
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -56,7 +58,7 @@ public class Balance extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
 
@@ -74,13 +76,14 @@ public class Balance extends SlashCmd {
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
             Member member = event.getOption("user", event.getMember(), OptionMapping::getAsMember);
-            EmbedBuilder userBal = new EmbedBuilder();
+
+            setUserDataManager(member.getIdLong());
             
-            long bal = CurrencyTools.getUserBal(member.getIdLong());
+            EmbedBuilder userBal = new EmbedBuilder();
 
             userBal.setDescription("‧₊੭ :cherry_blossom: " + member.getAsMention() + "'s balance ♡ ⋆｡˚\r\n"
                     + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                    + CurrencyTools.getBalName() + " " + bal)
+                    + Tools.getBalName() + " " + getUserDataManager().getBal())
                 .setColor(0xffd1dc)
                 .setThumbnail(member.getUser().getEffectiveAvatarUrl())
                 .setAuthor(member.getUser().getAsTag(), null, member.getUser().getEffectiveAvatarUrl());

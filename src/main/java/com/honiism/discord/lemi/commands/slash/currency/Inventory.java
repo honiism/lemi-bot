@@ -22,11 +22,13 @@ package com.honiism.discord.lemi.commands.slash.currency;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.data.UserDataManager;
+
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.honiism.discord.lemi.utils.paginator.Paginator;
@@ -61,7 +63,7 @@ public class Inventory extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
 
@@ -79,8 +81,12 @@ public class Inventory extends SlashCmd {
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
             Member member = event.getOption("user", event.getMember(), OptionMapping::getAsMember);
+            
+            setUserDataManager(member.getIdLong());
 
-            if (Tools.isEmpty(CurrencyTools.getOwnedItems(member.getIdLong()))) {
+            UserDataManager dataManager = getUserDataManager();
+
+            if (Tools.isEmpty(dataManager.getOwnedItems())) {
                 hook.editOriginal(":fish_cake: This user has no items! Sadge :(").queue();
                 return;
             }
@@ -89,7 +95,7 @@ public class Inventory extends SlashCmd {
                 .setEventWaiter(Lemi.getInstance().getEventWaiter())
                 .setItemsPerPage(10)
                 .setTimeout(1, TimeUnit.MINUTES)
-                .setItems(CurrencyTools.getOwnedItems(member.getIdLong()))
+                .setItems(dataManager.getFormattedItems())
                 .useNumberedItems(true)
                 .useTimestamp(true)
                 .addAllowedUsers(author.getIdLong())

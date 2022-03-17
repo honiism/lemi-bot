@@ -95,26 +95,26 @@ public class ModifyMods extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
-                    Member memberToAdd = event.getOption("user", OptionMapping::getAsMember);
-                    String keyToAdd = event.getOption("key", OptionMapping::getAsString);
+                    Member targetMember = event.getOption("user", OptionMapping::getAsMember);
+                    String modKey = event.getOption("key", OptionMapping::getAsString);
                     
-                    if (memberToAdd == null) {
+                    if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    LemiDbManager.INS.addModId(guild, memberToAdd, keyToAdd, event);
+                    LemiDbManager.INS.addModId(guild, targetMember, modKey, event);
                     break;
 
                 case "remove":
-                    Member memberToRemove = event.getOption("user", OptionMapping::getAsMember);
+                    targetMember = event.getOption("user", OptionMapping::getAsMember);
 
-                    if (memberToRemove == null) {
+                    if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    LemiDbManager.INS.removeModId(guild, memberToRemove, event);
+                    LemiDbManager.INS.removeModId(guild, targetMember, event);
                     break;
 
                 case "view":

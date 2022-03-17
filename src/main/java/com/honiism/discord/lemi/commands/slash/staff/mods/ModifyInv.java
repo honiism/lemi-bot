@@ -21,10 +21,12 @@ package com.honiism.discord.lemi.commands.slash.staff.mods;
 
 import java.util.HashMap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
+import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -67,7 +69,7 @@ public class ModifyInv extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
         
@@ -88,77 +90,87 @@ public class ModifyInv extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
-                    long addAmount = (long) event.getOption("amount", OptionMapping::getAsLong);
+                    long amount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
-                    if (addAmount < 0 || addAmount == 0) {
+                    if (amount < 0 || amount == 0) {
                         hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of item.").queue();
                         return;
                     }
 
-                    String itemNameToAdd = event.getOption("item_name", OptionMapping::getAsString);
+                    String itemName = event.getOption("item_name", OptionMapping::getAsString);
 
-                    if (!CurrencyTools.checkIfItemExists(itemNameToAdd)) {
+                    if (!Items.checkIfItemExists(itemName)) {
                         hook.sendMessage(":tea: That item does not exist.").queue();
                         return;
                     }
 
-                    Member memberAdd = event.getOption("user", OptionMapping::getAsMember);
+                    Member targetMember = event.getOption("user", OptionMapping::getAsMember);
 
-                    if (memberAdd == null) {
+                    if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
-            
-                    CurrencyTools.addItemToUser(memberAdd.getIdLong(), itemNameToAdd, addAmount);
+
+                    setUserDataManager(targetMember.getIdLong());
+
+                    UserDataManager dataManager = getUserDataManager();
+                    String itemId = itemName.replaceAll(" ", "_");
+
+                    dataManager.addItemToUser(itemId, amount);
             
                     hook.sendMessage(":oden: " 
-                            + memberAdd.getAsMention() 
-                            + ", you have received " + addAmount 
-                            + " " + itemNameToAdd + " from " 
+                            + targetMember.getAsMention() 
+                            + ", you have received " + amount 
+                            + " " + itemName + " from " 
                             + author.getAsMention() + "!\r\n"
                             + ":blueberries: You now have " 
-                            + CurrencyTools.getItemFromUserInv(memberAdd.getIdLong(), itemNameToAdd)
-                            + " " + itemNameToAdd + ".")
+                            + dataManager.getItemCountFromUser(itemId)
+                            + " " + itemName + ".")
                         .queue();
                     break;
 
                 case "remove":
-                    long removeAmount = event.getOption("amount", OptionMapping::getAsLong);
+                    amount = event.getOption("amount", OptionMapping::getAsLong);
 
-                    if (removeAmount < 0 || removeAmount == 0) {
+                    if (amount < 0 || amount == 0) {
                         hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of items").queue();
                         return;
                     }
 
-                    String itemNameToRemove = event.getOption("item_name", OptionMapping::getAsString);
+                    itemName = event.getOption("item_name", OptionMapping::getAsString);
 
-                    if (!CurrencyTools.checkIfItemExists(itemNameToRemove)) {
+                    if (!Items.checkIfItemExists(itemName)) {
                         hook.sendMessage(":tea: That item does not exist.").queue();
                         return;
                     }
 
-                    Member memberRemove = event.getOption("user", OptionMapping::getAsMember);
+                    targetMember = event.getOption("user", OptionMapping::getAsMember);
 
-                    if (memberRemove == null) {
+                    if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    if (CurrencyTools.getItemFromUserInv(memberRemove.getIdLong(), itemNameToRemove) < removeAmount) {
+                    setUserDataManager(targetMember.getIdLong());
+
+                    dataManager = getUserDataManager();
+                    itemId = itemName.replaceAll(" ", "_");
+
+                    if (dataManager.getItemCountFromUser(itemId) < amount) {
                         hook.sendMessage(":hibiscus: You cannot take more than what they have.").queue();
                         return;
                     }
 
-                    CurrencyTools.removeItemFromUser(memberRemove.getIdLong(), itemNameToRemove, removeAmount);
+                    dataManager.removeItemFromUser(itemId, amount);
             
                     hook.sendMessage(":oden: " 
-                            + memberRemove.getAsMention() 
+                            + targetMember.getAsMention() 
                             + ", " + author.getAsMention()
-                            + " has taken " + removeAmount + " " + itemNameToRemove + " from " 
+                            + " has taken " + amount + " " + itemName + " from " 
                             + "you" + "!\r\n"
                             + ":blueberries: You now have " 
-                            + CurrencyTools.getItemFromUserInv(memberRemove.getIdLong(), itemNameToRemove)
-                            + " " + itemNameToRemove + ".")
+                            + dataManager.getItemCountFromUser(itemId)
+                            + " " + itemName + ".")
                         .queue();
             }
         } else {

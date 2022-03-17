@@ -112,10 +112,6 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
         }
     }
 
-    private Connection getConnection() throws SQLException {
-	return dataSource.getConnection();
-    }
-
     @Override
     public String getSavedMsgContent(String embedId) {
         try (Connection conn = getConnection();
@@ -579,5 +575,9 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                         + "```")
         	.queue();
         }
+    }
+
+    private Connection getConnection() throws SQLException {
+	return dataSource.getConnection();
     }
 }

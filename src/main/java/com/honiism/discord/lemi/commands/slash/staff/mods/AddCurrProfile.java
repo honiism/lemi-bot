@@ -24,7 +24,7 @@ import java.util.HashMap;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
+import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -43,7 +43,7 @@ public class AddCurrProfile extends SlashCmd {
     private long timeDelayed;
 
     public AddCurrProfile() {
-        setCommandData(Commands.slash("addcurrprofile", "Add a currency profile for members that doesn't have one.")
+        setCommandData(Commands.slash("addcurrprofile", "Add a currency profile for a member that doesn't have one.")
                 .addOption(OptionType.USER, "user", "User you'd like to give a currency profile.", true)
         );
 
@@ -52,7 +52,6 @@ public class AddCurrProfile extends SlashCmd {
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
     }
 
     @Override
@@ -80,13 +79,12 @@ public class AddCurrProfile extends SlashCmd {
                 return;
             }
 
-            if (CurrencyTools.userHasCurrProfile(member.getIdLong())) {
+            if (LemiDbBalManager.INS.userHasData(member.getIdLong())) {
                 hook.sendMessage(":snowflake: This user already has a currency profile.").queue();
                 return;
             }
 
-            CurrencyTools.addUserCurrProfile(member.getIdLong());
-            CurrencyTools.addUserInvProfile(member.getIdLong());
+            LemiDbBalManager.INS.addUserData(member.getIdLong());
 
             hook.sendMessage(":seedling: Successfully added currency profiles to them.").queue();
         } else {
