@@ -93,26 +93,26 @@ public class UserBan extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
-                    Member memberToAdd = event.getOption("user", OptionMapping::getAsMember);
+                    Member targetMember = event.getOption("user", OptionMapping::getAsMember);
                     String reason = event.getOption("reason", OptionMapping::getAsString);
                     
-                    if (memberToAdd == null) {
+                    if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    LemiDbManager.INS.addBannedUserId(memberToAdd, reason, event);
+                    LemiDbManager.INS.addBannedUserId(targetMember, reason, event);
                     break;
 
                 case "remove":
-                    Member memberToRemove = event.getOption("user", OptionMapping::getAsMember);
+                    targetMember = event.getOption("user", OptionMapping::getAsMember);
 
-                    if (memberToRemove == null) {
+                    if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    LemiDbManager.INS.removeBannedUserId(memberToRemove, event);
+                    LemiDbManager.INS.removeBannedUserId(targetMember, event);
                     break;
 
                 case "view":

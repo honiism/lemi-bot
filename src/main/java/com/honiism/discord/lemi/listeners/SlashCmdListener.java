@@ -20,8 +20,8 @@
 package com.honiism.discord.lemi.listeners;
 
 import com.honiism.discord.lemi.Lemi;
+import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -44,8 +44,10 @@ public class SlashCmdListener extends ListenerAdapter {
 
         LemiDbManager.INS.checkIfBanned(event);
 
-        if (!CurrencyTools.userHasCurrProfile(event.getMember().getIdLong())) {
-            CurrencyTools.addAllProfiles(event.getMember().getIdLong());    
+        long userId = event.getMember().getIdLong();
+
+        if (!LemiDbBalManager.INS.userHasData(userId)) {
+            LemiDbBalManager.INS.addUserData(userId);
         }
 
         Lemi.getInstance().getSlashCmdManager().handle(event);

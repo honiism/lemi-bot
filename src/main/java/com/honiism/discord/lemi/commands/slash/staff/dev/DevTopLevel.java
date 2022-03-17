@@ -19,6 +19,8 @@
 
 package com.honiism.discord.lemi.commands.slash.staff.dev;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
@@ -60,6 +62,8 @@ public class DevTopLevel extends SlashCmd {
                         new SubcommandData(this.setDebugCmd.getName(), this.setDebugCmd.getDesc())
                                 .addOptions(this.setDebugCmd.getOptions()),
 
+                        new SubcommandData(this.manageItemsGroup.getName(), this.manageItemsGroup.getDesc()),
+
                         new SubcommandData(this.evalCmd.getName(), this.evalCmd.getDesc())
                 )
                 .addSubcommandGroups(
@@ -67,10 +71,7 @@ public class DevTopLevel extends SlashCmd {
                                 .addSubcommands(this.modifyAdminsGroup.getSubCmds()),
 
                         new SubcommandGroupData(this.modifyModsGroup.getName(), this.modifyModsGroup.getDesc())
-                                .addSubcommands(this.modifyModsGroup.getSubCmds()),
-
-                        new SubcommandGroupData(this.manageItemsGroup.getName(), this.manageItemsGroup.getDesc())
-                                .addSubcommands(this.manageItemsGroup.getSubCmds())
+                                .addSubcommands(this.modifyModsGroup.getSubCmds())
                 )
                 .setDefaultEnabled(false)
         );
@@ -80,11 +81,10 @@ public class DevTopLevel extends SlashCmd {
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException {
         event.deferReply().queue();
         
         String subCmdGroupName = event.getSubcommandGroup();
@@ -98,10 +98,6 @@ public class DevTopLevel extends SlashCmd {
 
                 case "modifymods":
                     this.modifyModsGroup.action(event);
-                    break;
-
-                case "manageitems":
-                    this.manageItemsGroup.action(event);
             }
             
         } else {
@@ -116,6 +112,10 @@ public class DevTopLevel extends SlashCmd {
 
                 case "setdebug":
                     this.setDebugCmd.action(event);
+                    break;
+
+                case "manageitems":
+                    this.manageItemsGroup.action(event);
                     break;
 
                 case "eval":

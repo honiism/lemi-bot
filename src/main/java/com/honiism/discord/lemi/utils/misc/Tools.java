@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
+import com.honiism.discord.lemi.utils.currency.WeightedRandom;
 
 import me.duncte123.botcommons.StringUtils;
 import net.dv8tion.jda.api.Permission;
@@ -46,6 +46,37 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public class Tools {
+
+    public static String[] getNPCs() {
+        String[] npcList = new String[] {
+            "Honey",
+            "HoneyXD",
+            "Fuku",
+            "Lemi",
+            "Hoppy",
+            "Gumdrop",
+            "Swirls",
+            "God",
+            "Dizzy",
+            "Paimon",
+            "Dark enchantress cookie"
+        };
+        return npcList;
+    }
+
+    public static String getRandomNPC() {
+        WeightedRandom<String> randomNPC = new WeightedRandom<String>();
+
+        for (String npcName : getNPCs()) {
+            randomNPC.add(10, npcName);
+        }
+
+        return randomNPC.next();
+    }
+
+    public static String getBalName() {
+        return CustomEmojis.COIN;
+    }
 
     public static StringBuilder replaceAllSb(StringBuilder sb, String find, String replace){
         return new StringBuilder(Pattern.compile(find).matcher(sb).replaceAll(replace));
@@ -140,7 +171,7 @@ public class Tools {
         }
         
         if (stringBuilder.indexOf("%server_currency%") != -1) {
-            temp = replaceAllSb(stringBuilder, "%server_currency%", CurrencyTools.getBalName()).toString();
+            temp = replaceAllSb(stringBuilder, "%server_currency%", getBalName()).toString();
 
             stringBuilder.setLength(0);
             stringBuilder.append(temp);

@@ -21,10 +21,13 @@ package com.honiism.discord.lemi.commands.slash.staff.dev;
 
 import java.util.HashMap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
+import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
+import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -33,9 +36,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class ManageItems extends SlashCmd {
 
@@ -43,26 +44,16 @@ public class ManageItems extends SlashCmd {
     private long timeDelayed;
 
     public ManageItems() {
-        setCommandData(Commands.slash("manageitems", "Add/remove items to/from the database.")
-                .addSubcommands(
-                        new SubcommandData("add", "Add a new item to the database.")
-                                .addOption(OptionType.STRING, "item_name", "The name of the item to add.", true),
-
-                        new SubcommandData("remove", "Remove an existing item from the database.")
-                                .addOption(OptionType.STRING, "item_name", "The name of the item to remove.", true)
-                )
-        );
-
+        setCommandData(Commands.slash("manageitems", "Remove items from the database."));
         setUsage("/manageitems ((subcommands))");
         setCategory(CommandCategory.DEV);
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
         
@@ -79,37 +70,20 @@ public class ManageItems extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            String subCmdName = event.getSubcommandName();
             String itemName = event.getOption("item_name", OptionMapping::getAsString);
 
-            switch (subCmdName) {
-                case "add":
-                    if (CurrencyTools.checkIfItemExists(itemName)) {
-                        hook.sendMessage(":cherries: This item already exists in the database.").queue();
-                        return;
-                    }
-
-                    if (Tools.isEmpty(CurrencyTools.getItemsByName(itemName))) {
-                        hook.sendMessage(":sunflower: You haven't added this item in the internal list manually.").queue();
-                        return;
-                    }
-
-                    CurrencyTools.addNewItemToDb(itemName.replaceAll(" ", "_"), hook);
-                    break;
-
-                case "remove":
-                    if (!CurrencyTools.checkIfItemExists(itemName)) {
-                        hook.sendMessage(":snowflake: This item doesn't exist in the database.").queue();
-                        return;
-                    }
-
-                    if (CurrencyTools.getItemsByName(itemName).get(0) != null) {
-                        hook.sendMessage(":tulip: You haven't removed this item in the internal list manually.").queue();
-                        return;
-                    }
-
-                    CurrencyTools.removeItemFromDb(itemName.replaceAll(" ", "_"), hook);
+            if (!Items.checkIfItemExists(itemName)) {
+                hook.sendMessage(":snowflake: This item doesn't exist in the database.").queue();
+                return;
             }
+
+            if (Items.getItemByName(itemName) != null) {
+                hook.sendMessage(":tulip: You haven't removed this item in the internal list manually.").queue();
+                return;
+            }
+
+            LemiDbBalManager.INS.removeItemFromUsers(itemName.replaceAll(" ", "_"), hook);
+
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
                 

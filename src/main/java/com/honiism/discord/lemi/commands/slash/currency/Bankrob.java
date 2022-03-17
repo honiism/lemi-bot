@@ -19,20 +19,22 @@
 
 package com.honiism.discord.lemi.commands.slash.currency;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.data.UserDataManager;
+
 import java.util.HashMap;
 import java.util.Random;
 
-import com.honiism.discord.lemi.utils.currency.CurrencyTools;
 import com.honiism.discord.lemi.utils.currency.WeightedRandom;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -54,7 +56,7 @@ public class Bankrob extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
 
@@ -71,11 +73,13 @@ public class Bankrob extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Guild guild = event.getGuild();
+            setUserDataManager(author.getIdLong());
 
-            if (CurrencyTools.getUserBal(author.getIdLong()) < 10000) {
+            UserDataManager dataManager = getUserDataManager();
+
+            if (dataManager.getBal() < 10000) {
                 hook.sendMessage(":blossom: You need at least 10,000 " 
-                        + CurrencyTools.getBalName() + ".")
+                        + Tools.getBalName() + ".")
                     .queue();
                 return;
             }
@@ -88,11 +92,11 @@ public class Bankrob extends SlashCmd {
             String randomResultString = randomResult.next();
 
             if (randomResultString.equals("fail")) {
-                failAction(hook, author, guild);
+                failAction(hook, author, dataManager);
             } else if (randomResultString.equals("nothing")) {
-                nothingAction(hook, author, guild);
+                nothingAction(hook, author, dataManager);
             } else if (randomResultString.equals("success")) {
-                successAction(hook, author, guild);
+                successAction(hook, author, dataManager);
             }
             
         } else {
@@ -109,21 +113,21 @@ public class Bankrob extends SlashCmd {
         }         
     }
 
-    private void failAction(InteractionHook hook, User author, Guild guild) {
+    private void failAction(InteractionHook hook, User author, UserDataManager dataManager) {
         Random random = new Random();
         int lostAmount = random.nextInt(10000 - 2000) + 2000;
         lostAmount += 1;
         
-        String lostBal = lostAmount + " " + CurrencyTools.getBalName();
+        String lostBal = lostAmount + " " + Tools.getBalName();
 
-        CurrencyTools.removeBalFromUser(author.getIdLong(), lostAmount);
+        dataManager.removeBalFromUser(lostAmount);
 
         String[] resultMessages = new String[] {
                 "You dropped the money bag and lost " + lostBal + ".",
-                CurrencyTools.getRandomNPC() + " was in disguise and they charged you " + lostBal + ".",
-                CurrencyTools.getRandomNPC() + " caught you and you paid " + lostBal + ".",
+                Tools.getRandomNPC() + " was in disguise and they charged you " + lostBal + ".",
+                Tools.getRandomNPC() + " caught you and you paid " + lostBal + ".",
                 "You got caught and paid " + lostBal + " to bail out of jail.",
-                CurrencyTools.getRandomNPC() + " told on you and you paid " + lostBal + "."
+                Tools.getRandomNPC() + " told on you and you paid " + lostBal + "."
         };
 
         hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **ROBBING . . .**\r\n" 
@@ -131,39 +135,39 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + Tools.getRandomEntry(resultMessages) + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
-                + " " + CurrencyTools.getBalName() + "\r\n"
+                + "> :sunflower: You now have " + dataManager.getBal()
+                + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
 
-    private void nothingAction(InteractionHook hook, User author, Guild guild) {
+    private void nothingAction(InteractionHook hook, User author, UserDataManager dataManager) {
         hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **ROBBING . . .**\r\n" 
                 + "**˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.**\r\n"
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + "You wake up from the dream, you gained nothing." + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong())
-                + " " + CurrencyTools.getBalName() + "\r\n"
+                + "> :sunflower: You now have " + dataManager.getBal()
+                + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
 
-    private void successAction(InteractionHook hook, User author, Guild guild) {
+    private void successAction(InteractionHook hook, User author, UserDataManager dataManager) {
         Random random = new Random();
         
         int gainedAmount = random.nextInt(50000 - 10000) + 10000;
         gainedAmount += 1;
-        String gainedBal = gainedAmount + " " + CurrencyTools.getBalName();
+        String gainedBal = gainedAmount + " " + Tools.getBalName();
 
-        CurrencyTools.addBalToUser(author.getIdLong(), gainedAmount);
+        dataManager.addBalToUser(gainedAmount);
 
         String[] resultMessages = new String[] {
                 "You ran away and gained " + gainedBal + ".",
-                CurrencyTools.getRandomNPC() + " distracted the police and you both gained " + gainedBal + ".",
-                CurrencyTools.getRandomNPC() + " sacrificed themselves and you ran away alone with " + gainedBal + ".",
+                Tools.getRandomNPC() + " distracted the police and you both gained " + gainedBal + ".",
+                Tools.getRandomNPC() + " sacrificed themselves and you ran away alone with " + gainedBal + ".",
                 "The police got scared of you and paid you " + gainedBal + ".",
-                CurrencyTools.getRandomNPC() + " made mango juice for the police and you got " + gainedBal + "."
+                Tools.getRandomNPC() + " made mango juice for the police and you got " + gainedBal + "."
         };
 
         hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tulip: **ROBBING . . .**\r\n" 
@@ -171,8 +175,8 @@ public class Bankrob extends SlashCmd {
                 + "> " + author.getAsMention() + "\r\n"
                 + "> :cherry_blossom: " + Tools.getRandomEntry(resultMessages) + "\r\n"
                 + "**︶︶︶︶︶︶︶︶︶︶︶︶︶**\r\n"
-                + "> :sunflower: You now have " + CurrencyTools.getUserBal(author.getIdLong()) 
-                + " " + CurrencyTools.getBalName() + "\r\n"
+                + "> :sunflower: You now have " + dataManager.getBal()
+                + " " + Tools.getBalName() + "\r\n"
                 + "> ╰ ʚ₊˚꒦꒷✦ 🌱"))
             .queue();
     }
