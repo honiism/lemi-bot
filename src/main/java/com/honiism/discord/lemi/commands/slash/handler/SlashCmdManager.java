@@ -186,12 +186,12 @@ public class SlashCmdManager {
         List<CommandData> cmdsToAdd = commandsMap.values().stream().map(SlashCmd::getCommandData).collect(Collectors.toList());
 
         Lemi.getInstance().getShardManager()
-            .getGuildById(Config.get("honeys_sweets_id"))
+            .getGuildById(Config.get("honeys_hive"))
             .updateCommands()
             .addCommands(cmdsToAdd)
             .queue((cmds) -> {
                 updateCmdPrivileges(
-                        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id")),
+                        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive")),
                         cmds
                 );
             });
@@ -256,7 +256,7 @@ public class SlashCmdManager {
     }
 
     private void updateCmdPrivileges(Guild guild, List<Command> cmds) {
-        Guild hsGuild = Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_sweets_id"));
+        Guild hsGuild = Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_hive"));
 
         Role adminRole = hsGuild.getRoleById(Config.get("admin_role_id"));
         Role modsRole = hsGuild.getRoleById(Config.get("mod_role_id"));

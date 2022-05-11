@@ -205,7 +205,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -269,7 +269,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -339,7 +339,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -402,7 +402,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -562,7 +562,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "

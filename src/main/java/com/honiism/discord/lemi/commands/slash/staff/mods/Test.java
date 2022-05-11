@@ -76,7 +76,7 @@ public class Test extends SlashCmd {
             
             log.info(author.getAsTag() + " tested me and I'm working fine (slash).");
 
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
                 .getTextChannelById(Config.get("logs_channel_id"))
                 .sendMessage(author.getAsTag() + "(" + author.getIdLong() + ") tested me and I'm working fine (slash).")
                 .queue();

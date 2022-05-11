@@ -162,7 +162,7 @@ public class LemiDbDs implements LemiDbManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "Something went wrong while trying to "
@@ -214,7 +214,7 @@ public class LemiDbDs implements LemiDbManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "Something went wrong while trying to "
@@ -266,7 +266,7 @@ public class LemiDbDs implements LemiDbManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "Something went wrong while trying to "
@@ -315,7 +315,7 @@ public class LemiDbDs implements LemiDbManager {
 
                     log.info(event.getUser().getAsMention() + " added an id to the banned_users database. (<@" + member.getIdLong() + ">)");
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	        .getTextChannelById(Config.get("logs_channel_id"))
         	        .sendMessage(event.getUser().getAsMention() + " added an id to the banned_users database. (<@" + member.getIdLong() + ">)")
                         .queue();
@@ -344,7 +344,7 @@ public class LemiDbDs implements LemiDbManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -387,7 +387,7 @@ public class LemiDbDs implements LemiDbManager {
                     
                     log.info(event.getUser().getAsMention() + " removed a banned user id. (<@" + member.getIdLong() + ">)");
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	        .getTextChannelById(Config.get("logs_channel_id"))
         	        .sendMessage(event.getUser().getAsMention() + " removed a banned user id. (<@" + member.getIdLong() + ">)")
                         .queue();
@@ -416,7 +416,7 @@ public class LemiDbDs implements LemiDbManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -455,7 +455,7 @@ public class LemiDbDs implements LemiDbManager {
 
             e.printStackTrace();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -496,7 +496,7 @@ public class LemiDbDs implements LemiDbManager {
 
             e.printStackTrace();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -541,7 +541,7 @@ public class LemiDbDs implements LemiDbManager {
                     
                     log.info(event.getUser().getAsMention() + " removed an admin id. (" + member.getIdLong() + ")");
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	        .getTextChannelById(Config.get("logs_channel_id"))
         	        .sendMessage(event.getUser().getAsMention() + " removed an admin id. (" + member.getIdLong() + ")").queue();
 
@@ -593,7 +593,7 @@ public class LemiDbDs implements LemiDbManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -649,7 +649,7 @@ public class LemiDbDs implements LemiDbManager {
 
                     log.info(event.getUser().getAsMention() + " added an admin id. (" + member.getIdLong() + ")");
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	        .getTextChannelById(Config.get("logs_channel_id"))
         	        .sendMessage(event.getUser().getAsMention() + " added an admin id. (" + member.getIdLong() + ")").queue();
 
@@ -701,7 +701,7 @@ public class LemiDbDs implements LemiDbManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -741,7 +741,7 @@ public class LemiDbDs implements LemiDbManager {
 
             e.printStackTrace();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "Something went wrong while trying to "
@@ -785,7 +785,7 @@ public class LemiDbDs implements LemiDbManager {
 
             e.printStackTrace();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -831,7 +831,7 @@ public class LemiDbDs implements LemiDbManager {
                     
                     log.info(event.getUser().getAsMention() + " removed a mod id. (" + member.getIdLong() + ")");
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
                         .getTextChannelById(Config.get("logs_channel_id"))
                         .sendMessage(event.getUser().getAsMention() + " removed a mod id. (" + member.getIdLong() + ")").queue();
 
@@ -884,7 +884,7 @@ public class LemiDbDs implements LemiDbManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -941,7 +941,7 @@ public class LemiDbDs implements LemiDbManager {
 
                     log.info(event.getUser().getAsMention() + " added a mod id. (" + member.getIdLong() + ")");
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	        .getTextChannelById(Config.get("logs_channel_id"))
         	        .sendMessage(event.getUser().getAsMention() + " added a mod id. (" + member.getIdLong() + ")").queue();
 
@@ -994,7 +994,7 @@ public class LemiDbDs implements LemiDbManager {
                     + "```")
         	.queue();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage("--------------------------\r\n" 
                         + "**Something went wrong while trying to "
@@ -1029,18 +1029,18 @@ public class LemiDbDs implements LemiDbManager {
                 insertStatement.setLong(1, guild.getIdLong());
                         
                 int result = insertStatement.executeUpdate();
-                Guild honeysSweetsGuild = Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_sweets_id"));
+                Guild honeysHiveGuild = Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_hive"));
 
                 if (result != 0) {
                     log.info("Successfully registered settings for " + guild.getName() + "(" + guild.getIdLong() + ").");
                                 
-                    honeysSweetsGuild.getTextChannelById(Config.get("logs_channel_id"))
+                    honeysHiveGuild.getTextChannelById(Config.get("logs_channel_id"))
                         .sendMessage("Successfully registered settings for " + guild.getName() + "(" + guild.getIdLong() + ").")
                         .queue();
                 } else {
                     log.info("Had problems while registering settings for " + guild.getName() + "(" + guild.getIdLong() + ").");
                                 
-                    honeysSweetsGuild.getTextChannelById(Config.get("logs_channel_id"))
+                    honeysHiveGuild.getTextChannelById(Config.get("logs_channel_id"))
                         .sendMessage("Had problems while registering settings for " + guild.getName() + "(" + guild.getIdLong() + ").")
                         .queue();
                 }
@@ -1081,7 +1081,7 @@ public class LemiDbDs implements LemiDbManager {
                             
             e.printStackTrace();
             
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
                 .getTextChannelById(Config.get("logs_channel_id"))
                 .sendMessage("--------------------------\r\n"
                         + "**Something went wrong while trying to "
@@ -1119,7 +1119,7 @@ public class LemiDbDs implements LemiDbManager {
             e.printStackTrace();
             
             Lemi.getInstance().getShardManager()
-                .getGuildById(Config.get("honeys_sweets_id"))
+                .getGuildById(Config.get("honeys_hive"))
                 .getTextChannelById(Config.get("logs_channel_id"))
                 .sendMessage("--------------------------\r\n" 
                     +"\r\n**Something went wrong while trying to "
@@ -1159,7 +1159,7 @@ public class LemiDbDs implements LemiDbManager {
                 e.printStackTrace();
 
                 Lemi.getInstance().getShardManager()
-                    .getGuildById(Config.get("honeys_sweets_id"))
+                    .getGuildById(Config.get("honeys_hive"))
                     .getTextChannelById(Config.get("logs_channel_id"))
                     .sendMessage("--------------------------\r\n" 
                             +"\r\n**Something went wrong while trying to"

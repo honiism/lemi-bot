@@ -137,7 +137,7 @@ public class Eval extends SlashCmd {
 
                 (event) -> event.getAuthor().getIdLong() == hook.getInteraction().getMember().getIdLong()
                         && event.isFromGuild()
-                        && event.getGuild().getIdLong() == Config.getLong("honeys_sweets_id"),
+                        && event.getGuild().getIdLong() == Config.getLong("honeys_hive"),
 
                 (event) -> {
                     hook.editOriginal("Your code is being evaluated, please wait... :coffee:").queue();

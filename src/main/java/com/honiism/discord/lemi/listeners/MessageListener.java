@@ -57,7 +57,7 @@ public class MessageListener extends ListenerAdapter {
 
         log.info("{DM} " + author.getAsTag() + "(" + author.getIdLong() + "): \"" + message + "\"");
         	
-        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
             .getTextChannelById(Config.get("logs_channel_id"))
             .sendMessage(author.getAsTag() + "(" + author.getIdLong() + "): \"" + message + "\"")
             .queue();
@@ -68,7 +68,7 @@ public class MessageListener extends ListenerAdapter {
         Guild guild = event.getGuild();
         Long guildId = guild.getIdLong();
 
-        if (!guildId.equals(Config.getLong("honeys_sweets_id"))
+        if (!guildId.equals(Config.getLong("honeys_hive"))
                 && !guildId.equals(Config.getLong("test_server"))) {
             guild.leave().queue();
             return;
@@ -85,7 +85,7 @@ public class MessageListener extends ListenerAdapter {
 			
             event.getChannel().sendMessage("Shutting down. . .").queue();
         	
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage(member.getAsMention() + " **received emergency shutdown request. :bell:**")
         	.queue();

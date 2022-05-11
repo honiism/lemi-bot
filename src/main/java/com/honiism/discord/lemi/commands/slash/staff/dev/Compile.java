@@ -124,7 +124,7 @@ public class Compile extends SlashCmd {
 
                 (event) -> event.getAuthor().getIdLong() == member.getIdLong()
                         && event.isFromGuild()
-                        && event.getGuild().getIdLong() == Config.getLong("honeys_sweets_id"),
+                        && event.getGuild().getIdLong() == Config.getLong("honeys_hive"),
 
                 (event) -> {
                     hook.editOriginal("Your code is being compiled, please wait... :coffee:").queue();

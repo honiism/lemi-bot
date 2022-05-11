@@ -134,7 +134,7 @@ public class Report extends SlashCmd {
 
                 (event) -> event.getMember().getIdLong() == member.getIdLong()
                         && event.isFromGuild()
-                        && event.getGuild().getIdLong() == Config.getLong("honeys_sweets_id")
+                        && event.getGuild().getIdLong() == Config.getLong("honeys_hive")
                         && event.getModalId().equals("report"),
 
                 (event) -> {
@@ -153,7 +153,7 @@ public class Report extends SlashCmd {
                             : EmbedUtils.getSimpleEmbed("No error message provided")
                     );
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_hive"))
                         .getTextChannelById(Config.getLong("report_channel_id"))
                         .sendMessage(usertag + " (" + event.getMember().getAsMention() + ")'s report")
                         .setEmbeds(modalEmbeds)

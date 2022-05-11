@@ -45,9 +45,9 @@ public class BaseListener extends ListenerAdapter {
                 Lemi.getInstance().getShardManager().getShardsTotal());
         
         try {
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
                 .getTextChannelById(Config.get("logs_channel_id"))
-                .sendMessageFormat("%s is now **online on Honey's Picnic server shard** ! " 
+                .sendMessageFormat("%s is now **online on Honey's Hive server shard** ! " 
                         + "<@" + Config.get("dev_id") + ">", 
                         event.getJDA().getSelfUser().getAsMention())
                 .queue();

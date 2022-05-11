@@ -84,7 +84,7 @@ public class ShardRestart extends SlashCmd {
 
                 hook.sendMessage(":tulip: Restarting all the shards, see you in a bit :).").queue();
 
-                Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
                     .getTextChannelById(Config.get("logs_channel_id"))
                     .sendMessage(author.getAsMention() + "Someone has reset all the shards. (<@" + author.getIdLong() + ">)")
                     .queue(
@@ -98,7 +98,7 @@ public class ShardRestart extends SlashCmd {
                 
                 hook.sendMessage(":tulip: Restarting the shard(" + shardId + "), see you in a bit :).").queue();
 
-                Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
                     .getTextChannelById(Config.get("logs_channel_id"))
                     .sendMessage(author.getAsMention() + " is restarting the shard(" + shardId +").")
                     .queue(

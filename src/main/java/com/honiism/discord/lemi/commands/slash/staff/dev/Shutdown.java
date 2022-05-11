@@ -55,7 +55,7 @@ public class Shutdown extends SlashCmd {
         
         log.info(author.getAsTag() + "(" + author.getIdLong() + ") initiated non-emergency shutdown!");
                         
-        hook.getJDA().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+        hook.getJDA().getShardManager().getGuildById(Config.get("honeys_hive"))
             .getTextChannelById(Config.get("logs_channel_id"))
             .sendMessage(author.getAsMention() + " **received non-emergency shutdown request. :bell:**")
             .queue();

@@ -85,7 +85,7 @@ public class SetDebug extends SlashCmd {
             hook.sendMessage(":tulip: " + logMsg).queue();
             log.info(logMsg);
 
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
         	.sendMessage(logMsg)
                 .queue();

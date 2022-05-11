@@ -42,7 +42,7 @@ public class GuildListener extends ListenerAdapter {
         Guild guild = event.getGuild();
         Long guildId = guild.getIdLong();
 
-        if (!guildId.equals(Config.getLong("honeys_sweets_id"))) {
+        if (!guildId.equals(Config.getLong("honeys_hive"))) {
             return;
         }
         
@@ -54,7 +54,7 @@ public class GuildListener extends ListenerAdapter {
         Guild guild = event.getGuild();
         Long guildId = guild.getIdLong();
 
-        if (guildId.equals(Config.getLong("honeys_sweets_id"))
+        if (guildId.equals(Config.getLong("honeys_hive"))
                 || guildId.equals(Config.getLong("test_server"))) {
             return;
         }
@@ -67,7 +67,7 @@ public class GuildListener extends ListenerAdapter {
         log.info(joinedLogMsg.toString());
 
         Lemi.getInstance().getShardManager()
-            .getGuildById(Config.get("honeys_sweets_id"))
+            .getGuildById(Config.get("honeys_hive"))
             .getTextChannelById(Config.get("logs_channel_id"))
             .sendMessage(joinedLogMsg)
 	    .queue();
@@ -80,7 +80,7 @@ public class GuildListener extends ListenerAdapter {
         Guild guild = event.getGuild();
         Long guildId = guild.getIdLong();
 
-        if (guildId.equals(Config.getLong("honeys_sweets_id"))) {
+        if (guildId.equals(Config.getLong("honeys_hive"))) {
             return;
         }
 
@@ -92,7 +92,7 @@ public class GuildListener extends ListenerAdapter {
         log.info(leaveLogMsg.toString());
 
         Lemi.getInstance().getShardManager()
-            .getGuildById(Config.get("honeys_sweets_id"))
+            .getGuildById(Config.get("honeys_hive"))
             .getTextChannelById(Config.get("logs_channel_id"))
             .sendMessage(leaveLogMsg)
 	    .queue();
@@ -100,16 +100,16 @@ public class GuildListener extends ListenerAdapter {
 
     @Override
     public void onGuildTimeout(GuildTimeoutEvent event) {
-        if (event.getGuildIdLong() == Config.getLong("honeys_sweets_id")) {
+        if (event.getGuildIdLong() == Config.getLong("honeys_hive")) {
             Lemi.getInstance().getJDA().retrieveUserById(Config.getLong("dev_id")).queue(
                 (dev) -> {
                     dev.openPrivateChannel().queue(
                         (channel) -> {
-                            channel.sendMessage("HONEY'S SWEETS GUILD HAS FAILED TO LOAD!").queue();
-                            log.error("HONEY'S SWEETS GUILD HAS FAILED TO LOAD!");
+                            channel.sendMessage("HONEY'S HIVE GUILD HAS FAILED TO LOAD!").queue();
+                            log.error("HONEY'S HIVE GUILD HAS FAILED TO LOAD!");
                         },
                         (error) -> {
-                            log.error("HONEY'S SWEETS GUILD HAS FAILED TO LOAD!");
+                            log.error("HONEY'S HIVE GUILD HAS FAILED TO LOAD!");
                         }
                     );
                 }
@@ -122,7 +122,7 @@ public class GuildListener extends ListenerAdapter {
             log.error(logMessage);
         
             Lemi.getInstance().getShardManager()
-                .getGuildById(Config.get("honeys_sweets_id"))
+                .getGuildById(Config.get("honeys_hive"))
                 .getTextChannelById(Config.get("logs_channel_id"))
                 .sendMessage(logMessage)
 	        .queue();   
