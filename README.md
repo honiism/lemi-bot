@@ -1,5 +1,3 @@
-[discord-shield]: https://discord.com/api/guilds/840978214654181457/widget.png
-[discord-invite]: https://discord.gg/7fBW89kEm9
 [license]: https://github.com/honiism/lemi-bot/tree/main/LICENSE
 [license-shield]: https://img.shields.io/github/license/honiism/lemi-bot
 [jda-link]: https://github.com/DV8FromTheWorld/JDA
@@ -17,10 +15,7 @@
 # 🌷 Lemi-Bot <3
 <img align="right" src="https://github.com/honiism/lemi-bot/blob/assets/assets/Lemi.png?raw=true" height="auto" width="200">
 
-[ ![discord-shield][] ][discord-invite]
-[ ![license-shield][] ][license]
-
-> - 🎀 A discord bot named Lemi who can handle currency, fun, and game commands made **specifically for [Honey's Sweets][discord-invite]** server.
+> - 🎀 A discord bot named Lemi who can handle currency, fun, and game commands made for public!
 > - 🌼 Made by honiism#8022 on discord.
 > - 🍰 I operate **currently** with only slash commands (`/commandName`).
 > - 🍓 This bot is made possible by the [JDA][jda-link] library and is hosted using [DanBot Hosting][dbh-link].
