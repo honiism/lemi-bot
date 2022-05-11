@@ -21,7 +21,7 @@
     <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.13.2</version>
+        <version>2.13.2.2</version>
     </dependency>
 
     <dependency>
@@ -69,9 +69,9 @@
     </dependency>
 
     <dependency>
-        <groupId>com.github.xirado</groupId>
+        <groupId>net.dv8tion</groupId>
         <artifactId>JDA</artifactId>
-        <version>36eea2a</version>
+        <version>5.0.0-alpha.11</version> 
     </dependency>
 
     <dependency>
