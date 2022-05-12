@@ -1029,20 +1029,11 @@ public class LemiDbDs implements LemiDbManager {
                 insertStatement.setLong(1, guild.getIdLong());
                         
                 int result = insertStatement.executeUpdate();
-                Guild honeysHiveGuild = Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_hive"));
 
                 if (result != 0) {
                     log.info("Successfully registered settings for " + guild.getName() + "(" + guild.getIdLong() + ").");
-                                
-                    honeysHiveGuild.getTextChannelById(Config.get("logs_channel_id"))
-                        .sendMessage("Successfully registered settings for " + guild.getName() + "(" + guild.getIdLong() + ").")
-                        .queue();
                 } else {
                     log.info("Had problems while registering settings for " + guild.getName() + "(" + guild.getIdLong() + ").");
-                                
-                    honeysHiveGuild.getTextChannelById(Config.get("logs_channel_id"))
-                        .sendMessage("Had problems while registering settings for " + guild.getName() + "(" + guild.getIdLong() + ").")
-                        .queue();
                 }
             }
                         

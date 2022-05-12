@@ -30,7 +30,7 @@ public class InventoryData {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name.replaceAll("_", " ");
     }
             
     public void setCount(long count) {
