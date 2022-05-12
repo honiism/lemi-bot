@@ -9,7 +9,6 @@ assignees: ''
 
 ## 🌷 Bug Details
 - Please provide the necessary information so we can help you with this issue!
-- [Support server](https://discord.gg/7fBW89kEm9)
 
 ## 🥥 General Info
 - [ ] I have looked through the support server's announcement for similar issues.
