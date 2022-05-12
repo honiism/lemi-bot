@@ -17,25 +17,19 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.staff.dev;
+package com.honiism.discord.lemi.commands.text.staff.mods;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import com.honiism.discord.lemi.Lemi;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
-import com.honiism.discord.lemi.utils.misc.EmbedUtils;
+import com.honiism.discord.lemi.data.UserDataManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
-import com.honiism.discord.lemi.utils.paginator.Paginator;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -45,38 +39,36 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
-public class ModifyAdmins extends SlashCmd {
+public class ModifyBal extends SlashCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
-    public ModifyAdmins() {
-        setCommandData(Commands.slash("modifyadmins", "Add/remove/view user(s) to/from the administrator database.")
+    public ModifyBal() {
+        setCommandData(Commands.slash("modifybal", "Add or remove some currency from a user.")
                 .addSubcommands(
-                        new SubcommandData("add", "Add a user's key in the official administrator list.")
-                                .addOption(OptionType.USER, "user", "The user you want to add.", true)
-                                .addOption(OptionType.STRING, "key", "The key that will be assigned for this user.", true),
+                        new SubcommandData("add", "Add some currency to a user.")
+                                .addOption(OptionType.USER, "user", "The user you'd like to add some currency to.", true)
+                                .addOption(OptionType.INTEGER, "amount", "The amount of currency you'd like to add.'", true),
   
-                        new SubcommandData("remove", "Remove a user from the official administrator list.")
-                                .addOption(OptionType.USER, "user", "The user you want to remove.", true),
-
-                        new SubcommandData("view", "View all details from the official administrator list.")
+                        new SubcommandData("remove", "Remove some currency from a user.")
+                                .addOption(OptionType.USER, "user", "The user you'd like to remove some currency from.", true)
+                                .addOption(OptionType.INTEGER, "amount", "The amount of currency you'd like to remove.", true)
                 )
         );
 
-        setUsage("/dev modifyadmins ((subcommands))");
-        setCategory(CommandCategory.DEV);
-        setUserCategory(UserCategory.DEV);
-        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
-        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setUsage("/mods modifybal ((subcommands))");
+        setCategory(CommandCategory.MODS);
+        setUserCategory(UserCategory.MODS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
-        Guild guild = event.getGuild();
         
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -95,18 +87,44 @@ public class ModifyAdmins extends SlashCmd {
 
             switch (subCmdName) {
                 case "add":
+                    long amount = (long) event.getOption("amount", OptionMapping::getAsLong);
+
+                    if (amount < 0 || amount == 0) {
+                        hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of currency.").queue();
+                        return;
+                    } 
+                        
                     Member targetMember = event.getOption("user", OptionMapping::getAsMember);
-                    String adminKey = event.getOption("key", OptionMapping::getAsString);
 
                     if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    LemiDbManager.INS.addAdminId(guild, targetMember, adminKey, event);
+                    setUserDataManager(targetMember.getIdLong());
+
+                    UserDataManager dataManager = getUserDataManager();
+            
+                    dataManager.addBalToUser(amount);
+            
+                    hook.sendMessage(":cherry_blossom: " 
+                            + targetMember.getAsMention() 
+                            + ", you have received " + amount 
+                            + " " + Tools.getBalName() + " from " 
+                            + author.getAsMention() + "!\r\n"
+                            + ":blueberries: You now have " + dataManager.getBal()
+                            + " " + Tools.getBalName() + ".")
+                        .queue();
                     break;
 
                 case "remove":
+                    amount = (long) event.getOption("amount", OptionMapping::getAsLong);
+
+                    if (amount < 0 || amount == 0) {
+                        hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of currency.").queue();
+                        return;
+                    } 
+                        
                     targetMember = event.getOption("user", OptionMapping::getAsMember);
 
                     if (targetMember == null) {
@@ -114,14 +132,21 @@ public class ModifyAdmins extends SlashCmd {
                         return;
                     }
 
-                    LemiDbManager.INS.removeAdminId(guild, targetMember, event);
-                    break;
+                    setUserDataManager(targetMember.getIdLong());
 
-                case "view":
-                    viewAllIds(event);
-                    break;
+                    dataManager = getUserDataManager();
+            
+                    dataManager.removeBalFromUser(amount);
+            
+                    hook.sendMessage(":cherry_blossom: " 
+                            + targetMember.getAsMention() 
+                            + ", " + author.getAsMention()
+                            + " has taken " + amount + " " 
+                            + Tools.getBalName() + " from " + "you" + "!\r\n"
+                            + ":blueberries: You now have " + dataManager.getBal()
+                            + " " + Tools.getBalName() + ".")
+                        .queue();
             }
-
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
                 
@@ -132,44 +157,6 @@ public class ModifyAdmins extends SlashCmd {
                 .setColor(0xffd1dc);
                 
             hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
-        }
-    }
-
-    private void viewAllIds(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        List<String> adminDetails = new ArrayList<>();
-        List<Long> adminIds = LemiDbManager.INS.getAdminIds();
-        List<String> adminKeys = LemiDbManager.INS.getAdminKeys();
-
-        for (int i = 0; i < adminIds.size(); i++) {
-            adminDetails.add("<@" + adminIds.get(i) + "> `" 
-                    + adminIds.get(i) + " | key :` ||" 
-                    + adminKeys.get(i) + "||");
-        }
-
-        if (Tools.isEmpty(adminDetails)) {
-            hook.editOriginal(":tulip: There's no admins.").queue();
-            return;
-        }
-
-        Paginator.Builder builder = new Paginator.Builder(event.getJDA())
-            .setEventWaiter(Lemi.getInstance().getEventWaiter())
-            .setEmbedDesc("‧₊੭ :cake: **ADMINS!** ♡ ⋆｡˚")
-            .setItemsPerPage(10)
-            .setItems(adminDetails)
-            .useNumberedItems(true)
-            .useTimestamp(true)
-            .addAllowedUsers(event.getUser().getIdLong())
-            .setColor(0xffd1dc)
-            .setTimeout(1, TimeUnit.MINUTES);
-
-        int page = 1;
-
-        event.getUser().openPrivateChannel().queue((privChannel) -> {
-            privChannel.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":seedling: Loading..."))
-                .queue(message -> builder.build().paginate(message, page));
-        });
-
-        hook.editOriginal(":snowflake: Sent you the details.").queue();
-    }
+        }        
+    }    
 }

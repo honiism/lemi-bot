@@ -17,43 +17,45 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.staff.dev;
+package com.honiism.discord.lemi.commands.text.staff.mods;
 
 import java.util.HashMap;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
-import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-public class ManageItems extends SlashCmd {
+public class AddCurrProfile extends SlashCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
-    public ManageItems() {
-        setCommandData(Commands.slash("manageitems", "Remove items from the database."));
-        setUsage("/manageitems ((subcommands))");
-        setCategory(CommandCategory.DEV);
-        setUserCategory(UserCategory.DEV);
-        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
-        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+    public AddCurrProfile() {
+        setCommandData(Commands.slash("addcurrprofile", "Add a currency profile for a member that doesn't have one.")
+                .addOption(OptionType.USER, "user", "User you'd like to give a currency profile.", true)
+        );
+
+        setUsage("/mods addcurrprofile <user>");
+        setCategory(CommandCategory.MODS);
+        setUserCategory(UserCategory.MODS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException {
+    public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
         
@@ -70,20 +72,21 @@ public class ManageItems extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            String itemName = event.getOption("item_name", OptionMapping::getAsString);
-
-            if (!Items.checkIfItemExists(itemName)) {
-                hook.sendMessage(":snowflake: This item doesn't exist in the database.").queue();
+            Member member = event.getOption("user", OptionMapping::getAsMember);
+            
+            if (member == null) {
+                hook.sendMessage(":cherry_blossom This user doesn't exist in the guild.").queue();
                 return;
             }
 
-            if (Items.getItemByName(itemName) != null) {
-                hook.sendMessage(":tulip: You haven't removed this item in the internal list manually.").queue();
+            if (LemiDbBalManager.INS.userHasData(member.getIdLong())) {
+                hook.sendMessage(":snowflake: This user already has a currency profile.").queue();
                 return;
             }
 
-            LemiDbBalManager.INS.removeItemFromUsers(itemName.replaceAll(" ", "_"), hook);
+            LemiDbBalManager.INS.addUserData(member.getIdLong());
 
+            hook.sendMessage(":seedling: Successfully added currency profiles to them.").queue();
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
                 

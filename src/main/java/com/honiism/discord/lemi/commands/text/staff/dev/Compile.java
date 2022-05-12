@@ -17,7 +17,7 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.staff.dev;
+package com.honiism.discord.lemi.commands.text.staff.dev;
 
 import java.io.IOException;
 import java.net.URI;

@@ -17,7 +17,7 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.staff.dev;
+package com.honiism.discord.lemi.commands.text.staff.admins;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +35,6 @@ import com.honiism.discord.lemi.utils.paginator.Paginator;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -45,39 +44,38 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
-public class ModifyMods extends SlashCmd {
+public class UserBan extends SlashCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
-    public ModifyMods() {
-        setCommandData(Commands.slash("modifymods", "Add/remove/view user(s) to/from the moderator database.")
+    public UserBan() {
+        setCommandData(Commands.slash("userban", "Bans a user from using Lemi bot.")
                 .addSubcommands(
-                        new SubcommandData("add", "Add a user to the official moderator list.")
-                                .addOption(OptionType.USER, "user", "The user you want to add.", true)
-                                .addOption(OptionType.STRING, "key", "The key that will be assigned for this user.", true),
+                        new SubcommandData("add", "Ban a user from using Lemi.")
+                                .addOption(OptionType.USER, "user", "The user you want to ban.", true)
+                                .addOption(OptionType.STRING, "reason", "The reason why they're getting banned.", true),
 
-                        new SubcommandData("remove", "Remove a user from the official moderator list.")
-                                .addOption(OptionType.USER, "user", "The user you want to remove.", true),
+                        new SubcommandData("remove", "Unban a previously banned user.")
+                                .addOption(OptionType.USER, "user", "The user you want to unban.", true),
 
-                        new SubcommandData("view", "View all details from the official moderator list.")
+                        new SubcommandData("view", "View all details from the ban list.")
                 )
         );
 
-        setUsage("/dev modifymods ((subcommands))");
-        setCategory(CommandCategory.DEV);
-        setUserCategory(UserCategory.DEV);
+        setUsage("/userban ((subcommands))");
+        setCategory(CommandCategory.ADMINS);
+        setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
         
     }
-    
+
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
-        Guild guild = event.getGuild();
-        
+
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
         } else {
@@ -96,14 +94,14 @@ public class ModifyMods extends SlashCmd {
             switch (subCmdName) {
                 case "add":
                     Member targetMember = event.getOption("user", OptionMapping::getAsMember);
-                    String modKey = event.getOption("key", OptionMapping::getAsString);
+                    String reason = event.getOption("reason", OptionMapping::getAsString);
                     
                     if (targetMember == null) {
                         hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    LemiDbManager.INS.addModId(guild, targetMember, modKey, event);
+                    LemiDbManager.INS.addBannedUserId(targetMember, reason, event);
                     break;
 
                 case "remove":
@@ -114,12 +112,11 @@ public class ModifyMods extends SlashCmd {
                         return;
                     }
 
-                    LemiDbManager.INS.removeModId(guild, targetMember, event);
+                    LemiDbManager.INS.removeBannedUserId(targetMember, event);
                     break;
 
                 case "view":
-                    viewAllIds(event);
-                    break;
+                    viewAllBans(event);
             }
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
@@ -135,28 +132,29 @@ public class ModifyMods extends SlashCmd {
         }
     }
 
-    private void viewAllIds(SlashCommandInteractionEvent event) {
+    private void viewAllBans(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        List<String> modDetails = new ArrayList<>();
-        List<Long> modIds = LemiDbManager.INS.getModIds();
-        List<String> modKeys = LemiDbManager.INS.getModKeys();
+        List<String> banDetails = new ArrayList<>();
+        List<Long> authorIds = LemiDbManager.INS.getBannerAuthorIds(event);
+        List<Long> bannedUserIds = LemiDbManager.INS.getBannedUserIds(event);
+        List<String> reasons = LemiDbManager.INS.getBannedReasons(event);
 
-        for (int i = 0; i < modIds.size(); i++) {
-            modDetails.add("<@" + modIds.get(i) + "> `" 
-                    + modIds.get(i) + " | key :` ||" 
-                    + modKeys.get(i) + "||");
+        for (int i = 0; i < bannedUserIds.size(); i++) {
+            banDetails.add("Admin : <@" + authorIds.get(i) + ">" 
+                    + " | Banned user : <@" + bannedUserIds.get(i) + ">"
+                    + " | Reason : `" + reasons.get(i) + "`");
         }
 
-        if (Tools.isEmpty(modDetails)) {
-            hook.editOriginal(":fish_cake: There's no mods.").queue();
+        if (Tools.isEmpty(banDetails)) {
+            hook.editOriginal(":fish_cake: There's no banned users.").queue();
             return;
         }
 
         Paginator.Builder builder = new Paginator.Builder(event.getJDA())
-            .setEmbedDesc("‧₊੭ :bread: **MODS!** ♡ ⋆｡˚")
+            .setEmbedDesc("‧₊੭ :bread: **BANNED LIST!** ♡ ⋆｡˚")
             .setEventWaiter(Lemi.getInstance().getEventWaiter())
             .setItemsPerPage(10)
-            .setItems(modDetails)
+            .setItems(banDetails)
             .useNumberedItems(true)
             .useTimestamp(true)
             .addAllowedUsers(event.getUser().getIdLong())
@@ -165,11 +163,7 @@ public class ModifyMods extends SlashCmd {
 
         int page = 1;
 
-        event.getUser().openPrivateChannel().queue((msg) -> {
-            msg.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tea: Loading..."))
-                .queue(message -> builder.build().paginate(message, page));
-        });
-
-        hook.editOriginal(":blueberries: Sent you the details.").queue();
+        hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tea: Loading..."))
+            .queue(message -> builder.build().paginate(message, page));
     }
 }

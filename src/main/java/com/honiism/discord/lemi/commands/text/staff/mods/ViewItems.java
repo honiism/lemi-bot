@@ -10,26 +10,28 @@
  * 
  * Lemi-Bot is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
+ * along with Lemi-Bot.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.staff.dev;
+package com.honiism.discord.lemi.commands.text.staff.mods;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.data.items.Items;
+import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.honiism.discord.lemi.utils.paginator.Paginator;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -40,55 +42,68 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-public class SetDebug extends SlashCmd {
+public class ViewItems extends SlashCmd {
 
-    private static final Logger log = LoggerFactory.getLogger(SetDebug.class);
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
-    public SetDebug() {
-        setCommandData(Commands.slash("setdebug", "Toggle debug mode for Lemi.")
-                .addOption(OptionType.BOOLEAN, "value", "Set the debug mode, true = on | false = off", true)
+    public ViewItems() {
+        setCommandData(Commands.slash("viewitems", "View the currently available items in the internal list.")
+                .addOption(OptionType.INTEGER, "page", "The page number for the items list you want to see.", false)
         );
 
-        setUsage("/dev compile <true|false>");
-        setCategory(CommandCategory.DEV);
-        setUserCategory(UserCategory.DEV);
-        setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
-        setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setUsage("/mods viewitems [page number]");
+        setCategory(CommandCategory.MODS);
+        setUserCategory(UserCategory.MODS);
+        setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
+        setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        
     }
 
     @Override
     public void action(SlashCommandInteractionEvent event) {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
-
+        
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
         } else {
-            timeDelayed = (10 * 1000);
+            timeDelayed = (5 * 1000);
         }
             
-        if (timeDelayed >= (10 * 1000)) {
+        if (timeDelayed >= (5 * 1000)) {
             if (delay.containsKey(author.getIdLong())) {
                 delay.remove(author.getIdLong());
             }
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
+            
+            List<String> items = new ArrayList<String>();
 
-            boolean debugValue = event.getOption("value", OptionMapping::getAsBoolean);
+            for (Items item : Items.getItems().values()) {
+                if (Items.checkIfItemExists(item.getName())) {
+                   items.add(item.getEmoji() + " " + item.getName() + " | " + item.getId()); 
+                } else {
+                    items.add(item.getEmoji() + " " + item.getName() + " | " + item.getId() + " | **NOT IN LIST**");
+                }
+            }
 
-            Lemi.getInstance().setDebug(debugValue);
+            Paginator.Builder builder = new Paginator.Builder(event.getJDA())
+                .setEventWaiter(Lemi.getInstance().getEventWaiter())
+                .setEmbedDesc("‧₊੭ :tulip: **ITEMS!** ♡ ⋆｡˚")
+                .setItemsPerPage(10)
+                .setItems(items)
+                .useNumberedItems(true)
+                .useTimestamp(true)
+                .addAllowedUsers(author.getIdLong())
+                .setColor(0xffd1dc)
+                .setTimeout(1, TimeUnit.MINUTES);
 
-            String logMsg = "Successfully toggled debug mode to " + (debugValue ? "on" : "off") + "!";
+            int page = event.getOption("page", 1, OptionMapping::getAsInt);
 
-            hook.sendMessage(":tulip: " + logMsg).queue();
-            log.info(logMsg);
-
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage(logMsg)
-                .queue();
+            hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":seedling: Loading..."))
+                .queue(message -> builder.build().paginate(message, page));
+                
         } else {
             String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);
                 
@@ -100,6 +115,6 @@ public class SetDebug extends SlashCmd {
                 .setColor(0xffd1dc);
                 
             hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
-        }        
-    }    
+        }
+    }
 }

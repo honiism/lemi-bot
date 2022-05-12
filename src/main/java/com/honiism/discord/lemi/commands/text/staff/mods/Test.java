@@ -17,41 +17,41 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.staff.mods;
+package com.honiism.discord.lemi.commands.text.staff.mods;
 
 import java.util.HashMap;
 
+import com.honiism.discord.lemi.Config;
+import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-public class AddCurrProfile extends SlashCmd {
+public class Test extends SlashCmd {
 
+    private static final Logger log = LoggerFactory.getLogger(Test.class);
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
-    public AddCurrProfile() {
-        setCommandData(Commands.slash("addcurrprofile", "Add a currency profile for a member that doesn't have one.")
-                .addOption(OptionType.USER, "user", "User you'd like to give a currency profile.", true)
-        );
-
-        setUsage("/mods addcurrprofile <user>");
+    public Test() {
+        setCommandData(Commands.slash("test", "Test if Lemi is responding to commands correctly."));
+        setUsage("/mods test");
         setCategory(CommandCategory.MODS);
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        
     }
 
     @Override
@@ -62,38 +62,33 @@ public class AddCurrProfile extends SlashCmd {
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
         } else {
-            timeDelayed = (10 * 1000);
+            timeDelayed = (5 * 1000);
         }
             
-        if (timeDelayed >= (10 * 1000)) {        
+        if (timeDelayed >= (5 * 1000)) {
             if (delay.containsKey(author.getIdLong())) {
                 delay.remove(author.getIdLong());
             }
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Member member = event.getOption("user", OptionMapping::getAsMember);
+            hook.sendMessage(":dango: Hello there, command run correctly! :)").queue();
             
-            if (member == null) {
-                hook.sendMessage(":cherry_blossom This user doesn't exist in the guild.").queue();
-                return;
-            }
+            log.info(author.getAsTag() + " tested me and I'm working fine (slash).");
 
-            if (LemiDbBalManager.INS.userHasData(member.getIdLong())) {
-                hook.sendMessage(":snowflake: This user already has a currency profile.").queue();
-                return;
-            }
-
-            LemiDbBalManager.INS.addUserData(member.getIdLong());
-
-            hook.sendMessage(":seedling: Successfully added currency profiles to them.").queue();
+            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
+                .getTextChannelById(Config.get("logs_channel_id"))
+                .sendMessage(author.getAsTag() + "(" + author.getIdLong() + ") tested me and I'm working fine (slash).")
+                .queue();
+                
         } else {
-            String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
+            String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);
                 
             EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
                 .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() + ", you can use this command again in `" + time + "`.")
+                        + author.getAsMention() 
+                        + ", you can use this command again in `" + time + "`.")
                 .setColor(0xffd1dc);
                 
             hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();

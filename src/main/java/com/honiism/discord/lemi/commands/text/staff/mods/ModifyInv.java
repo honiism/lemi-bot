@@ -17,7 +17,7 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.staff.mods;
+package com.honiism.discord.lemi.commands.text.staff.mods;
 
 import java.util.HashMap;
 
@@ -26,6 +26,7 @@ import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -39,25 +40,27 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
-public class ModifyBal extends SlashCmd {
+public class ModifyInv extends SlashCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
-    public ModifyBal() {
-        setCommandData(Commands.slash("modifybal", "Add or remove some currency from a user.")
+    public ModifyInv() {
+        setCommandData(Commands.slash("modifyinv", "Add or remove some items from a user's inventory.")
                 .addSubcommands(
-                        new SubcommandData("add", "Add some currency to a user.")
-                                .addOption(OptionType.USER, "user", "The user you'd like to add some currency to.", true)
-                                .addOption(OptionType.INTEGER, "amount", "The amount of currency you'd like to add.'", true),
+                        new SubcommandData("add", "Add some items to a user.")
+                                .addOption(OptionType.USER, "user", "The user you'd like to give some items to.", true)
+                                .addOption(OptionType.STRING, "item_name", "The name of the item you'd like to add.", true)
+                                .addOption(OptionType.INTEGER, "amount", "The amount of item you'd like to add.'", true),
   
-                        new SubcommandData("remove", "Remove some currency from a user.")
-                                .addOption(OptionType.USER, "user", "The user you'd like to remove some currency from.", true)
-                                .addOption(OptionType.INTEGER, "amount", "The amount of currency you'd like to remove.", true)
+                        new SubcommandData("remove", "Remove some items from a user.")
+                                .addOption(OptionType.USER, "user", "The user you'd like to take some items from.", true)
+                                .addOption(OptionType.STRING, "item_name", "The name of the item you'd like to take.'", true)
+                                .addOption(OptionType.INTEGER, "amount", "The amount of item you'd like to take.'", true)
                 )
         );
 
-        setUsage("/mods modifybal ((subcommands))");
+        setUsage("/mods modifyInv ((subcommands))");
         setCategory(CommandCategory.MODS);
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
@@ -90,10 +93,17 @@ public class ModifyBal extends SlashCmd {
                     long amount = (long) event.getOption("amount", OptionMapping::getAsLong);
 
                     if (amount < 0 || amount == 0) {
-                        hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of currency.").queue();
+                        hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of item.").queue();
                         return;
-                    } 
-                        
+                    }
+
+                    String itemName = event.getOption("item_name", OptionMapping::getAsString);
+
+                    if (!Items.checkIfItemExists(itemName)) {
+                        hook.sendMessage(":tea: That item does not exist.").queue();
+                        return;
+                    }
+
                     Member targetMember = event.getOption("user", OptionMapping::getAsMember);
 
                     if (targetMember == null) {
@@ -104,27 +114,36 @@ public class ModifyBal extends SlashCmd {
                     setUserDataManager(targetMember.getIdLong());
 
                     UserDataManager dataManager = getUserDataManager();
+                    String itemId = itemName.replaceAll(" ", "_");
+
+                    dataManager.addItemToUser(itemId, amount);
             
-                    dataManager.addBalToUser(amount);
-            
-                    hook.sendMessage(":cherry_blossom: " 
+                    hook.sendMessage(":oden: " 
                             + targetMember.getAsMention() 
                             + ", you have received " + amount 
-                            + " " + Tools.getBalName() + " from " 
+                            + " " + itemName + " from " 
                             + author.getAsMention() + "!\r\n"
-                            + ":blueberries: You now have " + dataManager.getBal()
-                            + " " + Tools.getBalName() + ".")
+                            + ":blueberries: You now have " 
+                            + dataManager.getItemCountFromUser(itemId)
+                            + " " + itemName + ".")
                         .queue();
                     break;
 
                 case "remove":
-                    amount = (long) event.getOption("amount", OptionMapping::getAsLong);
+                    amount = event.getOption("amount", OptionMapping::getAsLong);
 
                     if (amount < 0 || amount == 0) {
-                        hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of currency.").queue();
+                        hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of items").queue();
                         return;
-                    } 
-                        
+                    }
+
+                    itemName = event.getOption("item_name", OptionMapping::getAsString);
+
+                    if (!Items.checkIfItemExists(itemName)) {
+                        hook.sendMessage(":tea: That item does not exist.").queue();
+                        return;
+                    }
+
                     targetMember = event.getOption("user", OptionMapping::getAsMember);
 
                     if (targetMember == null) {
@@ -135,16 +154,23 @@ public class ModifyBal extends SlashCmd {
                     setUserDataManager(targetMember.getIdLong());
 
                     dataManager = getUserDataManager();
+                    itemId = itemName.replaceAll(" ", "_");
+
+                    if (dataManager.getItemCountFromUser(itemId) < amount) {
+                        hook.sendMessage(":hibiscus: You cannot take more than what they have.").queue();
+                        return;
+                    }
+
+                    dataManager.removeItemFromUser(itemId, amount);
             
-                    dataManager.removeBalFromUser(amount);
-            
-                    hook.sendMessage(":cherry_blossom: " 
+                    hook.sendMessage(":oden: " 
                             + targetMember.getAsMention() 
                             + ", " + author.getAsMention()
-                            + " has taken " + amount + " " 
-                            + Tools.getBalName() + " from " + "you" + "!\r\n"
-                            + ":blueberries: You now have " + dataManager.getBal()
-                            + " " + Tools.getBalName() + ".")
+                            + " has taken " + amount + " " + itemName + " from " 
+                            + "you" + "!\r\n"
+                            + ":blueberries: You now have " 
+                            + dataManager.getItemCountFromUser(itemId)
+                            + " " + itemName + ".")
                         .queue();
             }
         } else {

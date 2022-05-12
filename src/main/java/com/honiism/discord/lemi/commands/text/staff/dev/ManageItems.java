@@ -17,47 +17,43 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.commands.slash.staff.admins;
+package com.honiism.discord.lemi.commands.text.staff.dev;
 
 import java.util.HashMap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
+import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-public class ResetCurrData extends SlashCmd {
+public class ManageItems extends SlashCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
-    public ResetCurrData() {
-        setCommandData(Commands.slash("resetcurrdata", "Reset a user's currency data.")
-                .addOption(OptionType.USER, "user", "The user you want to reset.", true)
-        );
-
-        setUsage("/admins resetcurrdata <user>");
-        setCategory(CommandCategory.ADMINS);
-        setUserCategory(UserCategory.ADMINS);
+    public ManageItems() {
+        setCommandData(Commands.slash("manageitems", "Remove items from the database."));
+        setUsage("/manageitems ((subcommands))");
+        setCategory(CommandCategory.DEV);
+        setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
+    public void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException {
         InteractionHook hook = event.getHook();
         User author = event.getUser();
         
@@ -67,27 +63,26 @@ public class ResetCurrData extends SlashCmd {
             timeDelayed = (10 * 1000);
         }
             
-        if (timeDelayed >= (10 * 1000)) {
+        if (timeDelayed >= (10 * 1000)) {        
             if (delay.containsKey(author.getIdLong())) {
                 delay.remove(author.getIdLong());
             }
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Member member = event.getOption("user", OptionMapping::getAsMember);
+            String itemName = event.getOption("item_name", OptionMapping::getAsString);
 
-            if (member == null) {
-                hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
+            if (!Items.checkIfItemExists(itemName)) {
+                hook.sendMessage(":snowflake: This item doesn't exist in the database.").queue();
                 return;
             }
 
-            setUserDataManager(member.getIdLong());
+            if (Items.getItemByName(itemName) != null) {
+                hook.sendMessage(":tulip: You haven't removed this item in the internal list manually.").queue();
+                return;
+            }
 
-            UserDataManager dataManager = getUserDataManager();
-
-            dataManager.removeData();
-
-            hook.sendMessage(":tulip: Successfully reset the user's data.").queue();
+            LemiDbBalManager.INS.removeItemFromUsers(itemName.replaceAll(" ", "_"), hook);
 
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
@@ -95,11 +90,10 @@ public class ResetCurrData extends SlashCmd {
             EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
                 .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() 
-                        + ", you can use this command again in `" + time + "`.")
+                        + author.getAsMention() + ", you can use this command again in `" + time + "`.")
                 .setColor(0xffd1dc);
                 
             hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
-        }       
-    }    
+        }
+    }
 }
