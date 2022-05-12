@@ -175,25 +175,7 @@ public class Compile extends SlashCmd {
                         hook.editOriginal("Here's your result! :cherries:").setEmbeds(resultEmbed.build()).queue();
 
                     } catch (IOException | InterruptedException e) {
-                        log.error("\r\nSomething went wrong while trying to "
-                                + "get the code output.\r\n"
-                                + "Location : commands.staff.developer.Compile\r\n"
-                                + "Error : IOException" + "\r\n"
-                                + "\r\n");
-
-                        e.printStackTrace();
-
-                        hook.sendMessage("--------------------------\r\n" 
-                                + "**Something went wrong while trying to "
-                                + "get the code output. :no_entry:**\r\n"
-                                + "Location : commands.staff.developer.Compile\r\n"
-                                + "Error : IOException\r\n"
-                                + "--------------------------\r\n"
-                                + "```\r\n"
-                                + "Message : " + e.getMessage() + "\r\n"
-                                + "Cause : " + e.getCause() + "\r\n"
-                                + "```")
-                            .queue();
+                        Tools.sendError("get the code output", "IOException", log, hook, e);
                     }
                 },
                 1L, TimeUnit.MINUTES,

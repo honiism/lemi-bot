@@ -115,4 +115,5 @@ public class Emojis {
     public static final String CHECK_MARK = "\u2705";
     public static final String CROSS_MARK = "\u274E";
     public static final String TRASH_BIN = "uD83D\uDDD1";
+    public static final String COIN = ":coin:";
 }

@@ -29,8 +29,8 @@ import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmdManager;
-import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
+import com.honiism.discord.lemi.utils.misc.Emojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.honiism.discord.lemi.utils.paginator.EmbedPaginator;
 
@@ -90,14 +90,14 @@ public class Help extends SlashCmd {
                             + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
                             + ":sunflower: Don't include the category names when you're trying to " 
                             + "**search for a command and don't include the slashes and the command's category!**\r\n"
-                            + CustomEmojis.PINK_CHECK_MARK + " `balance`\r\n"
-                            + CustomEmojis.PINK_CROSS_MARK + " `currency balance`\r\n"
-                            + CustomEmojis.PINK_CROSS_MARK + " `/balance`\r\n"
-                            + CustomEmojis.PINK_CROSS_MARK + " `/currency balance`\r\n"
+                            + Emojis.CHECK_MARK + " `balance`\r\n"
+                            + Emojis.CROSS_MARK + " `currency balance`\r\n"
+                            + Emojis.CROSS_MARK + " `/balance`\r\n"
+                            + Emojis.CROSS_MARK + " `/currency balance`\r\n"
                             + "-\r\n"
                             + ":seedling: You can also get a category help menu!\r\n"
-                            + CustomEmojis.PINK_CHECK_MARK + " `fun`\r\n"
-                            + CustomEmojis.PINK_CROSS_MARK + " `/fun`")
+                            + Emojis.CHECK_MARK + " `fun`\r\n"
+                            + Emojis.CROSS_MARK + " `/fun`")
                         .queue();
                     return;
                 }

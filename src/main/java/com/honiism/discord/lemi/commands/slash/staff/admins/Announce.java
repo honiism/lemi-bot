@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.misc.CustomEmojis;
+import com.honiism.discord.lemi.utils.misc.Emojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -106,7 +106,7 @@ public class Announce extends SlashCmd {
             boolean doCrosspot = event.getOption("publishable", false, OptionMapping::getAsBoolean);
 
             if (roleToMention != null) {
-                newsChannel.sendMessage(CustomEmojis.EXCLAMATION_MARK + " " + roleToMention.getAsMention())
+                newsChannel.sendMessage(Emojis.EXCLAMATION_MARK + " " + roleToMention.getAsMention())
                     .setEmbeds(announceEmbed.build())
                     .queue((msg) -> {
                         if (doCrosspot) {

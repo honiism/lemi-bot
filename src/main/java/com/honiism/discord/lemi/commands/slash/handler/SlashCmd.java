@@ -28,7 +28,6 @@ import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.data.UserDataManager;
 import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
-import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -209,21 +208,21 @@ public abstract class SlashCmd {
         EmbedBuilder helpEmbed = new EmbedBuilder()
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
                     + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
-            .addField(":sunflower: **Name**" + CustomEmojis.PINK_DASH, "`" + getName() + "`", false)
-            .addField(":crescent_moon: **Description**" + CustomEmojis.PINK_DASH, "`" + getDesc() + "`", false)
-            .addField(":seedling: **Usage**" + CustomEmojis.PINK_DASH, "`" + getUsage() + "`\r\n"  
+            .addField(":sunflower: **Name**" + " !! ", "`" + getName() + "`", false)
+            .addField(":crescent_moon: **Description**" + " !! ", "`" + getDesc() + "`", false)
+            .addField(":seedling: **Usage**" + " !! ", "`" + getUsage() + "`\r\n"  
                     + "\r\n`[] : Optional argument(s).`\r\n"
                     + "`<> : Required argument(s).`\r\n"
                     + "`((. . .)) : pick the options given.`", false)
-            .addField(":butterfly: **Other usages**" + CustomEmojis.PINK_DASH,
+            .addField(":butterfly: **Other usages**" + " !! ",
                     "`" + String.join(", ", slashCmdManagerIns.getCmdNamesByCategory(
                             slashCmdManagerIns.getCmdByCategory(getCategory()))) 
                     + "`", false)
-            .addField(":cherry_blossom: **Category**" + CustomEmojis.PINK_DASH, "`" + getCategoryString() + "`", false)
-            .addField(":grapes: **User category**" + CustomEmojis.PINK_DASH, "`" + getUserCategoryString() + "`", false)
-            .addField(":strawberry: **User permissions needed**" + CustomEmojis.PINK_DASH,
+            .addField(":cherry_blossom: **Category**" + " !! ", "`" + getCategoryString() + "`", false)
+            .addField(":grapes: **User category**" + " !! ", "`" + getUserCategoryString() + "`", false)
+            .addField(":strawberry: **User permissions needed**" + " !! ",
                     "`" + getUserPermsString() + "`", false)
-            .addField(":cake: **Bot permissions needed**" + CustomEmojis.PINK_DASH,
+            .addField(":cake: **Bot permissions needed**" + " !! ",
                     "`" + getBotPermsString() + "`", false)
             .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
             .setColor(0xffd1dc);
@@ -237,21 +236,21 @@ public abstract class SlashCmd {
         EmbedBuilder helpEmbed = new EmbedBuilder()
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
                     + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
-            .addField(":sunflower: **Name**" + CustomEmojis.PINK_DASH, "`" + getName() + "`", false)
-            .addField(":crescent_moon: **Description**" + CustomEmojis.PINK_DASH, "`" + getDesc() + "`", false)
-            .addField(":seedling: **Usage**" + CustomEmojis.PINK_DASH, "`" + getUsage() + "`\r\n"  
+            .addField(":sunflower: **Name**" + " !! ", "`" + getName() + "`", false)
+            .addField(":crescent_moon: **Description**" + " !! ", "`" + getDesc() + "`", false)
+            .addField(":seedling: **Usage**" + " !! ", "`" + getUsage() + "`\r\n"  
                     + "\r\n`[] : Optional argument(s).`\r\n"
                     + "`<> : Required argument(s).`\r\n"
                     + "`((. . .)) : pick the options given.`", false)
-            .addField(":butterfly: **Other usages**" + CustomEmojis.PINK_DASH,
+            .addField(":butterfly: **Other usages**" + " !! ",
                     "`" + String.join(", ", slashCmdManagerIns.getCmdNamesByCategory(
                             slashCmdManagerIns.getCmdByCategory(getCategory()))) 
                     + "`", false)
-            .addField(":cherry_blossom: **Category**" + CustomEmojis.PINK_DASH, "`" + getCategoryString() + "`", false)
-            .addField(":grapes: **User category**" + CustomEmojis.PINK_DASH, "`" + getUserCategoryString() + "`", false)
-            .addField(":strawberry: **User permissions needed**" + CustomEmojis.PINK_DASH,
+            .addField(":cherry_blossom: **Category**" + " !! ", "`" + getCategoryString() + "`", false)
+            .addField(":grapes: **User category**" + " !! ", "`" + getUserCategoryString() + "`", false)
+            .addField(":strawberry: **User permissions needed**" + " !! ",
                     "`" + getUserPermsString() + "`", false)
-            .addField(":cake: **Bot permissions needed**" + CustomEmojis.PINK_DASH,
+            .addField(":cake: **Bot permissions needed**" + " !! ",
                     "`" + getBotPermsString() + "`", false)
             .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
             .setColor(0xffd1dc);

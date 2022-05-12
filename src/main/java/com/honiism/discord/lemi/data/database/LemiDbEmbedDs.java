@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
@@ -187,36 +186,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                 }
             }
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "show an embed from the database.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            channel.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "show an embed from the database. :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "show an embed from the database. :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("show an embed from the database.", "SQLException", log, channel, e);
         }
     }
     
@@ -251,36 +221,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                 }
             }
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "show an embed from the database.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "show an embed from the database. :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "show an embed from the database. :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("show an embed from the database.", "SQLException", log, e);
         }
     }
     
@@ -321,36 +262,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                     .queue(message -> builder.build().paginate(message, page));
             }
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "show the embed list from the database.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "show the embed list from the database. :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "show the embed list from the database. :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("show the embed list from the database.", "SQLException", log, hook, e);
         }
     }
     
@@ -384,36 +296,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
     	    }
                 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "remove an embed from the database.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "remove an embed from the database. :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "remove an embed from the database. :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("remove an embed from the database.", "SQLException", log, hook, e);
         }
     }
     
@@ -544,36 +427,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
     	    }
                 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "register an embed to the database.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "register an embed to the database.**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "register an embed id to the database. :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("register an embed id to the database.", "SQLException", log, hook, e);
         }
     }
 
