@@ -53,13 +53,11 @@ public class Help extends SlashCmd {
                 .addOption(OptionType.INTEGER, "page", "Page of the help menu.", false)
                 .addOption(OptionType.STRING, "command_name", "The name of command/category.", false)
         );
-        
         setUsage("/help [page number]");
         setCategory(CommandCategory.MAIN);
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
     }
     
     @Override
@@ -106,7 +104,7 @@ public class Help extends SlashCmd {
                         || cmdName.equalsIgnoreCase("admins")
                         || cmdName.equalsIgnoreCase("mods"))
                         && !Tools.isAuthorMod(event.getMember(), event)) {
-                    hook.sendMessage(":tulip: Oops.. too bad! Can't open that menu.").queue();
+                    hook.sendMessage(":tulip: Oops.. too bad! Can't open that menu for you.").queue();
                     return;
                 }
 
