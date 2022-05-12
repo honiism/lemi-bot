@@ -8,8 +8,7 @@ assignees: ''
 ---
 
 ## 🌊 Feature Request Details
-- Please provide some details about your idea for the feature request below!
-- [Support server](https://discord.gg/7fBW89kEm9)
+- Please provide some details about your idea for the feature request below!\
 
 ## 🌸 General Info
 - [ ] I have looked through the support server's announcement for similar features.
