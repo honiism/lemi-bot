@@ -44,6 +44,7 @@ import me.duncte123.botcommons.StringUtils;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -153,6 +154,27 @@ public class Tools {
         e.printStackTrace();
 
         hook.sendMessage("--------------------------\r\n" 
+                + "Something went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n"
+                + "--------------------------\r\n"
+                + "```\r\n"
+                + "Message : " + e.getMessage() + "\r\n"
+                + "Cause : " + e.getCause() + "\r\n"
+                + "```")
+            .queue();
+    }
+
+    public static void sendError(String content, String errorName, Logger log, Message message, Exception e) {
+        log.error("\r\nSomething went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n");
+
+        e.printStackTrace();
+
+        message.reply("--------------------------\r\n" 
                 + "Something went wrong while trying to "
                 + content + "\r\n"
                 + "Error: " + errorName + "\r\n"

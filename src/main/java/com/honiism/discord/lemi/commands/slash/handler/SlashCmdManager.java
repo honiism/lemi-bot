@@ -126,6 +126,12 @@ public class SlashCmdManager {
         guild.updateCommands().queue();
     }
 
+    public void clearGlobalCmds() {
+        Lemi.getInstance().getShardManager().getShards().get(0)
+            .updateCommands()
+            .queue();
+    }
+
     public List<SlashCmd> getAllCmds() {
         return allSubTopCmds;
     }
@@ -180,7 +186,7 @@ public class SlashCmdManager {
         SlashCmd slashCmd = commandsMap.get(executedCmdName);
 
         if (slashCmd != null) {
-            slashCmd.executeAction(event);
+            slashCmd.preAction(event);
         }
     }
 

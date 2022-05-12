@@ -50,23 +50,8 @@ public abstract class SlashCmd {
     private Permission[] botPermissions = new Permission[0];
     private UserDataManager userDataManager;
 
-    public void executeAction(SlashCommandInteractionEvent event) {
+    public void preAction(SlashCommandInteractionEvent event) {
         Member member = event.getMember();
-
-        if (getUserCategory().equals(UserCategory.DEV) 
-                && !Tools.isAuthorDev(member)) {
-            return;
-        }
-
-        if (getUserCategory().equals(UserCategory.ADMINS) 
-                && !Tools.isAuthorAdmin(member, event)) {
-            return;
-        }
-
-        if (getUserCategory().equals(UserCategory.MODS) 
-                && !Tools.isAuthorMod(member, event)) {
-            return;
-        }
 
         if (getUserPerms().length > 0 && !member.hasPermission(getUserPerms())) {
             EmbedBuilder needUserPermsMsg = new EmbedBuilder()
@@ -85,7 +70,7 @@ public abstract class SlashCmd {
             EmbedBuilder needUserPermsMsg = new EmbedBuilder()
                 .setDescription(":cherries: **WAIT!**\r\n"
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + member.getAsMention() + "\r\n" 
-                        + getBotPermsString())
+                        + "> I don't have the " + getBotPermsString())
                 .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
 
@@ -159,7 +144,7 @@ public abstract class SlashCmd {
             return "No bot permissions needed.";
         }
         return Tools.parsePerms(botPermissions)
-        + (botPermissions.length > 1 ? " permissions" : " permission");
+                + (botPermissions.length > 1 ? " permissions" : " permission");
     }
 
     public void setUserPerms(Permission[] userPermissions) {
