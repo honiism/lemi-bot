@@ -83,9 +83,19 @@ public class MessageListener extends ListenerAdapter {
         }
 
         String raw = event.getMessage().getContentRaw();
+        String prefix = Config.get("prefix");
+
+        if (raw.startsWith(prefix)) {
+            Lemi.getInstance().getTextCmdManager().handle(event, prefix);
+        } else if (raw.toLowerCase().startsWith(Config.get("prefix"))) {
+            Lemi.getInstance().getTextCmdManager().handle(event, Config.get("prefix"));
+        } else if (raw.startsWith(guild.getSelfMember().getAsMention())) {
+            Lemi.getInstance().getTextCmdManager().handle(event, guild.getSelfMember().getAsMention());
+        }
+
+        // TODO: temporary, delete later when converted to cmds
         String[] split = raw.replaceFirst(Config.get("prefix"), "").split("\\s+");
         List<String> args = Arrays.asList(split).subList(1, split.length);
-
         MessageChannel channel = event.getChannel();
 
         if (raw.equalsIgnoreCase(Config.get("prefix") + "shutdown") && Tools.isAuthorDev(member)) {

@@ -27,6 +27,7 @@ import javax.security.auth.login.LoginException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmdManager;
+import com.honiism.discord.lemi.commands.text.handler.TextCmdManager;
 import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.listeners.BaseListener;
 import com.honiism.discord.lemi.listeners.CustomEmbedListener;
@@ -59,6 +60,7 @@ public class Lemi {
     private final ExecutorService cmdExecService;
     private final EventWaiter waiter;
     private final SlashCmdManager slashCmdManager;
+    private final TextCmdManager textCmdManager;
     private final EmbedTools embedTools;
     private final ObjectMapper objectMapper;
 
@@ -71,6 +73,7 @@ public class Lemi {
         
         waiter = new EventWaiter();
         slashCmdManager = new SlashCmdManager();
+        textCmdManager = new TextCmdManager();
         embedTools = new EmbedTools();
         objectMapper = new ObjectMapper();
 
@@ -175,6 +178,10 @@ public class Lemi {
 
     public SlashCmdManager getSlashCmdManager() {
         return slashCmdManager;
+    }
+
+    public TextCmdManager getTextCmdManager() {
+        return textCmdManager;
     }
     
     public boolean isDebug() {
