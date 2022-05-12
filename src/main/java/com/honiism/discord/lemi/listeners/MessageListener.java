@@ -19,8 +19,12 @@
 
 package com.honiism.discord.lemi.listeners;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
+import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import org.slf4j.Logger;
@@ -29,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -70,7 +75,6 @@ public class MessageListener extends ListenerAdapter {
 
         if (!guildId.equals(Config.getLong("honeys_hive"))
                 && !guildId.equals(Config.getLong("test_server"))) {
-            guild.leave().queue();
             return;
         }
 
@@ -79,11 +83,15 @@ public class MessageListener extends ListenerAdapter {
         }
 
         String raw = event.getMessage().getContentRaw();
+        String[] split = raw.replaceFirst(Config.get("prefix"), "").split("\\s+");
+        List<String> args = Arrays.asList(split).subList(1, split.length);
 
-        if (raw.equalsIgnoreCase("lemi emergency shutdown") && Tools.isAuthorDev(member)) {
+        MessageChannel channel = event.getChannel();
+
+        if (raw.equalsIgnoreCase(Config.get("prefix") + "shutdown") && Tools.isAuthorDev(member)) {
             log.info(member.getUser().getAsTag() + "(" + member.getIdLong() + ") initiated emergency shutdown!");
 			
-            event.getChannel().sendMessage("Shutting down. . .").queue();
+            channel.sendMessage("Shutting down. . .").queue();
         	
             Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	.getTextChannelById(Config.get("logs_channel_id"))
@@ -91,6 +99,77 @@ public class MessageListener extends ListenerAdapter {
         	.queue();
         	
             Lemi.getInstance().shutdown();
+
+        } else if (raw.equalsIgnoreCase(Config.get("prefix") + "reload") && Tools.isAuthorDev(member)) {
+            Lemi.getInstance().getSlashCmdManager().reloadGlobalCmds();
+            channel.sendMessage("Commands are now reloading, they should appear within an hour or so.").queue();
+
+        } else if (raw.equalsIgnoreCase(Config.get("prefix") + "greload") && Tools.isAuthorDev(member)) {
+            if (args.isEmpty()) {
+                Lemi.getInstance().getSlashCmdManager().reloadGuildCmds(guild);
+                channel.sendMessage("Commands are now reloaded for this guild only!").queue();
+            } else {
+                String id = args.get(0);
+                Guild target = Lemi.getInstance().getShardManager().getGuildById(id);
+
+                Lemi.getInstance().getSlashCmdManager().reloadGuildCmds(target);
+
+                channel.sendMessage("Commands are now reloaded!").queue();
+            }
+
+        } else if (raw.equalsIgnoreCase(Config.get("prefix") + "upsertcmd") && Tools.isAuthorDev(member)) {
+            if (args.isEmpty()) {
+                channel.sendMessage("Please include a command name.").queue();
+                return;
+            }
+
+            String cmdName = args.get(0);
+            SlashCmd cmd = Lemi.getInstance().getSlashCmdManager().getCmdByName(cmdName);
+
+            if (cmd == null) {
+                channel.sendMessage("Invalid command name").queue();
+                return;
+            }
+            
+            Lemi.getInstance().getSlashCmdManager().upsertGlobal(cmd.getCommandData());
+            channel.sendMessage("Upserted a global command.").queue();
+
+        } else if (raw.equalsIgnoreCase(Config.get("prefix") + "gupsertcmd") && Tools.isAuthorDev(member)) {
+            if (args.isEmpty()) {
+                channel.sendMessage("Please include a command name.").queue();
+                return;
+            }
+
+            String cmdName = args.get(0);
+            SlashCmd cmd = Lemi.getInstance().getSlashCmdManager().getCmdByName(cmdName);
+
+            if (cmd == null) {
+                channel.sendMessage("Invalid command name").queue();
+                return;
+            }
+
+            if (args.get(1).equals(null)) {
+                Lemi.getInstance().getSlashCmdManager().upsertGuild(guild, cmd.getCommandData());
+                channel.sendMessage("Upserted a guild cmd to this guild.").queue();
+            } else {
+                String id = args.get(1);
+                Guild target = Lemi.getInstance().getShardManager().getGuildById(id);
+
+                Lemi.getInstance().getSlashCmdManager().upsertGuild(target, cmd.getCommandData());
+                channel.sendMessage("Upserted a guild cmd to target guild.").queue();
+            }
+
+        } else if (raw.equalsIgnoreCase(Config.get("prefix") + "gclearcmds") && Tools.isAuthorDev(member)) {
+            if (args.isEmpty()) {
+                Lemi.getInstance().getSlashCmdManager().clearGuildCmds(guild);
+                channel.sendMessage("Cleared this guild's commads").queue();
+            } else {
+                String id = args.get(0);
+                Guild target = Lemi.getInstance().getShardManager().getGuildById(id);
+
+                Lemi.getInstance().getSlashCmdManager().clearGuildCmds(target);
+                channel.sendMessage("Cleared target guild's commads").queue();
+            }
         }
     }
 }

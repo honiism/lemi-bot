@@ -40,12 +40,6 @@ public class GuildListener extends ListenerAdapter {
     @Override
     public void onGuildReady(GuildReadyEvent event) {
         Guild guild = event.getGuild();
-        Long guildId = guild.getIdLong();
-
-        if (!guildId.equals(Config.getLong("honeys_hive"))) {
-            return;
-        }
-        
         LemiDbManager.INS.insertGuildSettings(guild);
     }
 
@@ -71,8 +65,6 @@ public class GuildListener extends ListenerAdapter {
             .getTextChannelById(Config.get("logs_channel_id"))
             .sendMessage(joinedLogMsg)
 	    .queue();
-
-        guild.leave().queue();
     }
 
     @Override
@@ -107,17 +99,14 @@ public class GuildListener extends ListenerAdapter {
                         (channel) -> {
                             channel.sendMessage("HONEY'S HIVE GUILD HAS FAILED TO LOAD!").queue();
                             log.error("HONEY'S HIVE GUILD HAS FAILED TO LOAD!");
-                        },
-                        (error) -> {
-                            log.error("HONEY'S HIVE GUILD HAS FAILED TO LOAD!");
                         }
                     );
                 }
             );
         } else {
             String logMessage = "A guild has failed to load and timeout.\r\n"
-                + "Guild id : " + event.getGuildId() + "\r\n"
-                + "Response number : " + event.getResponseNumber();
+                + "Guild id: " + event.getGuildId() + "\r\n"
+                + "Response number: " + event.getResponseNumber();
 
             log.error(logMessage);
         
