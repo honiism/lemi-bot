@@ -20,38 +20,35 @@
 package com.honiism.discord.lemi.commands.text.staff.dev;
 
 import java.util.HashMap;
+import java.util.List;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
+import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class SetDebug extends SlashCmd {
+public class SetDebug extends TextCmd {
 
     private static final Logger log = LoggerFactory.getLogger(SetDebug.class);
+    
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public SetDebug() {
-        setCommandData(Commands.slash("setdebug", "Toggle debug mode for Lemi.")
-                .addOption(OptionType.BOOLEAN, "value", "Set the debug mode, true = on | false = off", true)
-        );
-
-        setUsage("/dev compile <true|false>");
+        setName("setdebug");
+        setDesc("Toggle debug mode for Lemi.");
+        setUsage("compile <true|false>");
         setCategory(CommandCategory.DEV);
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
@@ -59,9 +56,9 @@ public class SetDebug extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
 
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -76,13 +73,25 @@ public class SetDebug extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            boolean debugValue = event.getOption("value", OptionMapping::getAsBoolean);
+            List<String> args = ctx.getArgs();
+
+            if (args.isEmpty()) {
+                event.getMessage().reply(":grapes: Usage: `" + getUsage() + "`!").queue();
+                return;
+            }
+
+            if (!args.get(0).equals("true") && !args.get(0).equals("false")) {
+                event.getMessage().reply(":grapes: Only `true` or `false values.").queue();
+                return;
+            }
+
+            boolean debugValue = Boolean.parseBoolean(args.get(0));
 
             Lemi.getInstance().setDebug(debugValue);
 
             String logMsg = "Successfully toggled debug mode to " + (debugValue ? "on" : "off") + "!";
 
-            hook.sendMessage(":tulip: " + logMsg).queue();
+            event.getMessage().reply(":tulip: " + logMsg).queue();
             log.info(logMsg);
 
             Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
@@ -92,14 +101,11 @@ public class SetDebug extends SlashCmd {
         } else {
             String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);
                 
-            EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
-                .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() 
-                        + ", you can use this command again in `" + time + "`.")
-                .setColor(0xffd1dc);
-                
-            hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
+            event.getMessage().replyEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
+                    + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
+                    + author.getAsMention() 
+                    + ", you can use this command again in `" + time + "`."))
+                .queue();
         }        
     }    
 }

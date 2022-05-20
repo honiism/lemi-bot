@@ -27,55 +27,39 @@ import java.util.concurrent.TimeUnit;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
 import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.utils.buttons.Paginator;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
-import com.honiism.discord.lemi.utils.paginator.Paginator;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class ModifyAdmins extends SlashCmd {
+public class ModifyAdmins extends TextCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public ModifyAdmins() {
-        setCommandData(Commands.slash("modifyadmins", "Add/remove/view user(s) to/from the administrator database.")
-                .addSubcommands(
-                        new SubcommandData("add", "Add a user's key in the official administrator list.")
-                                .addOption(OptionType.USER, "user", "The user you want to add.", true)
-                                .addOption(OptionType.STRING, "key", "The key that will be assigned for this user.", true),
-  
-                        new SubcommandData("remove", "Remove a user from the official administrator list.")
-                                .addOption(OptionType.USER, "user", "The user you want to remove.", true),
-
-                        new SubcommandData("view", "View all details from the official administrator list.")
-                )
-        );
-
-        setUsage("/dev modifyadmins ((subcommands))");
+        setName("modifyadmins");
+        setDesc("Add/remove/view user(s) to/from the administrator database.");
+        setUsage("modifyadmins add <user_id> <key>\r\n"
+                + "modifyadmins remove <user_id>\r\n"
+                + "modifyadmins view");
         setCategory(CommandCategory.DEV);
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
         Guild guild = event.getGuild();
         
         if (delay.containsKey(author.getIdLong())) {
@@ -90,31 +74,68 @@ public class ModifyAdmins extends SlashCmd {
             }
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
+            
+            List<String> args = ctx.getArgs();
 
-            String subCmdName = event.getSubcommandName();
+            if (args.isEmpty()) {
+                event.getMessage().reply(":cherry_blossom: Usage: \r\n`" + getUsage() + "`!").queue();
+                return;
+            }
 
-            switch (subCmdName) {
+            String actionName = args.get(0);
+            long targetId;
+
+            switch (actionName) {
                 case "add":
-                    Member targetMember = event.getOption("user", OptionMapping::getAsMember);
-                    String adminKey = event.getOption("key", OptionMapping::getAsString);
-
-                    if (targetMember == null) {
-                        hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
+                    if (args.size() < 2) {
+                        event.getMessage().reply(":cherry_blossom: Usage: `l.modifyadmins add <user_id> <key>`!").queue();
                         return;
                     }
 
-                    LemiDbManager.INS.addAdminId(guild, targetMember, adminKey, event);
+                    if (!Tools.isInt(args.get(1))) {
+                        event.getMessage().reply(":crescent_moon: `<user_id>` must be a valid user id number.").queue();
+                        return;
+                    }
+
+                    if (!args.get(2).contains("admin")) {
+                        event.getMessage().reply(":strawberry: `<key>` must contain the word \"admin\".").queue();
+                        return;
+                    }
+                    
+                    targetId = Long.parseLong(args.get(1));
+                    String adminKey = args.get(2);
+
+                    guild.retrieveMemberById(targetId).queue(
+                        (targetMember) -> {
+                            LemiDbManager.INS.addAdminId(guild, targetMember, adminKey, event);
+                        },
+                        (empty) -> {
+                            event.getMessage().reply(":grapes: That user doesn't exist in the guild.").queue();
+                        }
+                    );
                     break;
 
                 case "remove":
-                    targetMember = event.getOption("user", OptionMapping::getAsMember);
-
-                    if (targetMember == null) {
-                        hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
+                    if (args.isEmpty()) {
+                        event.getMessage().reply(":cherry_blossom: Usage: `l.modifyadmins remove <user_id>`!").queue();
                         return;
                     }
 
-                    LemiDbManager.INS.removeAdminId(guild, targetMember, event);
+                    if (!Tools.isInt(args.get(1))) {
+                        event.getMessage().reply(":crescent_moon: `<user_id>` must be a valid user id number.").queue();
+                        return;
+                    }
+
+                    targetId = Long.parseLong(args.get(1));
+
+                    guild.retrieveMemberById(targetId).queue(
+                        (targetMember) -> {
+                            LemiDbManager.INS.removeAdminId(guild, targetMember, event);
+                        },
+                        (empty) -> {
+                            event.getMessage().reply(":grapes: That user doesn't exist in the guild.").queue();
+                        }
+                    );
                     break;
 
                 case "view":
@@ -125,18 +146,15 @@ public class ModifyAdmins extends SlashCmd {
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
                 
-            EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
-                .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() + ", you can use this command again in `" + time + "`.")
-                .setColor(0xffd1dc);
-                
-            hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
+            event.getMessage().replyEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
+                    + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
+                    + author.getAsMention() 
+                    + ", you can use this command again in `" + time + "`."))
+                .queue();
         }
     }
 
-    private void viewAllIds(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    private void viewAllIds(MessageReceivedEvent event) {
         List<String> adminDetails = new ArrayList<>();
         List<Long> adminIds = LemiDbManager.INS.getAdminIds();
         List<String> adminKeys = LemiDbManager.INS.getAdminKeys();
@@ -148,7 +166,7 @@ public class ModifyAdmins extends SlashCmd {
         }
 
         if (Tools.isEmpty(adminDetails)) {
-            hook.editOriginal(":tulip: There's no admins.").queue();
+            event.getMessage().reply(":tulip: There's no admins.").queue();
             return;
         }
 
@@ -159,17 +177,17 @@ public class ModifyAdmins extends SlashCmd {
             .setItems(adminDetails)
             .useNumberedItems(true)
             .useTimestamp(true)
-            .addAllowedUsers(event.getUser().getIdLong())
+            .addAllowedUsers(event.getAuthor().getIdLong())
             .setColor(0xffd1dc)
             .setTimeout(1, TimeUnit.MINUTES);
 
         int page = 1;
 
-        event.getUser().openPrivateChannel().queue((privChannel) -> {
+        event.getAuthor().openPrivateChannel().queue((privChannel) -> {
             privChannel.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":seedling: Loading..."))
                 .queue(message -> builder.build().paginate(message, page));
         });
 
-        hook.editOriginal(":snowflake: Sent you the details.").queue();
+        event.getMessage().reply(":snowflake: Sent you the details.").queue();
     }
 }

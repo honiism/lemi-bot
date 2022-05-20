@@ -37,7 +37,9 @@ public class BaseListener extends ListenerAdapter {
         Lemi.getInstance().setJDA(event.getJDA());
         
         Lemi.getInstance().getJDA().addEventListener(new SlashCmdListener());
+
         Lemi.getInstance().getSlashCmdManager().initialize();
+        Lemi.getInstance().getTextCmdManager().initialize();
         
         log.info("{} is now online and all set up! (Shard : {} / {})",
                 event.getJDA().getSelfUser().getAsTag(),

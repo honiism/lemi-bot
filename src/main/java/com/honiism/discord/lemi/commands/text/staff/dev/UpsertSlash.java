@@ -22,30 +22,35 @@ package com.honiism.discord.lemi.commands.text.staff.dev;
 import java.util.HashMap;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
+import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import com.honiism.discord.lemi.commands.text.handler.CommandContext;
 import com.honiism.discord.lemi.commands.text.handler.TextCmd;
-import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
-import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class ManageItems extends TextCmd {
+public class UpsertSlash extends TextCmd {
+
+    private static final Logger log = LoggerFactory.getLogger(Shutdown.class);
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
-    public ManageItems() {
-        setName("deleteitem");
-        setDesc("Delete an item from ALL users.");
-        setUsage("deleteitem <item_id>");
+    public UpsertSlash() {
+        setName("upsert");
+        setDesc("Upserts a single slash command.");
+        setAliases(new String[] {"upsertslash", "upsertcmd"});
+        setUsage("reload <is global commands (true|false)> <cmd_name>");
         setCategory(CommandCategory.DEV);
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
@@ -53,17 +58,17 @@ public class ManageItems extends TextCmd {
     }
 
     @Override
-    public void action(CommandContext ctx) throws JsonMappingException, JsonProcessingException {
+    public void action(CommandContext ctx) {
         MessageReceivedEvent event = ctx.getEvent();
         User author = event.getAuthor();
-        
+
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
         } else {
             timeDelayed = (10 * 1000);
         }
             
-        if (timeDelayed >= (10 * 1000)) {        
+        if (timeDelayed >= (10 * 1000)) {
             if (delay.containsKey(author.getIdLong())) {
                 delay.remove(author.getIdLong());
             }
@@ -71,23 +76,50 @@ public class ManageItems extends TextCmd {
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
             List<String> args = ctx.getArgs();
-            
-            if (args.isEmpty()) {
-                event.getMessage().reply(":seedling: Usage: `" + getUsage() + "`!").queue();
+
+            if (args.size() > 2) {
+                event.getMessage().reply(":grapes: Usage: `" + getUsage() + "`!").queue();
                 return;
             }
 
-            String itemId = args.get(0);
-
-            if (!Items.checkIfItemExists(itemId)) {
-                event.getMessage().reply(":snowflake: This item doesn't exist.").queue();
+            if (!args.get(0).equals("true") && !args.get(0).equals("false")) {
+                event.getMessage().reply(":honey_pot: Only `true` or `false values.").queue();
                 return;
             }
 
-            LemiDbBalManager.INS.removeItemFromUsers(itemId, event.getMessage());
+            boolean isGlobal = Boolean.parseBoolean(args.get(0));
+            String cmdName = args.get(1);
+
+            if (isGlobal) {
+                SlashCmd cmd = Lemi.getInstance().getSlashCmdManager().getCmdByName(cmdName);
+
+                if (cmd == null) {
+                    event.getMessage().reply(":snowflake: That command doesn't exist.").queue();
+                    return;
+                }
+                
+                Lemi.getInstance().getSlashCmdManager().upsertGlobal(cmd.getCommandData());
+
+                event.getMessage().reply(":strawberries: Global " + cmdName + " has been upserted.").queue();
+                log.info("Global " + cmdName + " has been upserted.");
+            } else {
+                SlashCmd cmd = Lemi.getInstance().getSlashCmdManager().getCmdByName(cmdName);
+
+                if (cmd == null) {
+                    event.getMessage().reply(":snowflake: That command doesn't exist.").queue();
+                    return;
+                }
+
+                Guild guild = event.getGuild();
+                
+                Lemi.getInstance().getSlashCmdManager().upsertGuild(guild, cmd.getCommandData());
+
+                event.getMessage().reply(":strawberries: Guild " + cmdName + " has been upserted.").queue();
+                log.info("Guild " + cmdName + " has been upserted.");
+            }
 
         } else {
-            String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
+            String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);
                 
             event.getMessage().replyEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
                     + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
@@ -95,5 +127,5 @@ public class ManageItems extends TextCmd {
                     + ", you can use this command again in `" + time + "`."))
                 .queue();
         }
-    }
+    }   
 }

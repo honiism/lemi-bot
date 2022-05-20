@@ -37,6 +37,7 @@ import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.text.handler.CommandContext;
 import com.honiism.discord.lemi.commands.text.handler.TextCmd;
+import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 
@@ -91,6 +92,11 @@ public class Compile extends TextCmd {
                 return;
             }
 
+            if (!Tools.isInt(args.get(1))) {
+                event.getMessage().reply(":sunflower: `<version_index>` must be a valid number.").queue();
+                return;
+            }
+
             event.getMessage().reply(":coconut: Please type in your code in 1 minute!").queue((msg) -> {
                 String language = args.get(0);
                 String versionIndex = args.get(1);
@@ -107,14 +113,11 @@ public class Compile extends TextCmd {
         } else {
             String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);
                 
-            EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
-                .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() 
-                        + ", you can use this command again in `" + time + "`.")
-                .setColor(0xffd1dc);
-                
-            event.getMessage().replyEmbeds(cooldownMsgEmbed.build()).queue();
+            event.getMessage().replyEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
+                    + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
+                    + author.getAsMention() 
+                    + ", you can use this command again in `" + time + "`."))
+                .queue();
         }
     }
 
@@ -177,7 +180,7 @@ public class Compile extends TextCmd {
                             msg.editMessage("Here's your result! :cherries:").setEmbeds(resultEmbed.build()).queue();
 
                         } catch (IOException | InterruptedException ex) {
-                            Tools.sendError("get the code output", "IOException", log, event.getMessage(), ex);
+                            Tools.sendEditError("get the code output", "IOException", log, msg, ex);
                         }
                     });
                 },

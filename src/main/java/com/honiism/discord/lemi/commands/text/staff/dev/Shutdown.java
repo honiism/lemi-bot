@@ -19,28 +19,27 @@
 
 package com.honiism.discord.lemi.commands.text.staff.dev;
 
-import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class Shutdown extends SlashCmd {
+public class Shutdown extends TextCmd {
 
     private static final Logger log = LoggerFactory.getLogger(Shutdown.class);
 
     public Shutdown() {
-        setCommandData(Commands.slash("shutdown", "Shutsdown Lemi immediately."));
-        setUsage("/dev shutdown");
+        setName("shutdown");
+        setDesc("Shutsdown Lemi immediately");
+        setUsage("shutdown");
         setCategory(CommandCategory.DEV);
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
@@ -49,17 +48,11 @@ public class Shutdown extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
         
         log.info(author.getAsTag() + "(" + author.getIdLong() + ") initiated non-emergency shutdown!");
-                        
-        hook.getJDA().getShardManager().getGuildById(Config.get("honeys_hive"))
-            .getTextChannelById(Config.get("logs_channel_id"))
-            .sendMessage(author.getAsMention() + " **received non-emergency shutdown request. :bell:**")
-            .queue();
-
         Lemi.getInstance().shutdown();
     }   
 }

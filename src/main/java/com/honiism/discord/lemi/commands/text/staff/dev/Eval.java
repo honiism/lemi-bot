@@ -24,11 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
+import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 
@@ -36,15 +37,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import groovy.lang.GroovyShell;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-public class Eval extends SlashCmd {
+public class Eval extends TextCmd {
 
     private static final Logger log = LoggerFactory.getLogger(Eval.class);
 
@@ -73,19 +71,19 @@ public class Eval extends SlashCmd {
             );
 
     public Eval() {
-        setCommandData(Commands.slash("eval", "Evaluates some code."));
-        setUsage("/dev eval");
+        setName("eval");
+        setDesc("Evaluates some code.");
+        setUsage("eval");
         setCategory(CommandCategory.DEV);
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
 
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -101,9 +99,8 @@ public class Eval extends SlashCmd {
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
             engine.setProperty("event", event);
-            engine.setProperty("hook", hook);
             engine.setProperty("guild", event.getGuild());
-            engine.setProperty("author", event.getUser());
+            engine.setProperty("author", event.getAuthor());
             engine.setProperty("member", event.getMember());
             engine.setProperty("channel", event.getChannel());
             engine.setProperty("jda", event.getJDA());
@@ -113,61 +110,54 @@ public class Eval extends SlashCmd {
             engine.setProperty("selfmember", event.getGuild().getSelfMember());
             engine.setProperty("log", log);
 
-            hook.sendMessage(":rice_ball: Please send the code to evaluate within 1 minute!").queue();
-
-            waitAndEval(Lemi.getInstance().getEventWaiter(), hook);
+            event.getMessage().reply(":rice_ball: Please send the code to evaluate within 1 minute!")
+                .queue((msg) -> {
+                    waitAndEval(Lemi.getInstance().getEventWaiter(), event);
+                });
 
         } else {
             String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);
                 
-            EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
-                .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() 
-                        + ", you can use this command again in `" + time + "`.")
-                .setColor(0xffd1dc);
-                
-            hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
+            event.getMessage().replyEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
+                    + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
+                    + author.getAsMention() 
+                    + ", you can use this command again in `" + time + "`."))
+                .queue();
         }
     }
 
-    private void waitAndEval(EventWaiter waiter, InteractionHook hook) {
+    private void waitAndEval(EventWaiter waiter, MessageReceivedEvent event) {
+        Member member = event.getMember();
+
         waiter.waitForEvent(
                 MessageReceivedEvent.class,
 
-                (event) -> event.getAuthor().getIdLong() == hook.getInteraction().getMember().getIdLong()
-                        && event.isFromGuild()
-                        && event.getGuild().getIdLong() == Config.getLong("honeys_hive"),
+                (e) -> e.getAuthor().getIdLong() == member.getIdLong()
+                        && e.isFromGuild()
+                        && e.getGuild().getIdLong() == event.getGuild().getIdLong()
+                        && !e.getAuthor().isBot(),
 
-                (event) -> {
-                    hook.editOriginal("Your code is being evaluated, please wait... :coffee:").queue();
+                (e) -> {
+                    event.getMessage().reply("Your code is being evaluated, please wait... :coffee:").queue((msg) -> {
+                        String evalString = e.getMessage().getContentRaw().replaceAll("```", "");
 
-                    String evalString = event.getMessage().getContentRaw().replaceAll("```", "");
+                        StringBuilder toEval = new StringBuilder();
 
-                    StringBuilder toEval = new StringBuilder();
+                        imports.forEach(imp -> toEval.append("import " + imp + ".*;\n"));
+                        toEval.append(evalString);
 
-                    imports.forEach(imp -> toEval.append("import " + imp + ".*;\n"));
-                    toEval.append(evalString);
+                        try {
+                            Object output = engine.evaluate(toEval.toString());
 
-                    try {
-                        Object output = engine.evaluate(toEval.toString());
-
-                        hook.sendMessage(output == null ? ":cherry_blossom: Executed without error." : output.toString()).queue();
-                    } catch (Exception e) {
-                        hook.sendMessage("--------------------------\r\n" 
-                                + "**Something went wrong while trying to "
-                                + "evaluate the code :no_entry:**\r\n"
-                                + "--------------------------\r\n"
-                                + "```\r\n"
-                                + "Message : " + e.getMessage() + "\r\n"
-                                + "Cause : " + e.getCause() + "\r\n"
-                                + "```")
-        	            .queue();
-                    }
+                            msg.editMessage(output == null ? ":cherry_blossom: Executed without error." : output.toString()).queue();
+                        } catch (Exception ex) {
+                            Tools.sendEditError("evaluate the code", "?", log, msg, ex);
+                        }
+                    });
                 },
                 1L, TimeUnit.MINUTES,
                 () -> {
-                    hook.editOriginal("Operation cancelled due to timeout! :cloud:").queue();
+                    event.getMessage().reply("Operation cancelled due to timeout! :cloud:").queue();
                 }
         );
     }
