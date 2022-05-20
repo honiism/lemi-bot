@@ -77,7 +77,7 @@ public class UpsertSlash extends TextCmd {
 
             List<String> args = ctx.getArgs();
 
-            if (args.size() > 2) {
+            if (args.size() < 2) {
                 event.getMessage().reply(":grapes: Usage: `" + getUsage() + "`!").queue();
                 return;
             }
