@@ -1,9 +1,10 @@
 package com.honiism.discord.lemi.commands.text.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
+import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -23,6 +24,7 @@ public abstract class TextCmd {
     private UserCategory userCategory = UserCategory.USERS;
     private Permission[] userPermissions = new Permission[0];
     private Permission[] botPermissions = new Permission[0];
+    private UserDataManager userDataManager;
 
     public void preAction(CommandContext ctx) {
         MessageReceivedEvent event = ctx.getEvent();
@@ -70,14 +72,10 @@ public abstract class TextCmd {
             return;
         }
 
-        try {
-            action(ctx);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        action(ctx);
     }
 
-    public abstract void action(CommandContext ctx) throws JsonMappingException, JsonProcessingException;
+    public abstract void action(CommandContext ctx);
 
     public void setName(String name) {
         this.name = name;
@@ -165,6 +163,18 @@ public abstract class TextCmd {
 
     public String getUsage() {
         return usage;
+    }
+
+    public UserDataManager getUserDataManager() {
+        return userDataManager;
+    }
+
+    public void setUserDataManager(long userId) {
+        try {
+            this.userDataManager = new UserDataManager(userId, LemiDbBalManager.INS.getUserData(userId));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
     public MessageEmbed getHelp(MessageReceivedEvent event) {

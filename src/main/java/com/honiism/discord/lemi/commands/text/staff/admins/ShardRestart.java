@@ -20,38 +20,34 @@
 package com.honiism.discord.lemi.commands.text.staff.admins;
 
 import java.util.HashMap;
+import java.util.List;
 
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class ShardRestart extends SlashCmd {
+public class ShardRestart extends TextCmd  {
 
     private static final Logger log = LoggerFactory.getLogger(ShardRestart.class);
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public ShardRestart() {
-        setCommandData(Commands.slash("shardrestart", "Restart a shard if it gets stuck.")
-                .addOption(OptionType.INTEGER, "shard_id", "The shard id to restart", false)
-        );
-
-        setUsage("/admins shardrestart [shard id]");
+        setName("shardrestart");
+        setDesc("Restart a shard if it gets stuck.");
+        setUsage("shardrestart [shard id]");
         setCategory(CommandCategory.ADMINS);
         setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
@@ -60,9 +56,9 @@ public class ShardRestart extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
 
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -77,12 +73,17 @@ public class ShardRestart extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Integer shardId = event.getOption("shard_id", OptionMapping::getAsInt);
+            List<String> args = ctx.getArgs();
 
-            if (shardId == null) {
+            if (!args.isEmpty() && !Tools.isInt(args.get(0))) {
+                event.getMessage().reply(":crescent_moon: `[shard_id]` must be a valid id number.").queue();
+                return;
+            }
+
+            if (args.isEmpty()) {
                 log.info(author.getIdLong() + " is restarting all the shards.");
 
-                hook.sendMessage(":tulip: Restarting all the shards, see you in a bit :).").queue();
+                event.getMessage().reply(":tulip: Restarting all the shards, see you in a bit :).").queue();
 
                 Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
                     .getTextChannelById(Config.get("logs_channel_id"))
@@ -93,10 +94,12 @@ public class ShardRestart extends SlashCmd {
                         }
                     );
                         
-            } else if (shardId != null && shardId < Lemi.getInstance().getShardManager().getShardsTotal()) {
+            } else if (Integer.parseInt(args.get(0)) < Lemi.getInstance().getShardManager().getShardsTotal()) {
+                int shardId = Integer.parseInt(args.get(0));
+
                 log.info(author.getIdLong() + " is restarting the shard(" + shardId +").");
                 
-                hook.sendMessage(":tulip: Restarting the shard(" + shardId + "), see you in a bit :).").queue();
+                event.getMessage().reply(":tulip: Restarting the shard(" + shardId + "), see you in a bit :).").queue();
 
                 Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
                     .getTextChannelById(Config.get("logs_channel_id"))
@@ -106,7 +109,10 @@ public class ShardRestart extends SlashCmd {
                             Lemi.getInstance().getShardManager().restart(shardId);
                         }
                     );
-            }
+
+            } else {
+                event.getMessage().reply(":leaves: `[shard_id]` must be 1 less than the total shards.").queue();
+            }    
 
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);

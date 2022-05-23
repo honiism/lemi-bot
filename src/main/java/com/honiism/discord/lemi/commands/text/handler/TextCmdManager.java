@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.text.staff.admins.Announce;
 import com.honiism.discord.lemi.commands.text.staff.admins.Embed;
+import com.honiism.discord.lemi.commands.text.staff.admins.ResetCurrData;
+import com.honiism.discord.lemi.commands.text.staff.admins.ShardRestart;
+import com.honiism.discord.lemi.commands.text.staff.admins.UserBan;
 import com.honiism.discord.lemi.commands.text.staff.dev.ClearCmds;
 import com.honiism.discord.lemi.commands.text.staff.dev.Compile;
 import com.honiism.discord.lemi.commands.text.staff.dev.Eval;
@@ -108,5 +111,8 @@ public class TextCmdManager {
         // admins
         addCommand(new Announce());
         addCommand(new Embed());
+        addCommand(new ResetCurrData());
+        addCommand(new ShardRestart());
+        addCommand(new UserBan());
     }
 }

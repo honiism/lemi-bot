@@ -22,13 +22,13 @@ package com.honiism.discord.lemi.commands.text.staff.admins;
 import java.util.HashMap;
 import java.util.List;
 
-import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.text.handler.CommandContext;
 import com.honiism.discord.lemi.commands.text.handler.TextCmd;
 import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
-import com.honiism.discord.lemi.utils.misc.EmbedUtils;
+import com.honiism.discord.lemi.utils.embeds.EmbedTools;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.Permission;
@@ -49,7 +49,6 @@ public class Embed extends TextCmd {
         setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        
     }
 
     @Override
@@ -83,7 +82,7 @@ public class Embed extends TextCmd {
 
             switch (subCmdName) {
                 case "create":
-                    Lemi.getInstance().getEmbedTools().askForId(event.getAuthor(), event.getTextChannel(), event);
+                    new EmbedTools().askForId(event.getAuthor(), event.getTextChannel(), event);
                     break;
 
                 case "remove":

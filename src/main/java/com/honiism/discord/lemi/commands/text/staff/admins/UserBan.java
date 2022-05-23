@@ -27,43 +27,26 @@ import java.util.concurrent.TimeUnit;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
 import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.buttons.Paginator;
-import com.honiism.discord.lemi.utils.misc.EmbedUtils;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class UserBan extends SlashCmd {
+public class UserBan extends TextCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public UserBan() {
-        setCommandData(Commands.slash("userban", "Bans a user from using Lemi bot.")
-                .addSubcommands(
-                        new SubcommandData("add", "Ban a user from using Lemi.")
-                                .addOption(OptionType.USER, "user", "The user you want to ban.", true)
-                                .addOption(OptionType.STRING, "reason", "The reason why they're getting banned.", true),
-
-                        new SubcommandData("remove", "Unban a previously banned user.")
-                                .addOption(OptionType.USER, "user", "The user you want to unban.", true),
-
-                        new SubcommandData("view", "View all details from the ban list.")
-                )
-        );
-
-        setUsage("/userban ((subcommands))");
+        setName("userban");
+        setDesc("Bans a user from using Lemi bot.");
+        setUsage("userban ((add <user_id> <reason>|remove <user_id>|view))");
         setCategory(CommandCategory.ADMINS);
         setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
@@ -72,9 +55,9 @@ public class UserBan extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
 
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -89,30 +72,54 @@ public class UserBan extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            String subCmdName = event.getSubcommandName();
+            List<String> args = ctx.getArgs();
+
+            if (args.isEmpty()) {
+                event.getMessage().reply(":butterfly: Usage: `" + getUsage() + "`!").queue();
+                return;
+            }
+
+            String subCmdName = args.get(0);
+            String targetId;
 
             switch (subCmdName) {
                 case "add":
-                    Member targetMember = event.getOption("user", OptionMapping::getAsMember);
-                    String reason = event.getOption("reason", OptionMapping::getAsString);
-                    
-                    if (targetMember == null) {
-                        hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
+                    if (args.size() < 2) {
+                        event.getMessage().reply(":dango: Usage: `" + getUsage() + "`!").queue();
                         return;
                     }
 
-                    LemiDbManager.INS.addBannedUserId(targetMember, reason, event);
+                    targetId = args.get(1);
+
+                    Lemi.getInstance().getJDA().retrieveUserById(targetId)
+                        .queue(
+                            (target) -> {
+                                String reason = String.join(" ", args.subList(2, args.size()));
+                                LemiDbManager.INS.addBannedUserId(target.getIdLong(), reason, event);
+                            },
+                            (empty) -> {
+                                event.getMessage().reply(":grapes: That user doesn't exist.").queue();
+                            }
+                        );
                     break;
 
                 case "remove":
-                    targetMember = event.getOption("user", OptionMapping::getAsMember);
-
-                    if (targetMember == null) {
-                        hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
+                    if (args.size() < 2) {
+                        event.getMessage().reply(":octopus: Usage: `" + getUsage() + "`!").queue();
                         return;
                     }
 
-                    LemiDbManager.INS.removeBannedUserId(targetMember, event);
+                    targetId = args.get(1);
+
+                    Lemi.getInstance().getJDA().retrieveUserById(targetId)
+                        .queue(
+                            (target) -> {
+                                LemiDbManager.INS.removeBannedUserId(target.getIdLong(), event);
+                            },
+                            (empty) -> {
+                                event.getMessage().reply(":grapes: That user doesn't exist.").queue();
+                            }
+                        );
                     break;
 
                 case "view":
@@ -129,8 +136,7 @@ public class UserBan extends SlashCmd {
         }
     }
 
-    private void viewAllBans(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    private void viewAllBans(MessageReceivedEvent event) {
         List<String> banDetails = new ArrayList<>();
         List<Long> authorIds = LemiDbManager.INS.getBannerAuthorIds(event);
         List<Long> bannedUserIds = LemiDbManager.INS.getBannedUserIds(event);
@@ -143,7 +149,7 @@ public class UserBan extends SlashCmd {
         }
 
         if (Tools.isEmpty(banDetails)) {
-            hook.editOriginal(":fish_cake: There's no banned users.").queue();
+            event.getMessage().reply(":fish_cake: There's no banned users.").queue();
             return;
         }
 
@@ -154,13 +160,13 @@ public class UserBan extends SlashCmd {
             .setItems(banDetails)
             .useNumberedItems(true)
             .useTimestamp(true)
-            .addAllowedUsers(event.getUser().getIdLong())
+            .addAllowedUsers(event.getAuthor().getIdLong())
             .setColor(0xffd1dc)
             .setTimeout(1, TimeUnit.MINUTES);
 
         int page = 1;
 
-        hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tea: Loading..."))
+        event.getMessage().replyEmbeds(EmbedUtils.getSimpleEmbed(":tea: Loading..."))
             .queue(message -> builder.build().paginate(message, page));
     }
 }

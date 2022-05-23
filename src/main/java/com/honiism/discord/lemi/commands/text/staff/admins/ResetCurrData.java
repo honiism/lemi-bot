@@ -20,35 +20,30 @@
 package com.honiism.discord.lemi.commands.text.staff.admins;
 
 import java.util.HashMap;
+import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
 import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class ResetCurrData extends SlashCmd {
+public class ResetCurrData extends TextCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public ResetCurrData() {
-        setCommandData(Commands.slash("resetcurrdata", "Reset a user's currency data.")
-                .addOption(OptionType.USER, "user", "The user you want to reset.", true)
-        );
-
-        setUsage("/admins resetcurrdata <user>");
+        setName("resetcurrdata");
+        setDesc("Reset a user's currency data.");
+        setUsage("resetcurrdata <user_id>");
         setCategory(CommandCategory.ADMINS);
         setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
@@ -57,9 +52,9 @@ public class ResetCurrData extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
         
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -74,21 +69,27 @@ public class ResetCurrData extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Member member = event.getOption("user", OptionMapping::getAsMember);
+            List<String> args = ctx.getArgs();
 
-            if (member == null) {
-                hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
+            if (args.isEmpty()) {
+                event.getMessage().reply(":tulip: Usage: `" + getUsage() + "`!").queue();
                 return;
             }
 
-            setUserDataManager(member.getIdLong());
+            Lemi.getInstance().getJDA().retrieveUserById(args.get(0))
+                .queue(
+                    (target) -> {
+                        setUserDataManager(target.getIdLong());
 
-            UserDataManager dataManager = getUserDataManager();
+                        UserDataManager dataManager = getUserDataManager();
 
-            dataManager.removeData();
-
-            hook.sendMessage(":tulip: Successfully reset the user's data.").queue();
-
+                        dataManager.removeData();
+                        event.getMessage().reply(":bow: Successfully reset the user's data.").queue();
+                    },
+                    (empty) -> {
+                        event.getMessage().reply(":honey_pot: That user doesn't exist.").queue();
+                    }
+                );
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
                 
