@@ -63,44 +63,6 @@ public class SlashCmdManager {
         updateCmdCategory();
     }
 
-    public void setCmds() {
-        Help helpCmd = new Help();
-        Ping pingCmd = new Ping();
-        Donate donateCmd = new Donate();
-        Balance balanceCmd = new Balance();
-        Inventory inventoryCmd = new Inventory();
-        Bankrob bankrobCmd = new Bankrob();
-        Beg begCmd = new Beg();
-        Cook cookCmd = new Cook();
-        Report reportCmd = new Report();
-        Suggest suggestCmd = new Suggest();
-
-        CurrencyTopLevel currencyTopLevelCmd = new CurrencyTopLevel(balanceCmd, inventoryCmd, bankrobCmd, begCmd, cookCmd);
-
-        // main
-        registerCmd(helpCmd);
-        registerCmd(pingCmd);
-        registerCmd(donateCmd);
-        registerCmd(reportCmd);
-        registerCmd(suggestCmd);
-
-        // currency
-        registerCmd(currencyTopLevelCmd);
-
-        cmdsToAdd = commandsMap.values().stream().map(SlashCmd::getCommandData).collect(Collectors.toList());
-
-        allSubTopCmds.add(helpCmd);
-        allSubTopCmds.add(pingCmd);
-        allSubTopCmds.add(donateCmd);
-        allSubTopCmds.add(balanceCmd);
-        allSubTopCmds.add(inventoryCmd);
-        allSubTopCmds.add(bankrobCmd);
-        allSubTopCmds.add(begCmd);
-        allSubTopCmds.add(cookCmd);
-        allSubTopCmds.add(reportCmd);
-        allSubTopCmds.add(suggestCmd);
-    }
-
     public void reloadGlobalCmds() {
         Lemi.getInstance().getShardManager().getShards().get(0)
             .updateCommands()
@@ -206,6 +168,45 @@ public class SlashCmdManager {
                         .collect(Collectors.toList())
             );
         }
-        log.info("Updated all commands according to it's categories.");
+
+        log.info("Updated all SLASH commands according to it's categories.");
+    }
+
+    private void setCmds() {
+        Help helpCmd = new Help();
+        Ping pingCmd = new Ping();
+        Donate donateCmd = new Donate();
+        Balance balanceCmd = new Balance();
+        Inventory inventoryCmd = new Inventory();
+        Bankrob bankrobCmd = new Bankrob();
+        Beg begCmd = new Beg();
+        Cook cookCmd = new Cook();
+        Report reportCmd = new Report();
+        Suggest suggestCmd = new Suggest();
+
+        CurrencyTopLevel currencyTopLevelCmd = new CurrencyTopLevel(balanceCmd, inventoryCmd, bankrobCmd, begCmd, cookCmd);
+
+        // main
+        registerCmd(helpCmd);
+        registerCmd(pingCmd);
+        registerCmd(donateCmd);
+        registerCmd(reportCmd);
+        registerCmd(suggestCmd);
+
+        // currency
+        registerCmd(currencyTopLevelCmd);
+
+        cmdsToAdd = commandsMap.values().stream().map(SlashCmd::getCommandData).collect(Collectors.toList());
+
+        allSubTopCmds.add(helpCmd);
+        allSubTopCmds.add(pingCmd);
+        allSubTopCmds.add(donateCmd);
+        allSubTopCmds.add(balanceCmd);
+        allSubTopCmds.add(inventoryCmd);
+        allSubTopCmds.add(bankrobCmd);
+        allSubTopCmds.add(begCmd);
+        allSubTopCmds.add(cookCmd);
+        allSubTopCmds.add(reportCmd);
+        allSubTopCmds.add(suggestCmd);
     }
 }

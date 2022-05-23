@@ -149,12 +149,6 @@ public class Lemi {
 
         shuttingDown = true;
 
-        getShardManager().getGuilds().stream().forEach(guild -> {
-            if (guild.getAudioManager().getConnectedChannel() != null) {
-                guild.getAudioManager().closeAudioConnection();
-            }
-        });
-
         cmdExecService.shutdownNow();
         getShardManager().shutdown();
         BotCommons.shutdown(getShardManager());

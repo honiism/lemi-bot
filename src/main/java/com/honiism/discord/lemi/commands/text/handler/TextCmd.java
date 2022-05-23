@@ -2,7 +2,6 @@ package com.honiism.discord.lemi.commands.text.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.utils.misc.Tools;
@@ -161,7 +160,7 @@ public abstract class TextCmd {
     }
 
     public void setUsage(String usage) {
-        this.usage = Config.get("prefix") + usage;
+        this.usage = usage;
     }
 
     public String getUsage() {
@@ -173,6 +172,7 @@ public abstract class TextCmd {
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
                     + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
             .addField(":sunflower: **Name**" + " !! ", "`" + getName() + "`", false)
+            .addField(":crescent_moon: **Aliases**" + " !! ", "`" + String.join(", ", getAliases()) + "`", false)
             .addField(":crescent_moon: **Description**" + " !! ", "`" + getDesc() + "`", false)
             .addField(":seedling: **Usage**" + " !! ", "`" + getUsage() + "`\r\n"  
                     + "\r\n`[] : Optional argument(s).`\r\n"

@@ -33,9 +33,9 @@ import java.util.concurrent.TimeUnit;
 
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
+import com.honiism.discord.lemi.utils.buttons.Paginator;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
-import com.honiism.discord.lemi.utils.paginator.Paginator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -44,10 +44,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.JDAImpl;
 
@@ -132,7 +133,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
     }
     
     @Override
-    public EmbedBuilder getSavedEmbedBuilder(InteractionHook hook, String embedId) {
+    public EmbedBuilder getSavedEmbedBuilder(String embedId) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT embed_json FROM saved_embeds WHERE embed_id = ?")) {
@@ -141,7 +142,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
-                    MessageEmbed savedEmbed = ((JDAImpl) hook.getJDA())
+                    MessageEmbed savedEmbed = ((JDAImpl) Lemi.getInstance().getJDA())
                             .getEntityBuilder().createMessageEmbed(DataObject.fromJson(rs.getString("embed_json")));
 
                     EmbedBuilder savedEmbedBuilder = new EmbedBuilder(savedEmbed);
@@ -191,7 +192,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
     }
     
     @Override
-    public void showSavedEmbed(InteractionHook hook, String embedId) {
+    public void showSavedEmbed(Message message, String embedId, MessageReceivedEvent event) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT message_content, embed_json FROM saved_embeds WHERE embed_id = ?")) {
@@ -200,24 +201,24 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (!rs.next()) {
-                    hook.sendMessage(":butterfly: There's no embed with that id in the database.").queue();
+                    message.reply(":butterfly: There's no embed with that id in the database.").queue();
                     return;
                 }
 
-                MessageEmbed savedEmbed = ((JDAImpl) hook.getJDA())
+                MessageEmbed savedEmbed = ((JDAImpl) Lemi.getInstance().getJDA())
                     .getEntityBuilder().createMessageEmbed(DataObject.fromJson(
                             Tools.processPlaceholders(rs.getString("embed_json"),
-                                    hook.getInteraction().getMember(),
-                                    hook.getInteraction().getGuild(),
-                                    hook.getInteraction().getTextChannel())));
+                                    event.getMember(),
+                                    event.getGuild(),
+                                    event.getTextChannel())));
 
                 if (!rs.getString("message_content").equals("null")) {
-                    hook.getInteraction().getTextChannel()
+                    event.getTextChannel()
                         .sendMessage(rs.getString("message_content"))
                         .setEmbeds(savedEmbed)
                         .queue();
                 } else {
-                    hook.getInteraction().getTextChannel().sendMessageEmbeds(savedEmbed).queue();
+                    event.getTextChannel().sendMessageEmbeds(savedEmbed).queue();
                 }
             }
         } catch (SQLException e) {
@@ -226,7 +227,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
     }
     
     @Override
-    public void showEmbedsList(InteractionHook hook) {
+    public void showEmbedsList(Message message) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT embed_id FROM saved_embeds")) {
@@ -241,33 +242,33 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                 }
 
                 if (!found) {
-                    hook.sendMessage(":butterfly: There's currently no embeds.").queue();
+                    message.reply(":butterfly: There's currently no embeds.").queue();
                     return;
                 }
 
-                Paginator.Builder builder = new Paginator.Builder(hook.getJDA())
+                Paginator.Builder builder = new Paginator.Builder(Lemi.getInstance().getJDA())
                     .setEmbedDesc("‧₊੭ :bread: **EMBEDS LIST!** ♡ ⋆｡˚")
                     .setEventWaiter(Lemi.getInstance().getEventWaiter())
                     .setItemsPerPage(10)
                     .setItems(embedIds)
                     .useNumberedItems(true)
                     .useTimestamp(true)
-                    .addAllowedUsers(hook.getInteraction().getUser().getIdLong())
+                    .addAllowedUsers(message.getAuthor().getIdLong())
                     .setColor(0xffd1dc)
                     .setTimeout(1, TimeUnit.MINUTES);
 
                 int page = 1;
 
-                hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tea: Loading..."))
-                    .queue(message -> builder.build().paginate(message, page));
+                message.replyEmbeds(EmbedUtils.getSimpleEmbed(":tea: Loading..."))
+                    .queue(msg -> builder.build().paginate(msg, page));
             }
         } catch (SQLException e) {
-            Tools.reportError("show the embed list from the database.", "SQLException", log, hook, e);
+            Tools.reportError("show the embed list from the database.", "SQLException", log, message, e);
         }
     }
     
     @Override
-    public void deleteCustomEmbed(InteractionHook hook, String embedId) {
+    public void deleteCustomEmbed(Message message, String embedId) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT embed_id FROM saved_embeds WHERE embed_id = ?")) {
@@ -276,7 +277,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (!rs.next()) {
-                    hook.sendMessage(":butterfly: That embed doesn't exist in the database.").queue();
+                    message.reply(":butterfly: That embed doesn't exist in the database.").queue();
                     return;
                 }
             }
@@ -288,20 +289,20 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
         	long result = deleteStatement.executeUpdate();
 
                 if (result != 0) {
-                    hook.sendMessage(":cherry_blossom: Successfully removed embed.").queue();
+                    message.reply(":cherry_blossom: Successfully removed embed.").queue();
 
                 } else {
-                    hook.sendMessage(":grapes: Something went wrong while removing the embed.").queue();
+                    message.reply(":grapes: Something went wrong while removing the embed.").queue();
                 }
     	    }
                 
         } catch (SQLException e) {
-            Tools.reportError("remove an embed from the database.", "SQLException", log, hook, e);
+            Tools.reportError("remove an embed from the database.", "SQLException", log, message, e);
         }
     }
     
     @Override
-    public void assignUniqueId(InteractionHook hook, String specialKey, Map<String, String> embedProperties) {
+    public void assignUniqueId(TextChannel channel, String specialKey, Map<String, String> embedProperties) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT embed_id FROM saved_embeds WHERE embed_id = ?")) {
@@ -309,7 +310,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
-                    hook.sendMessage(":butterfly: That id already exists, operation cancelled.").queue();
+                    channel.sendMessage(":butterfly: That id already exists, operation cancelled.").queue();
                     return;
                 }
 
@@ -321,7 +322,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
     }
     
     @Override
-    public void saveCreatedEmbed(InteractionHook hook, Map<String, String> embedProperties) {
+    public void saveCreatedEmbed(TextChannel channel, Map<String, String> embedProperties) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT embed_id FROM saved_embeds WHERE embed_id = ?")) {
@@ -329,7 +330,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
-                    hook.sendMessage(":butterfly: Found the same id while saving, operation cancelled.").queue();
+                    channel.sendMessage(":butterfly: Found the same id while saving, operation cancelled.").queue();
                     return;
                 }
             }
@@ -396,12 +397,12 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                     int result = insertStatement.executeUpdate();
 
                     if (result != 0) {
-                        hook.sendMessage(":herb: Successfully registered embed with the id of : " 
+                        channel.sendMessage(":herb: Successfully registered embed with the id of : " 
                                 + embedProperties.get("embed-id"))
                             .queue();
 
                     } else {
-                        hook.sendMessage(":blueberries: Something went wrong while registering the embed.").queue();
+                        channel.sendMessage(":blueberries: Something went wrong while registering the embed.").queue();
                     }
     	        }
                 return;
@@ -417,17 +418,17 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                 int result = insertStatement.executeUpdate();
 
                 if (result != 0) {
-                    hook.sendMessage(":herb: Successfully registered embed with the id of : " 
+                    channel.sendMessage(":herb: Successfully registered embed with the id of : " 
                             + embedProperties.get("embed-id"))
                         .queue();
 
                 } else {
-                    hook.sendMessage(":blueberries: Something went wrong while registering the embed.").queue();
+                    channel.sendMessage(":blueberries: Something went wrong while registering the embed.").queue();
                 }
     	    }
                 
         } catch (SQLException e) {
-            Tools.reportError("register an embed id to the database.", "SQLException", log, hook, e);
+            Tools.reportError("register an embed id to the database.", "SQLException", log, channel, e);
         }
     }
 

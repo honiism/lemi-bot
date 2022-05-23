@@ -91,7 +91,7 @@ public class ReloadSlash extends TextCmd {
             if (isGlobal) {
                 Lemi.getInstance().getSlashCmdManager().reloadGlobalCmds();
 
-                event.getMessage().reply(":strawberries: Global slash commands are now reloading.").queue();
+                event.getMessage().reply(":strawberry: Global slash commands are now reloading.").queue();
                 log.info("Slash commands are now reloading (global)!");
             } else {
                 Guild guild = event.getGuild();

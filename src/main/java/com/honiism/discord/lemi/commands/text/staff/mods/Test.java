@@ -84,14 +84,11 @@ public class Test extends SlashCmd {
         } else {
             String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);
                 
-            EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
-                .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() 
-                        + ", you can use this command again in `" + time + "`.")
-                .setColor(0xffd1dc);
-                
-            hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
+            event.getMessage().replyEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
+                    + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
+                    + author.getAsMention() 
+                    + ", you can use this command again in `" + time + "`."))
+                .queue();
         }
     }
 }

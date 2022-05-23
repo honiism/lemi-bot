@@ -19,16 +19,17 @@
 
 package com.honiism.discord.lemi.utils.customEmbeds;
 
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 public interface IEmbedListener {
-    void afterAskingId(InteractionHook hook);
-    void afterAskingTitle(InteractionHook hook);
-    void afterAskingColor(InteractionHook hook);
-    void afterAskingAuthor(InteractionHook hook);
-    void afterAskingThumbnail(InteractionHook hook);
-    void afterAskingDesc(InteractionHook hook);
-    void afterAskingImg(InteractionHook hook);
-    void afterAskingFooter(InteractionHook hook);
-    void afterAskingMessageContent(InteractionHook hook);
+    void afterAskingId(User author, TextChannel channel);
+    void afterAskingTitle(User author, TextChannel channel);
+    void afterAskingColor(User author, TextChannel channel);
+    void afterAskingAuthor(User author, TextChannel channel);
+    void afterAskingThumbnail(User author, TextChannel channel);
+    void afterAskingDesc(User author, TextChannel channel);
+    void afterAskingImg(User author, TextChannel channel);
+    void afterAskingFooter(User author, TextChannel channel);
+    void afterAskingMessageContent(TextChannel channel);
 }

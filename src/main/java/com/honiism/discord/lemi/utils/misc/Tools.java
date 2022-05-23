@@ -52,6 +52,36 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public class Tools {
 
+    public static boolean isLong(String s) {
+        if (s == null) {
+            return false;
+        }
+
+        try {
+            @SuppressWarnings("unused")
+            long num = Long.parseLong(s);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean isInt(String s) {
+        if (s == null) {
+            return false;
+        }
+
+        try {
+            @SuppressWarnings("unused")
+            int num = Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        return true;
+    }
+
     public static void reportError(String content, String errorName, Logger log, Exception e) {
         log.error("\r\nSomething went wrong while trying to "
                 + content + "\r\n"
@@ -145,6 +175,41 @@ public class Tools {
             .queue();
     }
 
+    public static void reportError(String content, String errorName, Logger log, Message message, Exception e) {
+        log.error("\r\nSomething went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n");
+
+        e.printStackTrace();
+
+        message.reply("--------------------------\r\n" 
+                + "Something went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n"
+                + "--------------------------\r\n"
+                + "```\r\n"
+                + "Message : " + e.getMessage() + "\r\n"
+                + "Cause : " + e.getCause() + "\r\n"
+                + "```")
+            .queue();
+            
+        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
+            .getTextChannelById(Config.get("logs_channel_id"))
+            .sendMessage("--------------------------\r\n" 
+                    + "Something went wrong while trying to "
+                    + content + "\r\n"
+                    + "Error: " + errorName + "\r\n"
+                    + "\r\n"
+                    + "--------------------------\r\n"
+                    + "```\r\n"
+                    + "Message : " + e.getMessage() + "\r\n"
+                    + "Cause : " + e.getCause() + "\r\n"
+                    + "```")
+            .queue();
+    }
+
     public static void sendError(String content, String errorName, Logger log, InteractionHook hook, Exception e) {
         log.error("\r\nSomething went wrong while trying to "
                 + content + "\r\n"
@@ -175,6 +240,27 @@ public class Tools {
         e.printStackTrace();
 
         message.reply("--------------------------\r\n" 
+                + "Something went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n"
+                + "--------------------------\r\n"
+                + "```\r\n"
+                + "Message : " + e.getMessage() + "\r\n"
+                + "Cause : " + e.getCause() + "\r\n"
+                + "```")
+            .queue();
+    }
+
+    public static void sendEditError(String content, String errorName, Logger log, Message message, Exception e) {
+        log.error("\r\nSomething went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n");
+
+        e.printStackTrace();
+
+        message.editMessage("--------------------------\r\n" 
                 + "Something went wrong while trying to "
                 + content + "\r\n"
                 + "Error: " + errorName + "\r\n"

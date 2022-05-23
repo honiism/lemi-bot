@@ -41,7 +41,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.entities.Message;
 
 public class LemiDbBalDs implements LemiDbBalManager {
 
@@ -177,7 +177,7 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void removeItemFromUsers(String itemId, InteractionHook hook) throws JsonMappingException, JsonProcessingException {
+    public void removeItemFromUsers(String itemId, Message message) throws JsonMappingException, JsonProcessingException {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
     	            conn.prepareStatement("SELECT * FROM user_currency_data")) {
@@ -206,7 +206,7 @@ public class LemiDbBalDs implements LemiDbBalManager {
         }
 
         log.info("Removed item with the id of " + itemId + " from all the users.");
-        hook.sendMessage(":grapes: Removed item with the id of " + itemId + " from all the users.").queue();
+        message.reply(":grapes: Removed item with the id of " + itemId + " from all the users.").queue();
 
         Lemi.getInstance().shutdown();
     }

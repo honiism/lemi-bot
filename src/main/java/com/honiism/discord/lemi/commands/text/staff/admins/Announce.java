@@ -21,11 +21,13 @@ package com.honiism.discord.lemi.commands.text.staff.admins;
 
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.function.Consumer;
+import java.util.List;
 
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
+import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Emojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
@@ -34,46 +36,37 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.NewsChannel;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class Announce extends SlashCmd {
+public class Announce extends TextCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public Announce() {
-        setCommandData(Commands.slash("announce", "Makes an announcement.")
-                .addOption(OptionType.STRING, "message", "The message you want to announce.", true)
-                .addOption(OptionType.CHANNEL, "channel", "The channel where you want to announce.", true)
-                .addOption(OptionType.BOOLEAN, "publishable", "Toggle if Lemi should publish this message.", false)
-                .addOption(OptionType.ROLE, "role", "Role to ping while announcing.", false)
-        );
-
-        setUsage("/admins announce <message> <channel> [publishable] [role]");
+        setName("announce");
+        setUsage("announce <#channel> [@role] <message>");
         setCategory(CommandCategory.ADMINS);
         setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
 
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
         } else {
             timeDelayed = (10 * 1000);
         }
+
+        Message message = event.getMessage();
             
         if (timeDelayed >= (10 * 1000)) {        
             if (delay.containsKey(author.getIdLong())) {
@@ -81,16 +74,24 @@ public class Announce extends SlashCmd {
             }
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
+            
+            List<String> args = ctx.getArgs();
 
-            GuildChannel guildChannel = event.getOption("channel", OptionMapping::getAsGuildChannel);
-
-            if (!guildChannel.getType().equals(ChannelType.NEWS)) {
-                hook.sendMessage(":grapes: You can only send announcement messages in news channels.").queue();
+            if (args.size() < 2 || message.getMentions().getChannels().isEmpty()) {
+                message.reply(":cherries: Usage: `" + getUsage() + "`!").queue();
                 return;
             }
-            
-            String announceMsg = event.getOption("message", OptionMapping::getAsString);
 
+            GuildChannel guildChannel = message.getMentions().getChannels().get(0);
+
+            if (!guildChannel.getType().equals(ChannelType.TEXT)) {
+                message.reply(":grapes: You can only send announcement messages in text channels.").queue();
+                return;
+            }
+
+            Role roleToMention = (!message.getMentions().getRoles().isEmpty()) ? message.getMentions().getRoles().get(0) : null;
+            String announceMsg = String.join(" ", args.subList((roleToMention != null) ? 2 : 1, args.size()));
+            
             EmbedBuilder announceEmbed = new EmbedBuilder()
                 .setTitle(":tulip: Ding ding!")
                 .setDescription(":sunflower: An announcement has been made!\r\n" + "-\r\n" + "> " + announceMsg)
@@ -100,54 +101,30 @@ public class Announce extends SlashCmd {
                 .setFooter("End of announcement!")
                 .setTimestamp(Instant.now());
 
-            NewsChannel newsChannel = event.getJDA().getNewsChannelById(guildChannel.getIdLong());
-
-            Role roleToMention = event.getOption("role", OptionMapping::getAsRole);
-            boolean doCrosspot = event.getOption("publishable", false, OptionMapping::getAsBoolean);
+            TextChannel channel = event.getJDA().getTextChannelById(guildChannel.getIdLong());
 
             if (roleToMention != null) {
-                newsChannel.sendMessage(Emojis.EXCLAMATION_MARK + " " + roleToMention.getAsMention())
+                channel.sendMessage(Emojis.EXCLAMATION_MARK + " " + roleToMention.getAsMention())
                     .setEmbeds(announceEmbed.build())
                     .queue((msg) -> {
-                        if (doCrosspot) {
-                            crosspostMessage(msg,
-                                    (success) -> hook.sendMessage(":seedling: Successfully published announcement message.").queue(),
-                                    (error) -> hook.sendMessage(":blueberries: Unable to publish announcement message").queue());
-                            return;
-                        }
-
-                        hook.sendMessage(":hibiscus: Announced the message!").queue();
+                        message.reply(":sunflower: Sent the announcement message to " + channel.getAsMention()).queue();
                     });
-                return;
+
+            } else {
+                channel.sendMessageEmbeds(announceEmbed.build())
+                    .queue((msg) -> {
+                        message.reply(":crescent_moon: Sent the announcement message to " + channel.getAsMention()).queue();
+                    });
             }
-
-            newsChannel.sendMessageEmbeds(announceEmbed.build())
-                .queue((msg) -> {
-                    if (doCrosspot) {
-                        crosspostMessage(msg,
-                                (success) -> hook.sendMessage(":seedling: Successfully published announcement message.").queue(),
-                                (error) -> hook.sendMessage(":blueberries: Unable to publish announcement message").queue());
-                        return;
-                    }
-
-                    hook.sendMessage(":hibiscus: Announced the message!").queue();
-                }); 
             
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
                 
-            EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
-                .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() 
-                        + ", you can use this command again in `" + time + "`.")
-                .setColor(0xffd1dc);
-                
-            hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
+            message.replyEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
+                    + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
+                    + author.getAsMention() 
+                    + ", you can use this command again in `" + time + "`."))
+                .queue();
         }
-    }
-
-    private void crosspostMessage(Message message, Consumer<Message> success, Consumer<Throwable> failure) {
-        message.crosspost().queue(success, failure);
     }
 }

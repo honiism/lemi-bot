@@ -20,45 +20,31 @@
 package com.honiism.discord.lemi.commands.text.staff.admins;
 
 import java.util.HashMap;
+import java.util.List;
 
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
 import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
+import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class Embed extends SlashCmd {
+public class Embed extends TextCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public Embed() {
-        setCommandData(Commands.slash("embed", "Add, remove or show an embed you created.")
-                .addSubcommands(
-                        new SubcommandData("create", "Create a custom embed."),
-
-                        new SubcommandData("remove", "Remove an existing embed.")
-                                .addOption(OptionType.STRING, "embed_id", "The id of an embed you want to remove.", true),
-
-                        new SubcommandData("list", "Show all the existing embeds."),
-
-                        new SubcommandData("show", "Show an existing embed.")
-                                .addOption(OptionType.STRING, "embed_id", "The embed you want to show.", true)
-                )
-        );
-
-        setUsage("/mods embed ((subcommands))");
+        setName("embed");
+        setDesc("Add, remove or show an embed you created.");
+        setUsage("embed ((create|remove <embed_id>|list|show <embed_id>))");
         setCategory(CommandCategory.ADMINS);
         setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
@@ -67,8 +53,8 @@ public class Embed extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
         Guild guild = event.getGuild();
         
         if (delay.containsKey(guild.getIdLong())) {
@@ -84,37 +70,55 @@ public class Embed extends SlashCmd {
         
             delay.put(guild.getIdLong(), System.currentTimeMillis());
 
-            String subCmdName = event.getSubcommandName();
+            List<String> args = ctx.getArgs();
+            Message message = event.getMessage();
+
+            if (args.isEmpty()) {
+                message.reply(":seedling: Usage: `" + getUsage() + "`!").queue();
+                return;
+            }
+
+            String subCmdName = args.get(0);
+            String embedId;
 
             switch (subCmdName) {
                 case "create":
-                    Lemi.getInstance().getEmbedTools().askForId(hook);
+                    Lemi.getInstance().getEmbedTools().askForId(event.getAuthor(), event.getTextChannel(), event);
                     break;
 
                 case "remove":
-                    String embedId = event.getOption("embed_id").getAsString();
-                    LemiDbEmbedManager.INS.deleteCustomEmbed(hook, embedId);
+                    if (args.size() < 2) {
+                        message.reply(":snowflake: Usage: `" + getUsage() + "`!").queue();
+                        return;
+                    }
+
+                    embedId = args.get(1);
+
+                    LemiDbEmbedManager.INS.deleteCustomEmbed(message, embedId);
                     break;
 
                 case "list":
-                    LemiDbEmbedManager.INS.showEmbedsList(hook);
+                    LemiDbEmbedManager.INS.showEmbedsList(message);
                     break;
 
                 case "show":
-                    embedId = event.getOption("embed_id").getAsString();
-                    LemiDbEmbedManager.INS.showSavedEmbed(hook, embedId);
+                    if (args.size() < 2) {
+                        message.reply(":tulip: Usage: `" + getUsage() + "`!").queue();
+                        return;
+                    }
+
+                    embedId = args.get(1);
+
+                    LemiDbEmbedManager.INS.showSavedEmbed(message, embedId, event);
             }
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
-            User author = event.getUser();
                 
-            EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
-                .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() + ", you can use this command again in `" + time + "`.")
-                .setColor(0xffd1dc);
-                
-            hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
+            event.getMessage().replyEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
+                    + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
+                    + event.getAuthor().getAsMention() 
+                    + ", you can use this command again in `" + time + "`."))
+                .queue();
         }
     }
 }

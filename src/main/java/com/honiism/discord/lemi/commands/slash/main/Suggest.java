@@ -150,8 +150,7 @@ public class Suggest extends SlashCmd {
                         EmbedUtils.getSimpleEmbedBuilder(featureExample).setTitle(":seedling: Feature Example").build()
                     );
 
-                    Lemi.getInstance().getShardManager().retrieveUserById(Config.getLong("dev_id"))
-                        .queue(
+                    Lemi.getInstance().getShardManager().retrieveUserById(Config.getLong("dev_id")).queue(
                             (dev) -> {
                                 dev.openPrivateChannel().queue(
                                     (channel) -> {
@@ -161,7 +160,7 @@ public class Suggest extends SlashCmd {
                                     }
                                 );
                             }
-                        );
+                    );
                 }
         );
     }

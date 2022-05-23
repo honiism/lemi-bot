@@ -91,14 +91,14 @@ public class ClearCmds extends TextCmd {
             if (isGlobal) {
                 Lemi.getInstance().getSlashCmdManager().clearGlobalCmds();
 
-                event.getMessage().reply(":strawberries: Cleared global commands.").queue();
+                event.getMessage().reply(":strawberry: Cleared global commands.").queue();
                 log.info("Cleared global commands.");
             } else {
                 Guild guild = event.getGuild();
                 
                 Lemi.getInstance().getSlashCmdManager().clearGuildCmds(guild);
 
-                event.getMessage().reply(":strawberries: Cleared this guild's commands.").queue();
+                event.getMessage().reply(":strawberry: Cleared this guild's commands.").queue();
                 log.info("Cleared this guild's commands.");
             }
 

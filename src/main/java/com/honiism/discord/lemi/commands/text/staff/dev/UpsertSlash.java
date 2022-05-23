@@ -100,7 +100,7 @@ public class UpsertSlash extends TextCmd {
                 
                 Lemi.getInstance().getSlashCmdManager().upsertGlobal(cmd.getCommandData());
 
-                event.getMessage().reply(":strawberries: Global " + cmdName + " has been upserted.").queue();
+                event.getMessage().reply(":strawberry: Global " + cmdName + " has been upserted.").queue();
                 log.info("Global " + cmdName + " has been upserted.");
             } else {
                 SlashCmd cmd = Lemi.getInstance().getSlashCmdManager().getCmdByName(cmdName);
@@ -114,7 +114,7 @@ public class UpsertSlash extends TextCmd {
                 
                 Lemi.getInstance().getSlashCmdManager().upsertGuild(guild, cmd.getCommandData());
 
-                event.getMessage().reply(":strawberries: Guild " + cmdName + " has been upserted.").queue();
+                event.getMessage().reply(":strawberry: Guild " + cmdName + " has been upserted.").queue();
                 log.info("Guild " + cmdName + " has been upserted.");
             }
 

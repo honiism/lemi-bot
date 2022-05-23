@@ -29,9 +29,9 @@ import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.utils.buttons.Paginator;
 import com.honiism.discord.lemi.utils.misc.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
-import com.honiism.discord.lemi.utils.paginator.Paginator;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -90,15 +90,14 @@ public class GuildList extends SlashCmd {
                 guildDetailsBuilder.append(guild.getName() + " | id: " + guild.getIdLong() 
                         + " | members in cache: " + guild.getMemberCache().size());
 
-                guild.retrieveOwner(true)
-                    .queue(
+                guild.retrieveOwner(true).queue(
                         (owner) -> {
                             guildDetailsBuilder.append(" | owner: " + owner.getAsMention() );
                         },
                         (empty) -> {
                             guildDetailsBuilder.append(" | owner: " + "not found");
                         }
-                    );
+                );
 
                 guildDetailsBuilder.append(" | shard id: " 
                         + MiscUtil.getShardForGuild(guild, Lemi.getInstance().getShardManager().getShardsTotal()));
@@ -126,14 +125,11 @@ public class GuildList extends SlashCmd {
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
                 
-            EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
-                .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() 
-                        + ", you can use this command again in `" + time + "`.")
-                .setColor(0xffd1dc);
-                
-            hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
+            event.getMessage().replyEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
+                    + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
+                    + author.getAsMention() 
+                    + ", you can use this command again in `" + time + "`."))
+                .queue();
         }
     }
 }

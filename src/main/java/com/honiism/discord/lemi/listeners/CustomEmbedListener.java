@@ -22,54 +22,55 @@ package com.honiism.discord.lemi.listeners;
 import com.honiism.discord.lemi.utils.customEmbeds.EmbedTools;
 import com.honiism.discord.lemi.utils.customEmbeds.IEmbedListener;
 
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 public class CustomEmbedListener implements IEmbedListener {
     EmbedTools embedTools = new EmbedTools();
 
     @Override
-    public void afterAskingId(InteractionHook hook) {
-        embedTools.askForTitle(hook);
+    public void afterAskingId(User author, TextChannel channel) {
+        embedTools.askForTitle(author, channel);
     }
 
     @Override
-    public void afterAskingTitle(InteractionHook hook) {
-        embedTools.askForColor(hook);
+    public void afterAskingTitle(User author, TextChannel channel) {
+        embedTools.askForColor(author, channel);
     }
 
     @Override
-    public void afterAskingColor(InteractionHook hook) {
-        embedTools.askForAuthor(hook);
+    public void afterAskingColor(User author, TextChannel channel) {
+        embedTools.askForAuthor(author, channel);
     }
 
     @Override
-    public void afterAskingAuthor(InteractionHook hook) {
-        embedTools.askForThumbnail(hook);
+    public void afterAskingAuthor(User author, TextChannel channel) {
+        embedTools.askForThumbnail(author, channel);
     }
 
     @Override
-    public void afterAskingThumbnail(InteractionHook hook) {
-        embedTools.askForDesc(hook);         
+    public void afterAskingThumbnail(User author, TextChannel channel) {
+        embedTools.askForDesc(author, channel);         
     }
 
     @Override
-    public void afterAskingDesc(InteractionHook hook) {
-        embedTools.askForImage(hook);
+    public void afterAskingDesc(User author, TextChannel channel) {
+        embedTools.askForImage(author, channel);
     }
 
     @Override
-    public void afterAskingImg(InteractionHook hook) {
-        embedTools.askForFooter(hook);
+    public void afterAskingImg(User author, TextChannel channel) {
+        embedTools.askForFooter(author, channel);
                 
     }
 
     @Override
-    public void afterAskingFooter(InteractionHook hook) {
-        embedTools.askForMessageContent(hook);
+    public void afterAskingFooter(User author, TextChannel channel) {
+        embedTools.askForMessageContent(author, channel);
     }
     
     @Override
-    public void afterAskingMessageContent(InteractionHook hook) {
-        embedTools.sendCreatedEmbed(hook);
+    public void afterAskingMessageContent(TextChannel channel) {
+        embedTools.sendCreatedEmbed(channel);
     }
 }

@@ -29,55 +29,60 @@ import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public class EmbedTools {
 
     private static IEmbedListener embedListener;
     private static Map<String, String> embedProperties = new HashMap<String, String>();
+
+    MessageReceivedEvent event;
   
     public void registerEmbedListener(IEmbedListener embedListener) {
         EmbedTools.embedListener = embedListener;
     }
     
-    public void askForId(InteractionHook hook) {
-        hook.sendMessage(":blossom: Alright! Type in the **ID** for this embed.\r\n"
+    public void askForId(User author, TextChannel channel, MessageReceivedEvent event) {
+        this.event = event;
+
+        channel.sendMessage(":blossom: Alright! Type in the **ID** for this embed.\r\n"
                 + "1. *Keep it simple, unique, and descriptive*\r\n"
                 + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
                 + "**-----------**\r\n"
                 + "1. *You need to make your title less than 20 characters (cannot have spaces)*\r\n"
                 + "2. *You only have 2 minutes.*")
-            .queue();
+            .queue((msg) -> {
+                Lemi.getInstance().getEventWaiter().waitForEvent(
+                        MessageReceivedEvent.class,
+                        (e) -> e.getAuthor().getIdLong() == author.getIdLong()
+                            && e.isFromGuild()
+                            && e.getGuild().getIdLong() == Config.getLong("honeys_hive")
+                            && e.getMessage().getContentRaw().length() < 20,
+                        (e) -> {
+                            if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
+                                channel.sendMessage(":sunflower: Interaction cancelled.").queue();
+                                return;
+                            }
 
-        Lemi.getInstance().getEventWaiter().waitForEvent(
-                MessageReceivedEvent.class,
-                (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
-                    && e.isFromGuild()
-                    && e.getGuild().getIdLong() == Config.getLong("honeys_hive")
-                    && e.getMessage().getContentRaw().length() < 20,
-                (e) -> {
-                    if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.sendMessage(":sunflower: Interaction cancelled.").queue();
-                        return;
-                    }
+                            LemiDbEmbedManager.INS.assignUniqueId(channel, e.getMessage().getContentRaw(), embedProperties);
 
-                    LemiDbEmbedManager.INS.assignUniqueId(hook, e.getMessage().getContentRaw(), embedProperties);
-
-                    if (embedListener != null) {
-                        embedListener.afterAskingId(hook);
-                    }
-                },
-                2, TimeUnit.MINUTES,
-                () -> {
-                    hook.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
-                    return;
-                }
-        );
+                            if (embedListener != null) {
+                                embedListener.afterAskingId(author, channel);
+                            }
+                        },
+                        2, TimeUnit.MINUTES,
+                        () -> {
+                            channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
+                            return;
+                        }
+                );
+            });
     }
 
-    public void askForTitle(InteractionHook hook) {
-        hook.editOriginal(":tulip: Alright! Type in the **title** for this embed.\r\n"
+    public void askForTitle(User author, TextChannel channel) {
+        channel.sendMessage(":tulip: Alright! Type in the **title** for this embed.\r\n"
                 + "1. *Keep it simple.*\r\n"
                 + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
                 + "3. *You can type* `skip` *to continue to the next category.*\r\n"
@@ -86,59 +91,59 @@ public class EmbedTools {
                 + "2. *You only have 2 minutes.*\r\n"
                 + "**-----------**\r\n"
                 + "*You cannot take more than 15 minutes!*\r\n")
-            .queue();
+            .queue((msg) -> {
+                Lemi.getInstance().getEventWaiter().waitForEvent(
+                        MessageReceivedEvent.class,
+                        (e) -> e.getAuthor().getIdLong() == author.getIdLong()
+                            && e.isFromGuild()
+                            && e.getGuild().getIdLong() == Config.getLong("honeys_hive")
+                            && e.getMessage().getContentRaw().length() < 246,
+                        (e) -> {
+                            if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
+                                channel.sendMessage(":sunflower: Interaction cancelled.").queue();
+                                return;
+                            }
 
-        Lemi.getInstance().getEventWaiter().waitForEvent(
-                MessageReceivedEvent.class,
-                (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
-                    && e.isFromGuild()
-                    && e.getGuild().getIdLong() == Config.getLong("honeys_hive")
-                    && e.getMessage().getContentRaw().length() < 246,
-                (e) -> {
-                    if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
-                        return;
-                    }
+                            if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
+                                embedProperties.put("title", null);
+                            } else {
+                                embedProperties.put("title", e.getMessage().getContentRaw());
+                            }
 
-                    if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
-                        embedProperties.put("title", null);
-                    } else {
-                        embedProperties.put("title", e.getMessage().getContentRaw());
-                    }
-
-                    if (embedListener != null) {
-                        embedListener.afterAskingTitle(hook);
-                    }
-                },
-                2, TimeUnit.MINUTES,
-                () -> {
-                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
-                    return;
-                }
-        );
+                            if (embedListener != null) {
+                                embedListener.afterAskingTitle(author, channel);
+                            }
+                        },
+                        2, TimeUnit.MINUTES,
+                        () -> {
+                            channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
+                            return;
+                        }
+                );
+            });
     }
 
-    public void askForColor(InteractionHook hook) {
-        hook.editOriginal(":crescent_moon: Alright! Type in the **color** for this embed.\r\n"
+    public void askForColor(User author, TextChannel channel) {
+        channel.sendMessage(":crescent_moon: Alright! Type in the **color** for this embed.\r\n"
                 + "1. *Please use HEX CODE (starts with #).*\r\n"
                 + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
                 + "3. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "**-----------**\r\n"
                 + "1. *You only have 2 minutes.*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setDescription("_ _")
                     .build())
             .queue();
 
         Lemi.getInstance().getEventWaiter().waitForEvent(
                 MessageReceivedEvent.class,
-                (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
+                (e) -> e.getAuthor().getIdLong() == author.getIdLong()
                     && e.isFromGuild()
                     && e.getGuild().getIdLong() == Config.getLong("honeys_hive"),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
+                        channel.sendMessage(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
@@ -152,19 +157,19 @@ public class EmbedTools {
                     e.getMessage().delete().queue();
 
                     if (embedListener != null) {
-                        embedListener.afterAskingColor(hook);
+                        embedListener.afterAskingColor(author, channel);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
-    public void askForAuthor(InteractionHook hook) {
-        hook.editOriginal(
+    public void askForAuthor(User author, TextChannel channel) {
+        channel.sendMessage(
                 ":seedling: Alright! Type in the **author name & avatar** for this embed.\r\n"
                         + "1. *Please use this format:* `[name]&[link]` *or* `[name]`*\r\n"
                         + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
@@ -173,7 +178,7 @@ public class EmbedTools {
                         + "**-----------**\r\n"
                         + "1. *You only have 2 minutes.*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setColor(Integer.decode(embedProperties.get("color")))
                     .setDescription("_ _")
                     .build())
@@ -181,12 +186,12 @@ public class EmbedTools {
 
         Lemi.getInstance().getEventWaiter().waitForEvent(
                 MessageReceivedEvent.class,
-                (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
+                (e) -> e.getAuthor().getIdLong() == author.getIdLong()
                     && e.isFromGuild()
                     && e.getGuild().getIdLong() == Config.getLong("honeys_hive"),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
+                        channel.sendMessage(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
@@ -205,48 +210,48 @@ public class EmbedTools {
                     e.getMessage().delete().queue();
 
                     if (embedProperties.get("author-name").length() < 250) {
-                        hook.editOriginal(":shell: Interaction cancelled! The author name pass the limit of 250 characters")
+                        channel.sendMessage(":shell: Interaction cancelled! The author name pass the limit of 250 characters")
                             .queue();
                         return;
                     }
 
                     if (embedListener != null) {
-                        embedListener.afterAskingAuthor(hook);
+                        embedListener.afterAskingAuthor(author, channel);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
-    public void askForThumbnail(InteractionHook hook) {
-        hook.editOriginal(":snowflake: Alright! Type in the **thumbnail** for this embed.\r\n"
+    public void askForThumbnail(User author, TextChannel channel) {
+        channel.sendMessage(":snowflake: Alright! Type in the **thumbnail** for this embed.\r\n"
                 + "1. *Please use a valid link. You can also use* `%user_avatar%`.\r\n"
                 + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
                 + "3. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "**-----------**\r\n"
                 + "1. *You only have 2 minutes.*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setColor(Integer.decode(embedProperties.get("color")))
                     .setDescription("_ _")
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), hook),
+                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), event),
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), hook))
+                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), event))
                     .build())
             .queue();
 
         Lemi.getInstance().getEventWaiter().waitForEvent(
                 MessageReceivedEvent.class,
-                (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
+                (e) -> e.getAuthor().getIdLong() == author.getIdLong()
                     && e.isFromGuild()
                     && e.getGuild().getIdLong() == Config.getLong("honeys_hive"),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
+                        channel.sendMessage(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
@@ -259,43 +264,43 @@ public class EmbedTools {
                     e.getMessage().delete().queue();
 
                     if (embedListener != null) {
-                        embedListener.afterAskingThumbnail(hook);
+                        embedListener.afterAskingThumbnail(author, channel);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
-    public void askForDesc(InteractionHook hook) {
-        hook.editOriginal(":grapes: Alright! Type in the **description** for this embed.\r\n"
+    public void askForDesc(User author, TextChannel channel) {
+        channel.sendMessage(":grapes: Alright! Type in the **description** for this embed.\r\n"
                 + "**-----------**\r\n"
                 + "1. *You need to make your title less than 4,000 characters (including spaces)*\r\n"
                 + "2. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "3. *You only have 2 minutes.*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setColor(Integer.decode(embedProperties.get("color")))
                     .setDescription("_ _")
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), hook), 
+                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), event), 
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), hook))
-                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), hook))
+                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), event))
+                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), event))
                     .build())
             .queue();
 
         Lemi.getInstance().getEventWaiter().waitForEvent(
                 MessageReceivedEvent.class,
-                (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
+                (e) -> e.getAuthor().getIdLong() == author.getIdLong()
                     && e.isFromGuild()
                     && e.getGuild().getIdLong() == Config.getLong("honeys_hive")
                     && e.getMessage().getContentRaw().length() < 4000,
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
+                        channel.sendMessage(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
@@ -308,42 +313,42 @@ public class EmbedTools {
                     e.getMessage().delete().queue();
 
                     if (embedListener != null) {
-                        embedListener.afterAskingDesc(hook);
+                        embedListener.afterAskingDesc(author, channel);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
-    public void askForImage(InteractionHook hook) {
-        hook.editOriginal(":tulip: Alright! Type in the **image** for this embed.\r\n"
+    public void askForImage(User author, TextChannel channel) {
+        channel.sendMessage(":tulip: Alright! Type in the **image** for this embed.\r\n"
                 + "**-----------**\r\n"
                 + "1. *You need to use a valid link or a placeholder.*\r\n"
                 + "2. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "3. *You only have 2 minutes.*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setColor(Integer.decode(embedProperties.get("color")))
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), hook), 
+                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), event), 
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), hook))
-                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), hook))
-                    .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), hook))
+                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), event))
+                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), event))
+                    .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), event))
                     .build())
             .queue();
 
         Lemi.getInstance().getEventWaiter().waitForEvent(
                 MessageReceivedEvent.class,
-                (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
+                (e) -> e.getAuthor().getIdLong() == author.getIdLong()
                     && e.isFromGuild()
                     && e.getGuild().getIdLong() == Config.getLong("honeys_hive"),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
+                        channel.sendMessage(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
@@ -356,44 +361,44 @@ public class EmbedTools {
                     e.getMessage().delete().queue();
 
                     if (embedListener != null) {
-                        embedListener.afterAskingImg(hook);
+                        embedListener.afterAskingImg(author, channel);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
-    public void askForFooter(InteractionHook hook) {
-        hook.editOriginal(":crescent_moon: Alright! Type in the **footer** for this embed.\r\n"
+    public void askForFooter(User author, TextChannel channel) {
+        channel.sendMessage(":crescent_moon: Alright! Type in the **footer** for this embed.\r\n"
                 + "**-----------**\r\n"
                 + "1. *You need to use this format:* `[text]&[link]` *or* `[text]`.\r\n"
                 + "2. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "3. *You only have 2 minutes.*\r\n"
                 + "4. *Text must be less than 2,000 characters (including spaces)*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setColor(Integer.decode(embedProperties.get("color")))
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), hook), 
+                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), event), 
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), hook))
-                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), hook))
-                    .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), hook))
-                    .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), hook))
+                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), event))
+                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), event))
+                    .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), event))
+                    .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), event))
                     .build())
             .queue();
 
         Lemi.getInstance().getEventWaiter().waitForEvent(
                 MessageReceivedEvent.class,
-                (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
+                (e) -> e.getAuthor().getIdLong() == author.getIdLong()
                     && e.isFromGuild()
                     && e.getGuild().getIdLong() == Config.getLong("honeys_hive"),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
+                        channel.sendMessage(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
@@ -412,51 +417,51 @@ public class EmbedTools {
                     e.getMessage().delete().queue();
 
                     if (embedProperties.get("footer-text").length() < 2000) {
-                        hook.editOriginal(":shell: Interaction cancelled! The footer text pass the limit of 2,000 characters")
+                        channel.sendMessage(":shell: Interaction cancelled! The footer text pass the limit of 2,000 characters")
                             .queue();
                         return;
                     }
 
                     if (embedListener != null) {
-                        embedListener.afterAskingFooter(hook);
+                        embedListener.afterAskingFooter(author, channel);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
-    public void askForMessageContent(InteractionHook hook) {
-        hook.editOriginal(":seedling: Alright! Type in the **message content** for this embed.\r\n"
+    public void askForMessageContent(User author, TextChannel channel) {
+        channel.sendMessage(":seedling: Alright! Type in the **message content** for this embed.\r\n"
                 + "**-----------**\r\n"
                 + "1. *This will appear outside the embed and show as a message.*\r\n"
                 + "2. *You can type* `skip` *to continue.*\r\n"
                 + "3. *You only have 2 minutes.*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setColor(Integer.decode(embedProperties.get("color")))
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), hook), 
+                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), event), 
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), hook))
-                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), hook))
-                    .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), hook))
-                    .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), hook))
-                    .setFooter(embedProperties.get("footer-text") == null ? null : processField(embedProperties.get("footer-text"), hook), 
-                            embedProperties.get("footer-icon") == null ? null : processField(embedProperties.get("footer-icon"), hook))
+                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), event))
+                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), event))
+                    .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), event))
+                    .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), event))
+                    .setFooter(embedProperties.get("footer-text") == null ? null : processField(embedProperties.get("footer-text"), event), 
+                            embedProperties.get("footer-icon") == null ? null : processField(embedProperties.get("footer-icon"), event))
                     .build())
             .queue();
 
         Lemi.getInstance().getEventWaiter().waitForEvent(
                 MessageReceivedEvent.class,
-                (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getUser().getIdLong()
+                (e) -> e.getAuthor().getIdLong() == author.getIdLong()
                     && e.isFromGuild()
                     && e.getGuild().getIdLong() == Config.getLong("honeys_hive"),
                 (e) -> {
                     if (e.getMessage().getContentRaw().toLowerCase().equals("cancel")) {
-                        hook.editOriginal(":sunflower: Interaction cancelled.").queue();
+                        channel.sendMessage(":sunflower: Interaction cancelled.").queue();
                         return;
                     }
 
@@ -469,41 +474,37 @@ public class EmbedTools {
                     e.getMessage().delete().queue();
 
                     if (embedListener != null) {
-                        embedListener.afterAskingMessageContent(hook);
+                        embedListener.afterAskingMessageContent(channel);
                     }
                 },
                 2, TimeUnit.MINUTES,
                 () -> {
-                    hook.editOriginal(":sunflower: Interaction cancelled due to inactivity.").queue();
+                    channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
                 }
         );
     }
 
-    public void sendCreatedEmbed(InteractionHook hook) {
-        hook.editOriginalEmbeds(createEmbed(hook).build()).queue();
-        LemiDbEmbedManager.INS.saveCreatedEmbed(hook, embedProperties);
+    public void sendCreatedEmbed(TextChannel channel) {
+        channel.sendMessageEmbeds(createEmbed(event).build()).queue();
+        LemiDbEmbedManager.INS.saveCreatedEmbed(channel, embedProperties);
     }
 
-    private String processField(String field, InteractionHook hook) {
-        return Tools.processPlaceholders(field,
-                hook.getInteraction().getMember(),
-                hook.getInteraction().getGuild(),
-                hook.getInteraction().getTextChannel()
-        );
+    private String processField(String field, MessageReceivedEvent event) {
+        return Tools.processPlaceholders(field, event.getMember(), event.getGuild(), event.getTextChannel());
     }
 
-    private EmbedBuilder createEmbed(InteractionHook hook) {
+    private EmbedBuilder createEmbed(MessageReceivedEvent event) {
         return new EmbedBuilder()
-            .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), hook))
+            .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
             .setColor(Integer.decode(embedProperties.get("color")))
-            .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), hook), 
+            .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), event), 
                     null,
-                    embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), hook))
-            .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), hook))
-            .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), hook))
-            .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), hook))
-            .setFooter(embedProperties.get("footer-text") == null ? null : processField(embedProperties.get("footer-text"), hook), 
-                    embedProperties.get("footer-icon") == null ? null : processField(embedProperties.get("footer-icon"), hook));
+                    embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), event))
+            .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), event))
+            .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), event))
+            .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), event))
+            .setFooter(embedProperties.get("footer-text") == null ? null : processField(embedProperties.get("footer-text"), event), 
+                    embedProperties.get("footer-icon") == null ? null : processField(embedProperties.get("footer-icon"), event));
     }
 }
