@@ -17,9 +17,11 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.utils.misc;
+package com.honiism.discord.lemi.utils.embeds;
 
 import java.awt.*;
+
+import com.honiism.discord.lemi.utils.misc.Emojis;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
