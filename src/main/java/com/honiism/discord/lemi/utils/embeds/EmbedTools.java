@@ -160,7 +160,7 @@ public class EmbedTools {
                         + "1. *Please use this format:* `[name]&[link]` *or* `[name]`\r\n"
                         + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
                         + "3. *You can type* `skip` *to continue to the next category.*\r\n"
-                        + "4. *Author name must be less than 250 characters.*\r\n*"
+                        + "4. *Author name must be less than 250 characters.*\r\n"
                         + "**-----------**\r\n"
                         + "1. *You only have 5 minutes.*")
             .setEmbeds(new EmbedBuilder()

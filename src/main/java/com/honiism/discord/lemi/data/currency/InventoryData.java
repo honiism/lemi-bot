@@ -17,7 +17,7 @@
  * along with Lemi-Bot. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.honiism.discord.lemi.data;
+package com.honiism.discord.lemi.data.currency;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

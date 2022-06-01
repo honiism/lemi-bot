@@ -193,20 +193,21 @@ public class SlashCmdManager {
         registerCmd(reportCmd);
         registerCmd(suggestCmd);
 
-        // currency
-        registerCmd(currencyTopLevelCmd);
-
-        cmdsToAdd = commandsMap.values().stream().map(SlashCmd::getCommandData).collect(Collectors.toList());
-
         allSubTopCmds.add(helpCmd);
         allSubTopCmds.add(pingCmd);
         allSubTopCmds.add(donateCmd);
+        allSubTopCmds.add(reportCmd);
+        allSubTopCmds.add(suggestCmd);
+
+        // currency
+        registerCmd(currencyTopLevelCmd);
+
         allSubTopCmds.add(balanceCmd);
         allSubTopCmds.add(inventoryCmd);
         allSubTopCmds.add(bankrobCmd);
         allSubTopCmds.add(begCmd);
         allSubTopCmds.add(cookCmd);
-        allSubTopCmds.add(reportCmd);
-        allSubTopCmds.add(suggestCmd);
+
+        cmdsToAdd = commandsMap.values().stream().map(SlashCmd::getCommandData).collect(Collectors.toList());
     }
 }

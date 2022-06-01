@@ -20,7 +20,7 @@
 package com.honiism.discord.lemi.commands.slash.currency;
 
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.data.currency.UserDataManager;
 import com.honiism.discord.lemi.data.items.Items;
 
 import java.util.HashMap;
