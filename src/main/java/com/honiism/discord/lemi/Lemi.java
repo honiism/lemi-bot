@@ -27,13 +27,12 @@ import javax.security.auth.login.LoginException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmdManager;
+import com.honiism.discord.lemi.commands.text.handler.TextCmdManager;
 import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.listeners.BaseListener;
-import com.honiism.discord.lemi.listeners.CustomEmbedListener;
 import com.honiism.discord.lemi.listeners.GuildListener;
 import com.honiism.discord.lemi.listeners.MemberGuildListener;
 import com.honiism.discord.lemi.listeners.MessageListener;
-import com.honiism.discord.lemi.utils.customEmbeds.EmbedTools;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 
 import org.slf4j.Logger;
@@ -59,7 +58,7 @@ public class Lemi {
     private final ExecutorService cmdExecService;
     private final EventWaiter waiter;
     private final SlashCmdManager slashCmdManager;
-    private final EmbedTools embedTools;
+    private final TextCmdManager textCmdManager;
     private final ObjectMapper objectMapper;
 
     private JDA jda;
@@ -71,7 +70,7 @@ public class Lemi {
         
         waiter = new EventWaiter();
         slashCmdManager = new SlashCmdManager();
-        embedTools = new EmbedTools();
+        textCmdManager = new TextCmdManager();
         objectMapper = new ObjectMapper();
 
         cmdExecService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
@@ -119,7 +118,6 @@ public class Lemi {
 
         shardManager = builder.build();
 
-        embedTools.registerEmbedListener(new CustomEmbedListener());
         Items.registerItems();
     }
 
@@ -146,12 +144,6 @@ public class Lemi {
 
         shuttingDown = true;
 
-        getShardManager().getGuilds().stream().forEach(guild -> {
-            if (guild.getAudioManager().getConnectedChannel() != null) {
-                guild.getAudioManager().closeAudioConnection();
-            }
-        });
-
         cmdExecService.shutdownNow();
         getShardManager().shutdown();
         BotCommons.shutdown(getShardManager());
@@ -159,10 +151,6 @@ public class Lemi {
 
     public ObjectMapper getObjectMapper() {
         return objectMapper;
-    }
-
-    public EmbedTools getEmbedTools() {
-        return embedTools;
     }
 
     public JDA getJDA() {
@@ -175,6 +163,10 @@ public class Lemi {
 
     public SlashCmdManager getSlashCmdManager() {
         return slashCmdManager;
+    }
+
+    public TextCmdManager getTextCmdManager() {
+        return textCmdManager;
     }
     
     public boolean isDebug() {

@@ -28,7 +28,7 @@ import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.misc.EmbedUtils;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 
@@ -41,7 +41,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.text.Modal;
+import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 
@@ -57,7 +57,6 @@ public class Report extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
     }
 
     @Override
@@ -134,7 +133,7 @@ public class Report extends SlashCmd {
 
                 (event) -> event.getMember().getIdLong() == member.getIdLong()
                         && event.isFromGuild()
-                        && event.getGuild().getIdLong() == Config.getLong("honeys_sweets_id")
+                        && event.getGuild().getIdLong() == Config.getLong("honeys_hive")
                         && event.getModalId().equals("report"),
 
                 (event) -> {
@@ -153,7 +152,7 @@ public class Report extends SlashCmd {
                             : EmbedUtils.getSimpleEmbed("No error message provided")
                     );
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_hive"))
                         .getTextChannelById(Config.getLong("report_channel_id"))
                         .sendMessage(usertag + " (" + event.getMember().getAsMention() + ")'s report")
                         .setEmbeds(modalEmbeds)

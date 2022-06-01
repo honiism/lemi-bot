@@ -23,7 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.data.database.LemiDbBalDs;
 
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.entities.Message;
 
 public interface LemiDbBalManager {
     LemiDbBalManager INS = new LemiDbBalDs();
@@ -33,6 +33,6 @@ public interface LemiDbBalManager {
     void addUserData(long userId);
     void update(long userId, String jsonData);
     String getUserData(long userId);
-    void removeItemFromUsers(String itemId, InteractionHook hook) throws JsonMappingException, JsonProcessingException;
+    void removeItemFromUsers(String itemId, Message message) throws JsonMappingException, JsonProcessingException;
 }
     

@@ -57,7 +57,7 @@ public class MessageListener extends ListenerAdapter {
 
         log.info("{DM} " + author.getAsTag() + "(" + author.getIdLong() + "): \"" + message + "\"");
         	
-        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
             .getTextChannelById(Config.get("logs_channel_id"))
             .sendMessage(author.getAsTag() + "(" + author.getIdLong() + "): \"" + message + "\"")
             .queue();
@@ -68,9 +68,8 @@ public class MessageListener extends ListenerAdapter {
         Guild guild = event.getGuild();
         Long guildId = guild.getIdLong();
 
-        if (!guildId.equals(Config.getLong("honeys_sweets_id"))
+        if (!guildId.equals(Config.getLong("honeys_hive"))
                 && !guildId.equals(Config.getLong("test_server"))) {
-            guild.leave().queue();
             return;
         }
 
@@ -79,18 +78,14 @@ public class MessageListener extends ListenerAdapter {
         }
 
         String raw = event.getMessage().getContentRaw();
+        String prefix = Config.get("prefix");
 
-        if (raw.equalsIgnoreCase("lemi emergency shutdown") && Tools.isAuthorDev(member)) {
-            log.info(member.getUser().getAsTag() + "(" + member.getIdLong() + ") initiated emergency shutdown!");
-			
-            event.getChannel().sendMessage("Shutting down. . .").queue();
-        	
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage(member.getAsMention() + " **received emergency shutdown request. :bell:**")
-        	.queue();
-        	
-            Lemi.getInstance().shutdown();
+        if (raw.startsWith(prefix)) {
+            Lemi.getInstance().getTextCmdManager().handle(event, prefix);
+        } else if (raw.toLowerCase().startsWith(Config.get("prefix"))) {
+            Lemi.getInstance().getTextCmdManager().handle(event, Config.get("prefix"));
+        } else if (raw.startsWith(guild.getSelfMember().getAsMention())) {
+            Lemi.getInstance().getTextCmdManager().handle(event, guild.getSelfMember().getAsMention());
         }
     }
 }

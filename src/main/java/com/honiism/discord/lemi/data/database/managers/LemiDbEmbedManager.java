@@ -19,25 +19,26 @@
 
 package com.honiism.discord.lemi.data.database.managers;
 
-import java.util.Map;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.data.database.LemiDbEmbedDs;
+import com.honiism.discord.lemi.data.embed.EmbedData;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public interface LemiDbEmbedManager {
     LemiDbEmbedManager INS = new LemiDbEmbedDs();
 
     // embed
     String getSavedMsgContent(String embedId);
-    EmbedBuilder getSavedEmbedBuilder(InteractionHook hook, String embedId);
+    EmbedBuilder getSavedEmbedBuilder(String embedId);
     void showSavedEmbed(GuildMemberJoinEvent event, TextChannel channel, String embedId);
-    void showSavedEmbed(InteractionHook hook, String embedId);
-    void showEmbedsList(InteractionHook hook);
-    void deleteCustomEmbed(InteractionHook hook, String embedId);
-    void assignUniqueId(InteractionHook hook, String specialKey, Map<String, String> embedProperties);
-    void saveCreatedEmbed(InteractionHook hook, Map<String, String> embedProperties);
+    void showSavedEmbed(Message message, String embedId, MessageReceivedEvent event);
+    void showEmbedsList(Message message);
+    void deleteCustomEmbed(Message message, String embedId);
+    void assignUniqueId(TextChannel channel, String specialKey, EmbedData embedData);
+    void saveCreatedEmbed(TextChannel channel, EmbedData embedData) throws JsonProcessingException;
 }

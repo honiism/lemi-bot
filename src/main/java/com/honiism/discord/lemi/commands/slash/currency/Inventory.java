@@ -22,18 +22,17 @@ package com.honiism.discord.lemi.commands.slash.currency;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.data.currency.UserDataManager;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.utils.misc.EmbedUtils;
+import com.honiism.discord.lemi.utils.buttons.Paginator;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
-import com.honiism.discord.lemi.utils.paginator.Paginator;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -110,14 +109,11 @@ public class Inventory extends SlashCmd {
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
                 
-            EmbedBuilder cooldownMsgEmbed = new EmbedBuilder()
-                .setDescription("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
-                        + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
-                        + author.getAsMention() 
-                        + ", you can use this command again in `" + time + "`.")
-                .setColor(0xffd1dc);
-                
-            hook.sendMessageEmbeds(cooldownMsgEmbed.build()).queue();
+            hook.sendMessageEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
+                    + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
+                    + author.getAsMention() 
+                    + ", you can use this command again in `" + time + "`."))
+                .queue();
         }        
     }    
 }

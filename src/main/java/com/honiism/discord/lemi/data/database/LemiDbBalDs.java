@@ -31,9 +31,9 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.Lemi;
-import com.honiism.discord.lemi.data.InventoryData;
-import com.honiism.discord.lemi.data.UserData;
-import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.data.currency.InventoryData;
+import com.honiism.discord.lemi.data.currency.UserData;
+import com.honiism.discord.lemi.data.currency.UserDataManager;
 import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -41,7 +41,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.entities.Message;
 
 public class LemiDbBalDs implements LemiDbBalManager {
 
@@ -146,14 +146,14 @@ public class LemiDbBalDs implements LemiDbBalManager {
                 PreparedStatement insertStatement =
                     conn.prepareStatement("INSERT INTO user_currency_data(user_id, json_data) VALUES(?, ?)")) {
 
-            UserData userImpl = new UserData(userId);
+            UserData userData = new UserData(userId);
 
-            userImpl.setBalance(1000);
-            userImpl.setdeaths(0);
-            userImpl.setPassiveMode(false);
-            userImpl.setInventory(new ArrayList<InventoryData>());
+            userData.setBalance(1000);
+            userData.setdeaths(0);
+            userData.setPassiveMode(false);
+            userData.setInventory(new ArrayList<InventoryData>());
 
-            String jsonData = Lemi.getInstance().getObjectMapper().writeValueAsString(userImpl);
+            String jsonData = Lemi.getInstance().getObjectMapper().writeValueAsString(userData);
             
             insertStatement.setLong(1, userId);
             insertStatement.setString(2, jsonData);
@@ -177,7 +177,7 @@ public class LemiDbBalDs implements LemiDbBalManager {
     }
 
     @Override
-    public void removeItemFromUsers(String itemId, InteractionHook hook) throws JsonMappingException, JsonProcessingException {
+    public void removeItemFromUsers(String itemId, Message message) throws JsonMappingException, JsonProcessingException {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
     	            conn.prepareStatement("SELECT * FROM user_currency_data")) {
@@ -206,7 +206,7 @@ public class LemiDbBalDs implements LemiDbBalManager {
         }
 
         log.info("Removed item with the id of " + itemId + " from all the users.");
-        hook.sendMessage(":grapes: Removed item with the id of " + itemId + " from all the users.").queue();
+        message.reply(":grapes: Removed item with the id of " + itemId + " from all the users.").queue();
 
         Lemi.getInstance().shutdown();
     }

@@ -26,9 +26,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.data.currency.UserDataManager;
 import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
-import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -51,23 +50,8 @@ public abstract class SlashCmd {
     private Permission[] botPermissions = new Permission[0];
     private UserDataManager userDataManager;
 
-    public void executeAction(SlashCommandInteractionEvent event) {
+    public void preAction(SlashCommandInteractionEvent event) {
         Member member = event.getMember();
-
-        if (getUserCategory().equals(UserCategory.DEV) 
-                && !Tools.isAuthorDev(member)) {
-            return;
-        }
-
-        if (getUserCategory().equals(UserCategory.ADMINS) 
-                && !Tools.isAuthorAdmin(member, event)) {
-            return;
-        }
-
-        if (getUserCategory().equals(UserCategory.MODS) 
-                && !Tools.isAuthorMod(member, event)) {
-            return;
-        }
 
         if (getUserPerms().length > 0 && !member.hasPermission(getUserPerms())) {
             EmbedBuilder needUserPermsMsg = new EmbedBuilder()
@@ -86,7 +70,7 @@ public abstract class SlashCmd {
             EmbedBuilder needUserPermsMsg = new EmbedBuilder()
                 .setDescription(":cherries: **WAIT!**\r\n"
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + member.getAsMention() + "\r\n" 
-                        + getBotPermsString())
+                        + "> I don't have the " + getBotPermsString())
                 .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
 
@@ -160,7 +144,7 @@ public abstract class SlashCmd {
             return "No bot permissions needed.";
         }
         return Tools.parsePerms(botPermissions)
-        + (botPermissions.length > 1 ? " permissions" : " permission");
+                + (botPermissions.length > 1 ? " permissions" : " permission");
     }
 
     public void setUserPerms(Permission[] userPermissions) {
@@ -209,21 +193,21 @@ public abstract class SlashCmd {
         EmbedBuilder helpEmbed = new EmbedBuilder()
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
                     + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
-            .addField(":sunflower: **Name**" + CustomEmojis.PINK_DASH, "`" + getName() + "`", false)
-            .addField(":crescent_moon: **Description**" + CustomEmojis.PINK_DASH, "`" + getDesc() + "`", false)
-            .addField(":seedling: **Usage**" + CustomEmojis.PINK_DASH, "`" + getUsage() + "`\r\n"  
+            .addField(":sunflower: **Name**" + " !! ", "`" + getName() + "`", false)
+            .addField(":crescent_moon: **Description**" + " !! ", "`" + getDesc() + "`", false)
+            .addField(":seedling: **Usage**" + " !! ", "`" + getUsage() + "`\r\n"  
                     + "\r\n`[] : Optional argument(s).`\r\n"
                     + "`<> : Required argument(s).`\r\n"
                     + "`((. . .)) : pick the options given.`", false)
-            .addField(":butterfly: **Other usages**" + CustomEmojis.PINK_DASH,
+            .addField(":butterfly: **Other usages**" + " !! ",
                     "`" + String.join(", ", slashCmdManagerIns.getCmdNamesByCategory(
                             slashCmdManagerIns.getCmdByCategory(getCategory()))) 
                     + "`", false)
-            .addField(":cherry_blossom: **Category**" + CustomEmojis.PINK_DASH, "`" + getCategoryString() + "`", false)
-            .addField(":grapes: **User category**" + CustomEmojis.PINK_DASH, "`" + getUserCategoryString() + "`", false)
-            .addField(":strawberry: **User permissions needed**" + CustomEmojis.PINK_DASH,
+            .addField(":cherry_blossom: **Category**" + " !! ", "`" + getCategoryString() + "`", false)
+            .addField(":grapes: **User category**" + " !! ", "`" + getUserCategoryString() + "`", false)
+            .addField(":strawberry: **User permissions needed**" + " !! ",
                     "`" + getUserPermsString() + "`", false)
-            .addField(":cake: **Bot permissions needed**" + CustomEmojis.PINK_DASH,
+            .addField(":cake: **Bot permissions needed**" + " !! ",
                     "`" + getBotPermsString() + "`", false)
             .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
             .setColor(0xffd1dc);
@@ -237,21 +221,21 @@ public abstract class SlashCmd {
         EmbedBuilder helpEmbed = new EmbedBuilder()
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
                     + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
-            .addField(":sunflower: **Name**" + CustomEmojis.PINK_DASH, "`" + getName() + "`", false)
-            .addField(":crescent_moon: **Description**" + CustomEmojis.PINK_DASH, "`" + getDesc() + "`", false)
-            .addField(":seedling: **Usage**" + CustomEmojis.PINK_DASH, "`" + getUsage() + "`\r\n"  
+            .addField(":sunflower: **Name**" + " !! ", "`" + getName() + "`", false)
+            .addField(":crescent_moon: **Description**" + " !! ", "`" + getDesc() + "`", false)
+            .addField(":seedling: **Usage**" + " !! ", "`" + getUsage() + "`\r\n"  
                     + "\r\n`[] : Optional argument(s).`\r\n"
                     + "`<> : Required argument(s).`\r\n"
                     + "`((. . .)) : pick the options given.`", false)
-            .addField(":butterfly: **Other usages**" + CustomEmojis.PINK_DASH,
+            .addField(":butterfly: **Other usages**" + " !! ",
                     "`" + String.join(", ", slashCmdManagerIns.getCmdNamesByCategory(
                             slashCmdManagerIns.getCmdByCategory(getCategory()))) 
                     + "`", false)
-            .addField(":cherry_blossom: **Category**" + CustomEmojis.PINK_DASH, "`" + getCategoryString() + "`", false)
-            .addField(":grapes: **User category**" + CustomEmojis.PINK_DASH, "`" + getUserCategoryString() + "`", false)
-            .addField(":strawberry: **User permissions needed**" + CustomEmojis.PINK_DASH,
+            .addField(":cherry_blossom: **Category**" + " !! ", "`" + getCategoryString() + "`", false)
+            .addField(":grapes: **User category**" + " !! ", "`" + getUserCategoryString() + "`", false)
+            .addField(":strawberry: **User permissions needed**" + " !! ",
                     "`" + getUserPermsString() + "`", false)
-            .addField(":cake: **Bot permissions needed**" + CustomEmojis.PINK_DASH,
+            .addField(":cake: **Bot permissions needed**" + " !! ",
                     "`" + getBotPermsString() + "`", false)
             .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
             .setColor(0xffd1dc);
