@@ -20,55 +20,39 @@
 package com.honiism.discord.lemi.commands.text.staff.mods;
 
 import java.util.HashMap;
+import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
 import com.honiism.discord.lemi.data.UserDataManager;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class ModifyBal extends SlashCmd {
+public class ModifyBal extends TextCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public ModifyBal() {
-        setCommandData(Commands.slash("modifybal", "Add or remove some currency from a user.")
-                .addSubcommands(
-                        new SubcommandData("add", "Add some currency to a user.")
-                                .addOption(OptionType.USER, "user", "The user you'd like to add some currency to.", true)
-                                .addOption(OptionType.INTEGER, "amount", "The amount of currency you'd like to add.'", true),
-  
-                        new SubcommandData("remove", "Remove some currency from a user.")
-                                .addOption(OptionType.USER, "user", "The user you'd like to remove some currency from.", true)
-                                .addOption(OptionType.INTEGER, "amount", "The amount of currency you'd like to remove.", true)
-                )
-        );
-
-        setUsage("/mods modifybal ((subcommands))");
+        setName("modifybal");
+        setDesc("Add or remove some currency from a user.");
+        setUsage("modifybal ((add <@user> <amount>|remove <@user> <amount>))");
         setCategory(CommandCategory.MODS);
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
         
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -83,32 +67,47 @@ public class ModifyBal extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            String subCmdName = event.getSubcommandName();
+            List<String> args = ctx.getArgs();
+
+            if (args.size() < 3 || event.getMessage().getMentions().getUsers().isEmpty()) {
+                event.getMessage().reply(":snowflake: Usage: `" + getUsage() + "`!").queue();
+                return;
+            }
+
+            String subCmdName = args.get(0);
 
             switch (subCmdName) {
                 case "add":
-                    long amount = (long) event.getOption("amount", OptionMapping::getAsLong);
-
-                    if (amount < 0 || amount == 0) {
-                        hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of currency.").queue();
-                        return;
-                    } 
-                        
-                    Member targetMember = event.getOption("user", OptionMapping::getAsMember);
-
-                    if (targetMember == null) {
-                        hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
+                    if (!Tools.isLong(args.get(2))) {
+                        event.getMessage().reply(":grapes: `<amount>` must be a valid number").queue();
                         return;
                     }
 
-                    setUserDataManager(targetMember.getIdLong());
+                    long amount = Long.parseLong(args.get(2));
+
+                    if (amount < 0 || amount == 0) {
+                        event.getMessage()
+                            .reply(":sunflower: You cannot give less or equal to 0 amount of currency.")
+                            .queue();
+                        return;
+                    } 
+                
+                    //TODO: check the difference between getMembers() and getUsers()
+                    User target = event.getMessage().getMentions().getUsers().get(0);
+
+                    if (target == null) {
+                        event.getMessage().reply(":grapes: That user doesn't exist in the guild.").queue();
+                        return;
+                    }
+
+                    setUserDataManager(target.getIdLong());
 
                     UserDataManager dataManager = getUserDataManager();
             
                     dataManager.addBalToUser(amount);
             
-                    hook.sendMessage(":cherry_blossom: " 
-                            + targetMember.getAsMention() 
+                    event.getMessage().reply(":cherry_blossom: " 
+                            + target.getAsMention() 
                             + ", you have received " + amount 
                             + " " + Tools.getBalName() + " from " 
                             + author.getAsMention() + "!\r\n"
@@ -118,28 +117,30 @@ public class ModifyBal extends SlashCmd {
                     break;
 
                 case "remove":
-                    amount = (long) event.getOption("amount", OptionMapping::getAsLong);
+                    amount = Long.parseLong(args.get(2));
 
                     if (amount < 0 || amount == 0) {
-                        hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of currency.").queue();
+                        event.getMessage()
+                            .reply(":sunflower: You cannot remove less or equal to 0 amount of currency.")
+                            .queue();
                         return;
                     } 
                         
-                    targetMember = event.getOption("user", OptionMapping::getAsMember);
+                    target = event.getMessage().getMentions().getUsers().get(0);
 
-                    if (targetMember == null) {
-                        hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
+                    if (target == null) {
+                        event.getMessage().reply(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    setUserDataManager(targetMember.getIdLong());
+                    setUserDataManager(target.getIdLong());
 
                     dataManager = getUserDataManager();
             
                     dataManager.removeBalFromUser(amount);
             
-                    hook.sendMessage(":cherry_blossom: " 
-                            + targetMember.getAsMention() 
+                    event.getMessage().reply(":cherry_blossom: " 
+                            + target.getAsMention() 
                             + ", " + author.getAsMention()
                             + " has taken " + amount + " " 
                             + Tools.getBalName() + " from " + "you" + "!\r\n"

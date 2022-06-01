@@ -31,7 +31,7 @@ import com.honiism.discord.lemi.commands.text.handler.CommandContext;
 import com.honiism.discord.lemi.commands.text.handler.TextCmd;
 import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.buttons.Paginator;
-import com.honiism.discord.lemi.utils.misc.EmbedUtils;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.Permission;
@@ -47,9 +47,7 @@ public class ModifyAdmins extends TextCmd {
     public ModifyAdmins() {
         setName("modifyadmins");
         setDesc("Add/remove/view user(s) to/from the administrator database.");
-        setUsage("modifyadmins add <user_id> <key>\r\n"
-                + "modifyadmins remove <user_id>\r\n"
-                + "modifyadmins view");
+        setUsage("modifyadmins ((add <user_id> <key>|remove <user_id>|view))");
         setCategory(CommandCategory.DEV);
         setUserCategory(UserCategory.DEV);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
@@ -87,12 +85,12 @@ public class ModifyAdmins extends TextCmd {
 
             switch (actionName) {
                 case "add":
-                    if (args.size() < 2) {
-                        event.getMessage().reply(":cherry_blossom: Usage: `l.modifyadmins add <user_id> <key>`!").queue();
+                    if (args.size() < 3) {
+                        event.getMessage().reply(":cherry_blossom: Usage: \r\n`" + getUsage() + "`!").queue();
                         return;
                     }
 
-                    if (!Tools.isInt(args.get(1))) {
+                    if (!Tools.isLong(args.get(1))) {
                         event.getMessage().reply(":crescent_moon: `<user_id>` must be a valid user id number.").queue();
                         return;
                     }
@@ -116,12 +114,12 @@ public class ModifyAdmins extends TextCmd {
                     break;
 
                 case "remove":
-                    if (args.isEmpty()) {
-                        event.getMessage().reply(":cherry_blossom: Usage: `l.modifyadmins remove <user_id>`!").queue();
+                    if (args.size() < 2) {
+                        event.getMessage().reply(":cherry_blossom: Usage: \r\n`" + getUsage() + "`!").queue();
                         return;
                     }
 
-                    if (!Tools.isInt(args.get(1))) {
+                    if (!Tools.isLong(args.get(1))) {
                         event.getMessage().reply(":crescent_moon: `<user_id>` must be a valid user id number.").queue();
                         return;
                     }

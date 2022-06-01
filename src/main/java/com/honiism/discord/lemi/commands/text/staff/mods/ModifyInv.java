@@ -20,58 +20,40 @@
 package com.honiism.discord.lemi.commands.text.staff.mods;
 
 import java.util.HashMap;
+import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
 import com.honiism.discord.lemi.data.UserDataManager;
 import com.honiism.discord.lemi.data.items.Items;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class ModifyInv extends SlashCmd {
+public class ModifyInv extends TextCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public ModifyInv() {
-        setCommandData(Commands.slash("modifyinv", "Add or remove some items from a user's inventory.")
-                .addSubcommands(
-                        new SubcommandData("add", "Add some items to a user.")
-                                .addOption(OptionType.USER, "user", "The user you'd like to give some items to.", true)
-                                .addOption(OptionType.STRING, "item_name", "The name of the item you'd like to add.", true)
-                                .addOption(OptionType.INTEGER, "amount", "The amount of item you'd like to add.'", true),
-  
-                        new SubcommandData("remove", "Remove some items from a user.")
-                                .addOption(OptionType.USER, "user", "The user you'd like to take some items from.", true)
-                                .addOption(OptionType.STRING, "item_name", "The name of the item you'd like to take.'", true)
-                                .addOption(OptionType.INTEGER, "amount", "The amount of item you'd like to take.'", true)
-                )
-        );
-
-        setUsage("/mods modifyInv ((subcommands))");
+        setName("modifyinv");
+        setDesc("Add or remove some items from a user's inventory.");
+        setUsage("modifyInv ((add <@user> <amount> <item_name>|remove <@user> <amount> <item_name>))");
         setCategory(CommandCategory.MODS);
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) throws JsonProcessingException {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
         
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -86,40 +68,54 @@ public class ModifyInv extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            String subCmdName = event.getSubcommandName();
+            List<String> args = ctx.getArgs();
+
+            if (args.size() < 4 || event.getMessage().getMentions().getUsers().isEmpty()) {
+                event.getMessage().reply(":strawberry: Usage: `" + getUsage() + "`!").queue();
+                return;
+            }
+
+            String subCmdName = args.get(0);
 
             switch (subCmdName) {
                 case "add":
-                    long amount = (long) event.getOption("amount", OptionMapping::getAsLong);
+                    if (!Tools.isLong(args.get(2))) {
+                        event.getMessage().reply(":grapes: `<amount>` must be a valid number").queue();
+                        return;
+                    }
+
+                    long amount = Long.parseLong(args.get(2));
 
                     if (amount < 0 || amount == 0) {
-                        hook.sendMessage(":sunflower: You cannot give less or equal to 0 amount of item.").queue();
+                        event.getMessage()
+                            .reply(":sunflower: You cannot give less or equal to 0 amount of item.")
+                            .queue();
                         return;
                     }
 
-                    String itemName = event.getOption("item_name", OptionMapping::getAsString);
+                    String itemName = String.join(" ", args.subList(3, args.size()));
 
                     if (!Items.checkIfItemExists(itemName)) {
-                        hook.sendMessage(":tea: That item does not exist.").queue();
+                        event.getMessage().reply(":tea: That item does not exist.").queue();
                         return;
                     }
 
-                    Member targetMember = event.getOption("user", OptionMapping::getAsMember);
+                    User target = event.getMessage().getMentions().getUsers().get(0);
 
-                    if (targetMember == null) {
-                        hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
+                    if (target == null) {
+                        event.getMessage().reply(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    setUserDataManager(targetMember.getIdLong());
+                    setUserDataManager(target.getIdLong());
 
                     UserDataManager dataManager = getUserDataManager();
                     String itemId = itemName.replaceAll(" ", "_");
 
                     dataManager.addItemToUser(itemId, amount);
             
-                    hook.sendMessage(":oden: " 
-                            + targetMember.getAsMention() 
+                    event.getMessage().reply(":oden: " 
+                            + target.getAsMention() 
                             + ", you have received " + amount 
                             + " " + itemName + " from " 
                             + author.getAsMention() + "!\r\n"
@@ -130,41 +126,48 @@ public class ModifyInv extends SlashCmd {
                     break;
 
                 case "remove":
-                    amount = event.getOption("amount", OptionMapping::getAsLong);
+                    if (!Tools.isLong(args.get(2))) {
+                        event.getMessage().reply(":grapes: `<amount>` must be a valid number").queue();
+                        return;
+                    }
+
+                    amount = Long.parseLong(args.get(2));
 
                     if (amount < 0 || amount == 0) {
-                        hook.sendMessage(":sunflower: You cannot remove less or equal to 0 amount of items").queue();
+                        event.getMessage()
+                            .reply(":sunflower: You cannot remove less or equal to 0 amount of items")
+                            .queue();
                         return;
                     }
 
-                    itemName = event.getOption("item_name", OptionMapping::getAsString);
+                    itemName = String.join(" ", args.subList(3, args.size()));
 
                     if (!Items.checkIfItemExists(itemName)) {
-                        hook.sendMessage(":tea: That item does not exist.").queue();
+                        event.getMessage().reply(":tea: That item does not exist.").queue();
                         return;
                     }
 
-                    targetMember = event.getOption("user", OptionMapping::getAsMember);
+                    target = event.getMessage().getMentions().getUsers().get(0);
 
-                    if (targetMember == null) {
-                        hook.sendMessage(":grapes: That user doesn't exist in the guild.").queue();
+                    if (target == null) {
+                        event.getMessage().reply(":grapes: That user doesn't exist in the guild.").queue();
                         return;
                     }
 
-                    setUserDataManager(targetMember.getIdLong());
+                    setUserDataManager(target.getIdLong());
 
                     dataManager = getUserDataManager();
                     itemId = itemName.replaceAll(" ", "_");
 
                     if (dataManager.getItemCountFromUser(itemId) < amount) {
-                        hook.sendMessage(":hibiscus: You cannot take more than what they have.").queue();
+                        event.getMessage().reply(":hibiscus: You cannot take more than what they have.").queue();
                         return;
                     }
 
                     dataManager.removeItemFromUser(itemId, amount);
             
-                    hook.sendMessage(":oden: " 
-                            + targetMember.getAsMention() 
+                    event.getMessage().reply(":oden: " 
+                            + target.getAsMention() 
                             + ", " + author.getAsMention()
                             + " has taken " + amount + " " + itemName + " from " 
                             + "you" + "!\r\n"

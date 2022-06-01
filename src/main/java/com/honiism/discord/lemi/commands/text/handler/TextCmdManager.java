@@ -23,6 +23,14 @@ import com.honiism.discord.lemi.commands.text.staff.dev.ReloadSlash;
 import com.honiism.discord.lemi.commands.text.staff.dev.SetDebug;
 import com.honiism.discord.lemi.commands.text.staff.dev.Shutdown;
 import com.honiism.discord.lemi.commands.text.staff.dev.UpsertSlash;
+import com.honiism.discord.lemi.commands.text.staff.mods.AddCurrProfile;
+import com.honiism.discord.lemi.commands.text.staff.mods.Dashboard;
+import com.honiism.discord.lemi.commands.text.staff.mods.GuildList;
+import com.honiism.discord.lemi.commands.text.staff.mods.ModifyBal;
+import com.honiism.discord.lemi.commands.text.staff.mods.ModifyInv;
+import com.honiism.discord.lemi.commands.text.staff.mods.ShardStatus;
+import com.honiism.discord.lemi.commands.text.staff.mods.Test;
+import com.honiism.discord.lemi.commands.text.staff.mods.ViewItems;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,5 +122,15 @@ public class TextCmdManager {
         addCommand(new ResetCurrData());
         addCommand(new ShardRestart());
         addCommand(new UserBan());
+
+        // mods
+        addCommand(new AddCurrProfile());
+        addCommand(new Dashboard());
+        addCommand(new GuildList());
+        addCommand(new ModifyBal());
+        addCommand(new ModifyInv());
+        addCommand(new ShardStatus());
+        addCommand(new Test());
+        addCommand(new ViewItems());
     }
 }

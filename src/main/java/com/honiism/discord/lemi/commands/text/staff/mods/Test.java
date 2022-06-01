@@ -25,39 +25,38 @@ import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class Test extends SlashCmd {
+public class Test extends TextCmd {
 
     private static final Logger log = LoggerFactory.getLogger(Test.class);
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public Test() {
-        setCommandData(Commands.slash("test", "Test if Lemi is responding to commands correctly."));
-        setUsage("/mods test");
+        setName("test");
+        setDesc("Test if Lemi is responding to commands correctly.");
+        setUsage("test");
         setCategory(CommandCategory.MODS);
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
         
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -72,7 +71,7 @@ public class Test extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            hook.sendMessage(":dango: Hello there, command run correctly! :)").queue();
+            event.getMessage().reply(":dango: Hello there, command run correctly! :)").queue();
             
             log.info(author.getAsTag() + " tested me and I'm working fine (slash).");
 
@@ -85,7 +84,7 @@ public class Test extends SlashCmd {
             String time = Tools.secondsToTime(((5 * 1000) - timeDelayed) / 1000);
                 
             event.getMessage().replyEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
-                    + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
+                    + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹s.\r\n"
                     + author.getAsMention() 
                     + ", you can use this command again in `" + time + "`."))
                 .queue();

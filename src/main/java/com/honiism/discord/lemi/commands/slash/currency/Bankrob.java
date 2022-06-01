@@ -30,10 +30,9 @@ import java.util.HashMap;
 import java.util.Random;
 
 import com.honiism.discord.lemi.utils.currency.WeightedRandom;
-import com.honiism.discord.lemi.utils.misc.EmbedUtils;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -102,7 +101,7 @@ public class Bankrob extends SlashCmd {
         } else {
             String time = Tools.secondsToTime(((3600 * 1000) - timeDelayed) / 1000);
                 
-            event.getMessage().replyEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
+            hook.sendMessageEmbeds(EmbedUtils.errorEmbed("‧₊੭ :cherries: CHILL! ♡ ⋆｡˚\r\n" 
                     + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
                     + author.getAsMention() 
                     + ", you can use this command again in `" + time + "`."))

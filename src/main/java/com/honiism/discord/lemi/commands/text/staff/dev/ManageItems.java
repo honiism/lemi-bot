@@ -23,14 +23,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.text.handler.CommandContext;
 import com.honiism.discord.lemi.commands.text.handler.TextCmd;
 import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.honiism.discord.lemi.data.items.Items;
-import com.honiism.discord.lemi.utils.misc.EmbedUtils;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.Permission;
@@ -53,7 +53,7 @@ public class ManageItems extends TextCmd {
     }
 
     @Override
-    public void action(CommandContext ctx) throws JsonMappingException, JsonProcessingException {
+    public void action(CommandContext ctx) {
         MessageReceivedEvent event = ctx.getEvent();
         User author = event.getAuthor();
         
@@ -84,7 +84,12 @@ public class ManageItems extends TextCmd {
                 return;
             }
 
-            LemiDbBalManager.INS.removeItemFromUsers(itemId, event.getMessage());
+            try {
+                LemiDbBalManager.INS.removeItemFromUsers(itemId, event.getMessage());
+            } catch (JsonProcessingException e) {
+                Tools.sendError("Something unexpected happened.",
+                        "JsonProcessingException", Lemi.getLemiLogger(), event.getMessage(), e);
+            }
 
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);

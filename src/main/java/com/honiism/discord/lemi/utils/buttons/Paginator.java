@@ -30,7 +30,7 @@ import java.time.Instant;
 
 import javax.annotation.Nonnull;
 
-import com.honiism.discord.lemi.utils.misc.EmbedUtils;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Emojis;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 
@@ -53,7 +53,7 @@ public class Paginator {
     private static Button previous = Button.secondary("previous", Emoji.fromMarkdown(Emojis.LEFT_ARROW));
     private static Button next = Button.secondary("next", Emoji.fromMarkdown(Emojis.RIGHT_ARROW));
     private static Button last = Button.secondary("last", Emoji.fromMarkdown(Emojis.SKIP_TO_END_BUTTON));
-    private static Button delete = Button.danger("stop", Emoji.fromMarkdown(Emojis.CROSS_MARK));
+    private static Button delete = Button.danger("stop", Emoji.fromMarkdown(Emojis.TRASH_BIN));
     
     private final EventWaiter waiter;
     private final int itemsPerPage;
@@ -101,6 +101,10 @@ public class Paginator {
         this.page = page;
 
         if (msgContent == null) {
+            if (this.pages == 1 && page != 1) {
+                page = 1;
+            }
+            
             message.editMessageEmbeds(getEmbed(page)).setActionRows(getButtonLayout(page))
                 .queue(m -> waitForEvent(m.getChannel().getIdLong(), m.getIdLong()));
         } else {
@@ -238,10 +242,12 @@ public class Paginator {
     private MessageEmbed getEmbed(int page) {
         if (page > pages) {
             page = pages;
+            this.page = pages;
         }
         
         if (page < 1) {
             page = 1;
+            this.page = 1;
         }
 
         int start = page == 1 ? 0 : ((page - 1) * itemsPerPage);

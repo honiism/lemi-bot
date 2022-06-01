@@ -20,34 +20,29 @@
 package com.honiism.discord.lemi.commands.text.staff.mods;
 
 import java.util.HashMap;
+import java.util.List;
 
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
 import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class AddCurrProfile extends SlashCmd {
+public class AddCurrProfile extends TextCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public AddCurrProfile() {
-        setCommandData(Commands.slash("addcurrprofile", "Add a currency profile for a member that doesn't have one.")
-                .addOption(OptionType.USER, "user", "User you'd like to give a currency profile.", true)
-        );
-
-        setUsage("/mods addcurrprofile <user>");
+        setName("addcurrprofile");
+        setDesc("Add a currency profile for a member that doesn't have one.");
+        setUsage("addcurrprofile <@user>");
         setCategory(CommandCategory.MODS);
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
@@ -55,9 +50,9 @@ public class AddCurrProfile extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
         
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -72,21 +67,23 @@ public class AddCurrProfile extends SlashCmd {
         
             delay.put(author.getIdLong(), System.currentTimeMillis());
 
-            Member member = event.getOption("user", OptionMapping::getAsMember);
-            
-            if (member == null) {
-                hook.sendMessage(":cherry_blossom This user doesn't exist in the guild.").queue();
+            List<String> args = ctx.getArgs();
+
+            if (args.isEmpty() || event.getMessage().getMentions().getUsers().isEmpty()) {
+                event.getMessage().reply(":strawberry: Usage: `" + getUsage() + "`!").queue();
                 return;
             }
 
-            if (LemiDbBalManager.INS.userHasData(member.getIdLong())) {
-                hook.sendMessage(":snowflake: This user already has a currency profile.").queue();
+            User target = event.getMessage().getMentions().getUsers().get(0);
+
+            if (LemiDbBalManager.INS.userHasData(target.getIdLong())) {
+                event.getMessage().reply(":snowflake: This user already has a currency profile.").queue();
                 return;
             }
 
-            LemiDbBalManager.INS.addUserData(member.getIdLong());
+            LemiDbBalManager.INS.addUserData(target.getIdLong());
 
-            hook.sendMessage(":seedling: Successfully added currency profiles to them.").queue();
+            event.getMessage().reply(":seedling: Successfully added currency profiles to them.").queue();
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);
                 

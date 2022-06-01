@@ -27,32 +27,26 @@ import java.util.concurrent.TimeUnit;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
 import com.honiism.discord.lemi.data.items.Items;
 import com.honiism.discord.lemi.utils.buttons.Paginator;
-import com.honiism.discord.lemi.utils.misc.EmbedUtils;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class ViewItems extends SlashCmd {
+public class ViewItems extends TextCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public ViewItems() {
-        setCommandData(Commands.slash("viewitems", "View the currently available items in the internal list.")
-                .addOption(OptionType.INTEGER, "page", "The page number for the items list you want to see.", false)
-        );
-
-        setUsage("/mods viewitems [page number]");
+        setName("viewitems");
+        setDesc("View the currently available items in the internal list.");
+        setUsage("viewitems [page number]");
         setCategory(CommandCategory.MODS);
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
@@ -61,9 +55,9 @@ public class ViewItems extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
         
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -99,9 +93,10 @@ public class ViewItems extends SlashCmd {
                 .setColor(0xffd1dc)
                 .setTimeout(1, TimeUnit.MINUTES);
 
-            int page = event.getOption("page", 1, OptionMapping::getAsInt);
+            List<String> args = ctx.getArgs();
+            int page = (!args.isEmpty() && Tools.isInt(args.get(0))) ? Integer.parseInt(args.get(0)) : 1;
 
-            hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":seedling: Loading..."))
+            event.getMessage().replyEmbeds(EmbedUtils.getSimpleEmbed(":seedling: Loading..."))
                 .queue(message -> builder.build().paginate(message, page));
                 
         } else {

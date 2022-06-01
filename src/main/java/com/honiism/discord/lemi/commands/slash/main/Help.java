@@ -30,7 +30,7 @@ import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmdManager;
 import com.honiism.discord.lemi.utils.buttons.EmbedPaginator;
-import com.honiism.discord.lemi.utils.misc.EmbedUtils;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Emojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 

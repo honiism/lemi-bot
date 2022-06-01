@@ -26,27 +26,28 @@ import java.util.HashMap;
 
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
-import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.commands.text.handler.CommandContext;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.HardwareAbstractionLayer;
 
-public class Dashboard extends SlashCmd {
+public class Dashboard extends TextCmd {
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
 
     public Dashboard() {
-        setCommandData(Commands.slash("dashboard", "View details about Lemi's memory usage, uptime, etc."));
-        setUsage("/mods dashboard");
+        setName("dashboard");
+        setDesc("View details about Lemi's memory usage, uptime, etc.");
+        setUsage("dashboard");
         setCategory(CommandCategory.MODS);
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
@@ -55,9 +56,9 @@ public class Dashboard extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-        User author = event.getUser();
+    public void action(CommandContext ctx) {
+        MessageReceivedEvent event = ctx.getEvent();
+        User author = event.getAuthor();
         
         if (delay.containsKey(author.getIdLong())) {
             timeDelayed = System.currentTimeMillis() - delay.get(author.getIdLong());
@@ -80,7 +81,7 @@ public class Dashboard extends SlashCmd {
                 .setColor(0xffd1dc)
                 .setTimestamp(Instant.now());
 
-            hook.sendMessageEmbeds(dashboardEmbed.build()).queue();
+            event.getMessage().replyEmbeds(dashboardEmbed.build()).queue();
                 
         } else {
             String time = Tools.secondsToTime(((10 * 1000) - timeDelayed) / 1000);

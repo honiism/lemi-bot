@@ -84,7 +84,7 @@ public class ResetCurrData extends TextCmd {
                         UserDataManager dataManager = getUserDataManager();
 
                         dataManager.removeData();
-                        event.getMessage().reply(":bow: Successfully reset the user's data.").queue();
+                        event.getMessage().reply(":ribbon: Successfully reset the user's data.").queue();
                     },
                     (empty) -> {
                         event.getMessage().reply(":honey_pot: That user doesn't exist.").queue();

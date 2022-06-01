@@ -51,7 +51,6 @@ public class UserBan extends TextCmd {
         setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
-        
     }
 
     @Override
@@ -84,7 +83,7 @@ public class UserBan extends TextCmd {
 
             switch (subCmdName) {
                 case "add":
-                    if (args.size() < 2) {
+                    if (args.size() < 3) {
                         event.getMessage().reply(":dango: Usage: `" + getUsage() + "`!").queue();
                         return;
                     }

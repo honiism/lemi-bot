@@ -58,8 +58,7 @@ public class Tools {
         }
 
         try {
-            @SuppressWarnings("unused")
-            long num = Long.parseLong(s);
+            Long.parseLong(s);
         } catch (NumberFormatException e) {
             return false;
         }
@@ -73,8 +72,7 @@ public class Tools {
         }
 
         try {
-            @SuppressWarnings("unused")
-            int num = Integer.parseInt(s);
+            Integer.parseInt(s);
         } catch (NumberFormatException e) {
             return false;
         }

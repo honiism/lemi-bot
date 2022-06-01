@@ -58,7 +58,7 @@ public class EmbedPaginator {
     private Button previous = Button.secondary("previous", Emoji.fromMarkdown(Emojis.LEFT_ARROW));
     private Button next = Button.secondary("next", Emoji.fromMarkdown(Emojis.RIGHT_ARROW));
     private Button last = Button.secondary("last", Emoji.fromMarkdown(Emojis.SKIP_TO_END_BUTTON));
-    private Button delete = Button.danger("stop", Emoji.fromMarkdown(Emojis.CROSS_MARK));
+    private Button delete = Button.danger("stop", Emoji.fromMarkdown(Emojis.TRASH_BIN));
 
     private int page = 1;
     private boolean interactionStopped = false;

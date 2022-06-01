@@ -46,7 +46,7 @@ public class EmbedTools {
                 + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
                 + "**-----------**\r\n"
                 + "1. *You need to make your title less than 20 characters (cannot have spaces)*\r\n"
-                + "2. *You only have 2 minutes.*")
+                + "2. *You only have 5 minutes.*")
             .queue((msg) -> {
                 Lemi.getInstance().getEventWaiter().waitForEvent(
                         MessageReceivedEvent.class,
@@ -62,15 +62,9 @@ public class EmbedTools {
 
                             LemiDbEmbedManager.INS.assignUniqueId(channel, e.getMessage().getContentRaw(), embedProperties);
 
-                            /*
-                            if (embedListener != null) {
-                                embedListener.afterAskingId(author, channel);
-                            }
-                            */
-
                             askForTitle(author, channel);
                         },
-                        2, TimeUnit.MINUTES,
+                        5, TimeUnit.MINUTES,
                         () -> {
                             channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                             return;
@@ -86,9 +80,7 @@ public class EmbedTools {
                 + "3. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "**-----------**\r\n"
                 + "1. *You need to make your title less than 246 characters (including spaces)*\r\n"
-                + "2. *You only have 2 minutes.*\r\n"
-                + "**-----------**\r\n"
-                + "*You cannot take more than 15 minutes!*\r\n")
+                + "2. *You only have 5 minutes.*\r\n")
             .queue((msg) -> {
                 Lemi.getInstance().getEventWaiter().waitForEvent(
                         MessageReceivedEvent.class,
@@ -108,15 +100,9 @@ public class EmbedTools {
                                 embedProperties.put("title", e.getMessage().getContentRaw());
                             }
 
-                            /*
-                            if (embedListener != null) {
-                                embedListener.afterAskingTitle(author, channel);
-                            }
-                            */
-
                             askForColor(author, channel);
                         },
-                        2, TimeUnit.MINUTES,
+                        5, TimeUnit.MINUTES,
                         () -> {
                             channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                             return;
@@ -131,7 +117,7 @@ public class EmbedTools {
                 + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
                 + "3. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "**-----------**\r\n"
-                + "1. *You only have 2 minutes.*")
+                + "1. *You only have 5 minutes.*")
             .setEmbeds(new EmbedBuilder()
                     .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setDescription("_ _")
@@ -155,15 +141,9 @@ public class EmbedTools {
                                 embedProperties.put("color", String.valueOf(hexCode));
                             }
 
-                            /*
-                            if (embedListener != null) {
-                                embedListener.afterAskingColor(author, channel);
-                            }
-                            */
-
                             askForAuthor(author, channel);
                         },
-                        2, TimeUnit.MINUTES,
+                        5, TimeUnit.MINUTES,
                         () -> {
                             channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                             return;
@@ -180,7 +160,7 @@ public class EmbedTools {
                         + "3. *You can type* `skip` *to continue to the next category.*\r\n"
                         + "4. *Author name must be less than 250 characters.*\r\n*"
                         + "**-----------**\r\n"
-                        + "1. *You only have 2 minutes.*")
+                        + "1. *You only have 5 minutes.*")
             .setEmbeds(new EmbedBuilder()
                     .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setColor(Integer.decode(embedProperties.get("color")))
@@ -216,15 +196,9 @@ public class EmbedTools {
                                 return;
                             }
 
-                            /*
-                            if (embedListener != null) {
-                                embedListener.afterAskingAuthor(author, channel);
-                            }
-                            */
-
                             askForThumbnail(author, channel);
                         },
-                2, TimeUnit.MINUTES,
+                5, TimeUnit.MINUTES,
                 () -> {
                     channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                     return;
@@ -239,7 +213,7 @@ public class EmbedTools {
                 + "2. *You can cancel this interaction by typing* `cancel`.\r\n"
                 + "3. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "**-----------**\r\n"
-                + "1. *You only have 2 minutes.*")
+                + "1. *You only have 10 minutes.*")
             .setEmbeds(new EmbedBuilder()
                     .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setColor(Integer.decode(embedProperties.get("color")))
@@ -266,15 +240,9 @@ public class EmbedTools {
                                 embedProperties.put("thumbnail", e.getMessage().getContentRaw());
                             }
 
-                            /*
-                            if (embedListener != null) {
-                                embedListener.afterAskingThumbnail(author, channel);
-                            }
-                            */
-
                             askForDesc(author, channel);
                         },
-                        2, TimeUnit.MINUTES,
+                        10, TimeUnit.MINUTES,
                         () -> {
                             channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                             return;
@@ -288,7 +256,7 @@ public class EmbedTools {
                 + "**-----------**\r\n"
                 + "1. *You need to make your title less than 4,000 characters (including spaces)*\r\n"
                 + "2. *You can type* `skip` *to continue to the next category.*\r\n"
-                + "3. *You only have 2 minutes.*")
+                + "3. *You only have 5 minutes.*")
             .setEmbeds(new EmbedBuilder()
                     .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setColor(Integer.decode(embedProperties.get("color")))
@@ -317,15 +285,9 @@ public class EmbedTools {
                                 embedProperties.put("description", e.getMessage().getContentRaw());
                             }
 
-                            /*
-                            if (embedListener != null) {
-                                embedListener.afterAskingDesc(author, channel);
-                            }
-                            */
-
                             askForImage(author, channel);
                         },
-                        2, TimeUnit.MINUTES,
+                        5, TimeUnit.MINUTES,
                         () -> {
                             channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                             return;
@@ -339,7 +301,7 @@ public class EmbedTools {
                 + "**-----------**\r\n"
                 + "1. *You need to use a valid link or a placeholder.*\r\n"
                 + "2. *You can type* `skip` *to continue to the next category.*\r\n"
-                + "3. *You only have 2 minutes.*")
+                + "3. *You only have 5 minutes.*")
             .setEmbeds(new EmbedBuilder()
                     .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setColor(Integer.decode(embedProperties.get("color")))
@@ -367,15 +329,9 @@ public class EmbedTools {
                                 embedProperties.put("image", e.getMessage().getContentRaw());
                             }
 
-                            /*
-                            if (embedListener != null) {
-                                embedListener.afterAskingImg(author, channel);
-                            }
-                            */
-
                             askForFooter(author, channel);
                         },
-                        2, TimeUnit.MINUTES,
+                        5, TimeUnit.MINUTES,
                         () -> {
                             channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                             return;
@@ -389,7 +345,7 @@ public class EmbedTools {
                 + "**-----------**\r\n"
                 + "1. *You need to use this format:* `[text]&[link]` *or* `[text]`.\r\n"
                 + "2. *You can type* `skip` *to continue to the next category.*\r\n"
-                + "3. *You only have 2 minutes.*\r\n"
+                + "3. *You only have 5 minutes.*\r\n"
                 + "4. *Text must be less than 2,000 characters (including spaces)*")
             .setEmbeds(new EmbedBuilder()
                     .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
@@ -431,15 +387,9 @@ public class EmbedTools {
                                 return;
                             }
 
-                            /*
-                            if (embedListener != null) {
-                                embedListener.afterAskingFooter(author, channel);
-                            }
-                            */
-
                             askForMessageContent(author, channel);
                         },
-                        2, TimeUnit.MINUTES,
+                        5, TimeUnit.MINUTES,
                         () -> {
                             channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                             return;
@@ -453,7 +403,7 @@ public class EmbedTools {
                 + "**-----------**\r\n"
                 + "1. *This will appear outside the embed and show as a message.*\r\n"
                 + "2. *You can type* `skip` *to continue.*\r\n"
-                + "3. *You only have 2 minutes.*")
+                + "3. *You only have 5 minutes.*")
             .setEmbeds(new EmbedBuilder()
                     .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
                     .setColor(Integer.decode(embedProperties.get("color")))
@@ -484,15 +434,9 @@ public class EmbedTools {
                                 embedProperties.put("message-content", e.getMessage().getContentRaw());
                             }
 
-                            /*
-                            if (embedListener != null) {
-                                embedListener.afterAskingMessageContent(channel);
-                            }
-                            */
-
                             sendCreatedEmbed(channel);
                         },
-                        2, TimeUnit.MINUTES,
+                        5, TimeUnit.MINUTES,
                         () -> {
                             channel.sendMessage(":sunflower: Interaction cancelled due to inactivity.").queue();
                             return;
