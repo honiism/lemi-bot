@@ -90,9 +90,8 @@ public class ModifyBal extends TextCmd {
                             .reply(":sunflower: You cannot give less or equal to 0 amount of currency.")
                             .queue();
                         return;
-                    } 
+                    }
                 
-                    //TODO: check the difference between getMembers() and getUsers()
                     User target = event.getMessage().getMentions().getUsers().get(0);
 
                     if (target == null) {

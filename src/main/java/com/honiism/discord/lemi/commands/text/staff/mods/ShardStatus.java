@@ -45,14 +45,13 @@ public class ShardStatus extends TextCmd {
     private long timeDelayed;
 
     public ShardStatus() {
-        setName("ShardStatus");
+        setName("shardstatus");
         setDesc("View the status of all shards.");
         setUsage("shardstatus [page number]");
         setCategory(CommandCategory.MODS);
         setUserCategory(UserCategory.MODS);
         setUserPerms(new Permission[] {Permission.MESSAGE_MANAGE});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
     }
 
     @Override

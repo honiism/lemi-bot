@@ -173,8 +173,10 @@ public class UserDataManager {
 
         if (targetItem == null) {
             InventoryData newInvItem = new InventoryData(itemId);
+
+            String itemName = itemId.replaceAll("_", " ");
         
-            newInvItem.setName(itemId);
+            newInvItem.setName(itemName);
             newInvItem.setCount(amountAfterAdd);
 
             getData().getInventory().add(newInvItem);
@@ -199,7 +201,7 @@ public class UserDataManager {
             .findFirst()
             .get();
 
-        long userItemAmount = getItemCountFromUser(targetItem.getName());
+        long userItemAmount = getItemCountFromUser(targetItem.getId());
         long amountAfterRemove = userItemAmount - amountToRemove;
 
         if (amountAfterRemove == 0) {
