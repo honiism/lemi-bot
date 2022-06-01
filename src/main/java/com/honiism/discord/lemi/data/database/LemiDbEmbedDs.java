@@ -28,18 +28,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
+import com.honiism.discord.lemi.data.embed.EmbedData;
 import com.honiism.discord.lemi.utils.buttons.Paginator;
 import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -302,7 +302,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
     }
     
     @Override
-    public void assignUniqueId(TextChannel channel, String specialKey, Map<String, String> embedProperties) {
+    public void assignUniqueId(TextChannel channel, String specialKey, EmbedData embedDataImpl) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT embed_id FROM saved_embeds WHERE embed_id = ?")) {
@@ -314,7 +314,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                     return;
                 }
 
-                embedProperties.put("embed-id", specialKey);
+                embedDataImpl.setId(specialKey);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -322,11 +322,11 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
     }
     
     @Override
-    public void saveCreatedEmbed(TextChannel channel, Map<String, String> embedProperties) {
+    public void saveCreatedEmbed(TextChannel channel, EmbedData embedData) throws JsonProcessingException {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT embed_id FROM saved_embeds WHERE embed_id = ?")) {
-            selectStatement.setString(1, embedProperties.get("embed-id"));
+            selectStatement.setString(1, embedData.getId());
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
@@ -335,70 +335,21 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
                 }
             }
 
-            JSONObject embedBuilderJson = new JSONObject();
+            String embedJson = Lemi.getInstance().getObjectMapper().writeValueAsString(embedData);
 
-            embedBuilderJson.put("type", "rich");
-
-            if (embedProperties.get("title") != null) {
-                embedBuilderJson.put("title", embedProperties.get("title"));
-            }
-            
-            if (embedProperties.get("description") != null) {
-                embedBuilderJson.put("description", embedProperties.get("description"));
-            }
-            
-            embedBuilderJson.put("color", Integer.decode(embedProperties.get("color")));
-
-            if (embedProperties.get("image") != null) {
-                JSONObject imageItems = new JSONObject();
-                
-                imageItems.put("url", embedProperties.get("image"));
-                embedBuilderJson.put("image", imageItems);
-            }
-            
-            if (embedProperties.get("thumbnail") != null) {
-                JSONObject thumbnailItems = new JSONObject();
-                
-                thumbnailItems.put("url", embedProperties.get("thumbnail"));
-                embedBuilderJson.put("thumbnail", thumbnailItems);
-            }
-
-            if (embedProperties.get("author-name") != null) {
-                JSONObject authorItems = new JSONObject();
-                authorItems.put("name", embedProperties.get("author-name"));
-
-                if (embedProperties.get("author-avatar") != null) {
-                    authorItems.put("icon_url", embedProperties.get("author-avatar"));
-                }
-
-                embedBuilderJson.put("author", authorItems);
-            }
-
-            if (embedProperties.get("footer-text") != null) {
-                JSONObject footerItems = new JSONObject();
-                footerItems.put("text", embedProperties.get("footer-text"));
-
-                if (embedProperties.get("footer-icon") != null) {
-                    footerItems.put("icon_url", embedProperties.get("footer-icon"));
-                }
-
-                embedBuilderJson.put("footer", footerItems);
-            }
-
-            if (embedProperties.get("message-content") != null) {
+            if (embedData.getContent() != null) {
                 try (PreparedStatement insertStatement =
     		        conn.prepareStatement("INSERT INTO saved_embeds(embed_id, message_content, embed_json) VALUES(?, ?, ?)")) {
-    	            String embedJson = embedBuilderJson.toString();
 
-                    insertStatement.setString(1, embedProperties.get("embed-id"));
-                    insertStatement.setString(2, embedProperties.get("message-content"));
+                    insertStatement.setString(1, embedData.getId());
+                    insertStatement.setString(2, embedData.getContent());
                     insertStatement.setString(3, embedJson);
 
                     int result = insertStatement.executeUpdate();
 
                     if (result != 0) {
                         channel.sendMessage(":herb: Successfully registered embed with the id of : " 
-                                + embedProperties.get("embed-id"))
+                                + embedData.getId())
                             .queue();
 
                     } else {
@@ -410,16 +361,14 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
 
             try (PreparedStatement insertStatement =
     		    conn.prepareStatement("INSERT INTO saved_embeds(embed_id, embed_json) VALUES(?, ?)")) {
-                String embedJson = embedBuilderJson.toString();
-
-    	        insertStatement.setString(1, embedProperties.get("embed-id"));
+    	        insertStatement.setString(1, embedData.getId());
                 insertStatement.setString(2, embedJson);
 
                 int result = insertStatement.executeUpdate();
 
                 if (result != 0) {
                     channel.sendMessage(":herb: Successfully registered embed with the id of : " 
-                            + embedProperties.get("embed-id"))
+                            + embedData.getId())
                         .queue();
 
                 } else {

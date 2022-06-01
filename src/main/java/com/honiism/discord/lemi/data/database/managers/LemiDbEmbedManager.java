@@ -19,9 +19,9 @@
 
 package com.honiism.discord.lemi.data.database.managers;
 
-import java.util.Map;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.data.database.LemiDbEmbedDs;
+import com.honiism.discord.lemi.data.embed.EmbedData;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -39,6 +39,6 @@ public interface LemiDbEmbedManager {
     void showSavedEmbed(Message message, String embedId, MessageReceivedEvent event);
     void showEmbedsList(Message message);
     void deleteCustomEmbed(Message message, String embedId);
-    void assignUniqueId(TextChannel channel, String specialKey, Map<String, String> embedProperties);
-    void saveCreatedEmbed(TextChannel channel, Map<String, String> embedProperties);
+    void assignUniqueId(TextChannel channel, String specialKey, EmbedData embedData);
+    void saveCreatedEmbed(TextChannel channel, EmbedData embedData) throws JsonProcessingException;
 }

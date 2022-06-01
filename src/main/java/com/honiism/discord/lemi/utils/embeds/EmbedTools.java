@@ -19,13 +19,17 @@
 
 package com.honiism.discord.lemi.utils.embeds;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
+import com.honiism.discord.lemi.data.embed.EmbedData;
+import com.honiism.discord.lemi.data.embed.FooterData;
+import com.honiism.discord.lemi.data.embed.ImageData;
+import com.honiism.discord.lemi.data.embed.ThumbnailData;
+import com.honiism.discord.lemi.data.embed.AuthorData;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -35,7 +39,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class EmbedTools {
 
-    private Map<String, String> embedProperties = new HashMap<String, String>();
+    private EmbedData embedData = new EmbedData("rich");
     private MessageReceivedEvent event;
     
     public void askForId(User author, TextChannel channel, MessageReceivedEvent event) {
@@ -60,7 +64,7 @@ public class EmbedTools {
                                 return;
                             }
 
-                            LemiDbEmbedManager.INS.assignUniqueId(channel, e.getMessage().getContentRaw(), embedProperties);
+                            LemiDbEmbedManager.INS.assignUniqueId(channel, e.getMessage().getContentRaw(), embedData);
 
                             askForTitle(author, channel);
                         },
@@ -94,10 +98,8 @@ public class EmbedTools {
                                 return;
                             }
 
-                            if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
-                                embedProperties.put("title", null);
-                            } else {
-                                embedProperties.put("title", e.getMessage().getContentRaw());
+                            if (!e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
+                                embedData.setTitle(e.getMessage().getContentRaw());
                             }
 
                             askForColor(author, channel);
@@ -119,7 +121,7 @@ public class EmbedTools {
                 + "**-----------**\r\n"
                 + "1. *You only have 5 minutes.*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
+                    .setTitle(embedData.getTitle() == null ? null : processField(embedData.getTitle(), event))
                     .setDescription("_ _")
                     .build())
             .queue((msg) -> {
@@ -135,10 +137,10 @@ public class EmbedTools {
                             }
 
                             if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
-                                embedProperties.put("color", "0xffd1dc");
+                                embedData.setColor("0xffd1dc");
                             } else if (e.getMessage().getContentRaw().startsWith("#")) {
                                 int hexCode = Integer.decode(e.getMessage().getContentRaw().replace("#", "0x"));
-                                embedProperties.put("color", String.valueOf(hexCode));
+                                embedData.setColor(String.valueOf(hexCode));
                             }
 
                             askForAuthor(author, channel);
@@ -162,8 +164,8 @@ public class EmbedTools {
                         + "**-----------**\r\n"
                         + "1. *You only have 5 minutes.*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
-                    .setColor(Integer.decode(embedProperties.get("color")))
+                    .setTitle(embedData.getTitle() == null ? null : processField(embedData.getTitle(), event))
+                    .setColor(embedData.getColor())
                     .setDescription("_ _")
                     .build())
             .queue((msg) -> {
@@ -178,20 +180,22 @@ public class EmbedTools {
                                 return;
                             }
 
-                            if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
-                                embedProperties.put("author-name", null);
-                                embedProperties.put("author-avatar", null);
-                            } else if (e.getMessage().getContentRaw().contains("&")) {
+                            if (e.getMessage().getContentRaw().contains("&")) {
                                 String[] authorValues = e.getMessage().getContentRaw().split("&");
+                                
+                                AuthorData authorData = new AuthorData(authorValues[0].trim());
 
-                                embedProperties.put("author-name", authorValues[0].trim());
-                                embedProperties.put("author-avatar", authorValues[1].trim());
+                                authorData.setURL(authorValues[1].trim());
+
+                                embedData.setAuthor(authorData);
                             } else {
-                                embedProperties.put("author-name", e.getMessage().getContentRaw());
+                                AuthorData authorData = new AuthorData(e.getMessage().getContentRaw());
+                                embedData.setAuthor(authorData);
                             }
 
-                            if (embedProperties.get("author-name").length() > 250) {
-                                channel.sendMessage(":shell: Interaction cancelled! The author name pass the limit of 250 characters")
+                            if (embedData.getAuthor().getName().length() > 250) {
+                                channel.sendMessage(":shell: Interaction cancelled! "
+                                        + "The author name pass the limit of 250 characters")
                                     .queue();
                                 return;
                             }
@@ -215,12 +219,12 @@ public class EmbedTools {
                 + "**-----------**\r\n"
                 + "1. *You only have 10 minutes.*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
-                    .setColor(Integer.decode(embedProperties.get("color")))
+                    .setTitle(embedData.getTitle() == null ? null : processField(embedData.getTitle(), event))
+                    .setColor(embedData.getColor())
                     .setDescription("_ _")
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), event),
+                    .setAuthor(embedData.getAuthor().getName() == null ? null : processField(embedData.getAuthor().getName(), event),
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), event))
+                            embedData.getAuthor().getURL() == null ? null : processField(embedData.getAuthor().getURL(), event))
                     .build())
             .queue((msg) -> {
                 Lemi.getInstance().getEventWaiter().waitForEvent(
@@ -234,10 +238,9 @@ public class EmbedTools {
                                 return;
                             }
 
-                            if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
-                                embedProperties.put("thumbnail", null);
-                            } else {
-                                embedProperties.put("thumbnail", e.getMessage().getContentRaw());
+                            if (!e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
+                                ThumbnailData thumbnailData = new ThumbnailData(e.getMessage().getContentRaw());
+                                embedData.setThumbnail(thumbnailData);
                             }
 
                             askForDesc(author, channel);
@@ -258,13 +261,13 @@ public class EmbedTools {
                 + "2. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "3. *You only have 5 minutes.*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
-                    .setColor(Integer.decode(embedProperties.get("color")))
+                    .setTitle(embedData.getTitle() == null ? null : processField(embedData.getTitle(), event))
+                    .setColor(embedData.getColor())
                     .setDescription("_ _")
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), event), 
+                    .setAuthor(embedData.getAuthor().getName() == null ? null : processField(embedData.getAuthor().getName(), event), 
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), event))
-                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), event))
+                            embedData.getAuthor().getURL() == null ? null : processField(embedData.getAuthor().getURL(), event))
+                    .setThumbnail(embedData.getThumbnail().getURL() == null ? null : processField(embedData.getThumbnail().getURL(), event))
                     .build())
             .queue((msg) -> {
                 Lemi.getInstance().getEventWaiter().waitForEvent(
@@ -279,10 +282,8 @@ public class EmbedTools {
                                 return;
                             }
 
-                            if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
-                                embedProperties.put("description", null);
-                            } else {
-                                embedProperties.put("description", e.getMessage().getContentRaw());
+                            if (!e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
+                                embedData.setDesc(e.getMessage().getContentRaw());
                             }
 
                             askForImage(author, channel);
@@ -303,13 +304,13 @@ public class EmbedTools {
                 + "2. *You can type* `skip` *to continue to the next category.*\r\n"
                 + "3. *You only have 5 minutes.*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
-                    .setColor(Integer.decode(embedProperties.get("color")))
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), event), 
+                    .setTitle(embedData.getTitle() == null ? null : processField(embedData.getTitle(), event))
+                    .setColor(embedData.getColor())
+                    .setAuthor(embedData.getAuthor().getName() == null ? null : processField(embedData.getAuthor().getName(), event), 
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), event))
-                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), event))
-                    .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), event))
+                            embedData.getAuthor().getURL() == null ? null : processField(embedData.getAuthor().getURL(), event))
+                    .setThumbnail(embedData.getThumbnail().getURL() == null ? null : processField(embedData.getThumbnail().getURL(), event))
+                    .setDescription(embedData.getDesc() == null ? null : processField(embedData.getDesc(), event))
                     .build())
             .queue((msg) -> {
                 Lemi.getInstance().getEventWaiter().waitForEvent(
@@ -323,10 +324,9 @@ public class EmbedTools {
                                 return;
                             }
 
-                            if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
-                                embedProperties.put("image", null);
-                            } else {
-                                embedProperties.put("image", e.getMessage().getContentRaw());
+                            if (!e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
+                                ImageData imageData = new ImageData(e.getMessage().getContentRaw());
+                                embedData.setImage(imageData);
                             }
 
                             askForFooter(author, channel);
@@ -348,14 +348,14 @@ public class EmbedTools {
                 + "3. *You only have 5 minutes.*\r\n"
                 + "4. *Text must be less than 2,000 characters (including spaces)*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
-                    .setColor(Integer.decode(embedProperties.get("color")))
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), event), 
+                    .setTitle(embedData.getTitle() == null ? null : processField(embedData.getTitle(), event))
+                    .setColor(embedData.getColor())
+                    .setAuthor(embedData.getAuthor().getName() == null ? null : processField(embedData.getAuthor().getName(), event), 
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), event))
-                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), event))
-                    .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), event))
-                    .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), event))
+                            embedData.getAuthor().getURL() == null ? null : processField(embedData.getAuthor().getURL(), event))
+                    .setThumbnail(embedData.getThumbnail().getURL() == null ? null : processField(embedData.getThumbnail().getURL(), event))
+                    .setDescription(embedData.getDesc() == null ? null : processField(embedData.getDesc(), event))
+                    .setImage(embedData.getImage().getURL() == null ? null : processField(embedData.getImage().getURL(), event))
                     .build())
             .queue((msg) -> {
                 Lemi.getInstance().getEventWaiter().waitForEvent(
@@ -369,20 +369,22 @@ public class EmbedTools {
                                 return;
                             }
 
-                            if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
-                                embedProperties.put("footer-text", null);
-                                embedProperties.put("footer-icon", null);
-                            } else if (e.getMessage().getContentRaw().contains("&")) {
+                            if (e.getMessage().getContentRaw().contains("&")) {
                                 String[] footerValues = e.getMessage().getContentRaw().split("&");
 
-                                embedProperties.put("footer-text", footerValues[0].trim());
-                                embedProperties.put("footer-icon", footerValues[1].trim());
+                                FooterData footerData = new FooterData(footerValues[0].trim());
+
+                                footerData.setURL(footerValues[1].trim());
+
+                                embedData.setFooter(footerData);
                             } else {
-                                embedProperties.put("footer-text", e.getMessage().getContentRaw());
+                                FooterData footerData = new FooterData(e.getMessage().getContentRaw());
+                                embedData.setFooter(footerData);
                             }
 
-                            if (embedProperties.get("footer-text").length() > 2000) {
-                                channel.sendMessage(":shell: Interaction cancelled! The footer text pass the limit of 2,000 characters")
+                            if (embedData.getFooter().getText().length() > 2000) {
+                                channel.sendMessage(":shell: Interaction cancelled! "
+                                        + "The footer text pass the limit of 2,000 characters")
                                     .queue();
                                 return;
                             }
@@ -405,16 +407,16 @@ public class EmbedTools {
                 + "2. *You can type* `skip` *to continue.*\r\n"
                 + "3. *You only have 5 minutes.*")
             .setEmbeds(new EmbedBuilder()
-                    .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
-                    .setColor(Integer.decode(embedProperties.get("color")))
-                    .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), event), 
+                    .setTitle(embedData.getTitle() == null ? null : processField(embedData.getTitle(), event))
+                    .setColor(embedData.getColor())
+                    .setAuthor(embedData.getAuthor().getName() == null ? null : processField(embedData.getAuthor().getName(), event), 
                             null,
-                            embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), event))
-                    .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), event))
-                    .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), event))
-                    .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), event))
-                    .setFooter(embedProperties.get("footer-text") == null ? null : processField(embedProperties.get("footer-text"), event), 
-                            embedProperties.get("footer-icon") == null ? null : processField(embedProperties.get("footer-icon"), event))
+                            embedData.getAuthor().getURL() == null ? null : processField(embedData.getAuthor().getURL(), event))
+                    .setThumbnail(embedData.getThumbnail().getURL() == null ? null : processField(embedData.getThumbnail().getURL(), event))
+                    .setDescription(embedData.getDesc() == null ? null : processField(embedData.getDesc(), event))
+                    .setImage(embedData.getImage().getURL() == null ? null : processField(embedData.getImage().getURL(), event))
+                    .setFooter(embedData.getFooter().getText() == null ? null : processField(embedData.getFooter().getText(), event), 
+                            embedData.getFooter().getURL() == null ? null : processField(embedData.getFooter().getURL(), event))
                     .build())
             .queue((msg) -> {
                 Lemi.getInstance().getEventWaiter().waitForEvent(
@@ -428,10 +430,8 @@ public class EmbedTools {
                                 return;
                             }
 
-                            if (e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
-                                embedProperties.put("message-content", null);
-                            } else {
-                                embedProperties.put("message-content", e.getMessage().getContentRaw());
+                            if (!e.getMessage().getContentRaw().toLowerCase().equals("skip")) {
+                                embedData.setContent(e.getMessage().getContentRaw());
                             }
 
                             sendCreatedEmbed(channel);
@@ -447,7 +447,12 @@ public class EmbedTools {
 
     public void sendCreatedEmbed(TextChannel channel) {
         channel.sendMessageEmbeds(createEmbed(event).build()).queue();
-        LemiDbEmbedManager.INS.saveCreatedEmbed(channel, embedProperties);
+        
+        try {
+            LemiDbEmbedManager.INS.saveCreatedEmbed(channel, embedData);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
     private String processField(String field, MessageReceivedEvent event) {
@@ -456,15 +461,15 @@ public class EmbedTools {
 
     private EmbedBuilder createEmbed(MessageReceivedEvent event) {
         return new EmbedBuilder()
-            .setTitle(embedProperties.get("title") == null ? null : processField(embedProperties.get("title"), event))
-            .setColor(Integer.decode(embedProperties.get("color")))
-            .setAuthor(embedProperties.get("author-name") == null ? null : processField(embedProperties.get("author-name"), event), 
+            .setTitle(embedData.getTitle() == null ? null : processField(embedData.getTitle(), event))
+            .setColor(embedData.getColor())
+            .setAuthor(embedData.getAuthor().getName() == null ? null : processField(embedData.getAuthor().getName(), event), 
                     null,
-                    embedProperties.get("author-avatar") == null ? null : processField(embedProperties.get("author-avatar"), event))
-            .setThumbnail(embedProperties.get("thumbnail") == null ? null : processField(embedProperties.get("thumbnail"), event))
-            .setDescription(embedProperties.get("description") == null ? null : processField(embedProperties.get("description"), event))
-            .setImage(embedProperties.get("image") == null ? null : processField(embedProperties.get("image"), event))
-            .setFooter(embedProperties.get("footer-text") == null ? null : processField(embedProperties.get("footer-text"), event), 
-                    embedProperties.get("footer-icon") == null ? null : processField(embedProperties.get("footer-icon"), event));
+                    embedData.getAuthor().getURL() == null ? null : processField(embedData.getAuthor().getURL(), event))
+            .setThumbnail(embedData.getThumbnail().getURL() == null ? null : processField(embedData.getThumbnail().getURL(), event))
+            .setDescription(embedData.getDesc() == null ? null : processField(embedData.getDesc(), event))
+            .setImage(embedData.getImage().getURL() == null ? null : processField(embedData.getImage().getURL(), event))
+            .setFooter(embedData.getFooter().getText() == null ? null : processField(embedData.getFooter().getText(), event), 
+                    embedData.getFooter().getURL() == null ? null : processField(embedData.getFooter().getURL(), event));
     }
 }
