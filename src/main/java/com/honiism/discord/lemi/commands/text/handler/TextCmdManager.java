@@ -1,6 +1,8 @@
 package com.honiism.discord.lemi.commands.text.handler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ import com.honiism.discord.lemi.commands.text.staff.mods.ModifyInv;
 import com.honiism.discord.lemi.commands.text.staff.mods.ShardStatus;
 import com.honiism.discord.lemi.commands.text.staff.mods.Test;
 import com.honiism.discord.lemi.commands.text.staff.mods.ViewItems;
+import com.honiism.discord.lemi.utils.misc.Tools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +58,7 @@ public class TextCmdManager {
             .split("\\s+");
 
         String invoke = split[0].toLowerCase();
-        TextCmd cmd = getCommand(invoke);
+        TextCmd cmd = getCmdByName(invoke);
 
         if (cmd != null) {
             event.getChannel().sendTyping().queue();
@@ -65,6 +68,35 @@ public class TextCmdManager {
 
             cmd.preAction(ctx);
         }
+    }
+
+    public TextCmd getCmdByName(String input) {
+        if (commands.containsKey(input.toLowerCase())) {
+            return commands.get(input.toLowerCase());
+        }
+        return null;
+    }
+
+    public Collection<TextCmd> getCmdByCategory(CommandCategory category) {
+        if (cmdsByCategory.get(category) == null) {
+            return null;
+        }
+        return cmdsByCategory.get(category);
+    }
+
+    public List<String> getCmdNamesByCategory(Collection<TextCmd> cmdsByCategory) {
+        List<String> cmdNames = new ArrayList<>();
+
+        if (Tools.isEmpty(cmdsByCategory)) {
+            cmdNames.add("No commands for this category yet.");
+            return cmdNames;
+        }
+
+        cmdsByCategory.forEach(cmd -> {
+            cmdNames.add("l." + cmd.getName());
+        });
+
+        return cmdNames;
     }
 
     private void addCommand(TextCmd cmd) {
@@ -81,13 +113,6 @@ public class TextCmdManager {
                 commands.put(alias, cmd);
             }
         }
-    }
-
-    private TextCmd getCommand(String input) {
-        if (commands.containsKey(input.toLowerCase())) {
-            return commands.get(input.toLowerCase());
-        }
-        return null;
     }
 
     private void updateCmdCategory() {

@@ -29,6 +29,8 @@ import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmdManager;
+import com.honiism.discord.lemi.commands.text.handler.TextCmd;
+import com.honiism.discord.lemi.commands.text.handler.TextCmdManager;
 import com.honiism.discord.lemi.utils.buttons.EmbedPaginator;
 import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Emojis;
@@ -82,8 +84,28 @@ public class Help extends SlashCmd {
 
             String cmdName = event.getOption("command_name", OptionMapping::getAsString);
 
+            SlashCmdManager slashManager = Lemi.getInstance().getSlashCmdManager();
+            TextCmdManager textManager = Lemi.getInstance().getTextCmdManager();
+
             if (cmdName != null) {
-                if (Lemi.getInstance().getSlashCmdManager().getCmdByName(cmdName) == null) {
+                if (slashManager.getCmdByName(cmdName) != null) {
+                    SlashCmd cmd = slashManager.getCmdByName(cmdName);
+                    hook.sendMessageEmbeds(cmd.getHelp(event)).queue();
+                    
+                } else if (textManager.getCmdByName(cmdName) != null) {
+
+                    if ((cmdName.equalsIgnoreCase("dev")
+                            || cmdName.equalsIgnoreCase("admins")
+                            || cmdName.equalsIgnoreCase("mods"))
+                            && !Tools.isAuthorMod(event.getMember(), event)) {
+                        hook.sendMessage(":tulip: Oops.. too bad! Can't open that menu for you.").queue();
+                        return;
+                    }
+
+                    TextCmd cmd = textManager.getCmdByName(cmdName);
+                    hook.sendMessageEmbeds(cmd.getHelp(event)).queue();
+                
+                } else {
                     hook.sendMessage(":tulip: That command doesn't exist.\r\n"
                             + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n"
                             + ":sunflower: Don't include the category names when you're trying to " 
@@ -91,26 +113,10 @@ public class Help extends SlashCmd {
                             + Emojis.CHECK_MARK + " `balance`\r\n"
                             + Emojis.CROSS_MARK + " `currency balance`\r\n"
                             + Emojis.CROSS_MARK + " `/balance`\r\n"
-                            + Emojis.CROSS_MARK + " `/currency balance`\r\n"
-                            + "-\r\n"
-                            + ":seedling: You can also get a category help menu!\r\n"
-                            + Emojis.CHECK_MARK + " `fun`\r\n"
-                            + Emojis.CROSS_MARK + " `/fun`")
+                            + Emojis.CROSS_MARK + " `/currency balance`")
                         .queue();
-                    return;
                 }
-
-                if ((cmdName.equalsIgnoreCase("dev")
-                        || cmdName.equalsIgnoreCase("admins")
-                        || cmdName.equalsIgnoreCase("mods"))
-                        && !Tools.isAuthorMod(event.getMember(), event)) {
-                    hook.sendMessage(":tulip: Oops.. too bad! Can't open that menu for you.").queue();
-                    return;
-                }
-
-                SlashCmd cmd = Lemi.getInstance().getSlashCmdManager().getCmdByName(cmdName);
-
-                hook.sendMessageEmbeds(cmd.getHelp(event)).queue();
+                
                 return;
             }
 
@@ -118,21 +124,33 @@ public class Help extends SlashCmd {
 
             for (CommandCategory category : CommandCategory.values()) {
 
-                if ((category.equals(CommandCategory.MODS)
+                if (category.equals(CommandCategory.MODS)
                         || category.equals(CommandCategory.ADMINS)
-                        || category.equals(CommandCategory.DEV))
-                        && !Tools.isAuthorMod(author)) {
+                        || category.equals(CommandCategory.DEV)) {
+
+                    if (!Tools.isAuthorMod(event.getMember(), event)) {
+                        continue;
+                    }
+
+                    items.add(new EmbedBuilder()
+                       .setTitle("‧₊੭ :cherries: Lemi commands!")
+                       .setDescription("- You can run `/help command_name` to see a guide for that specific command.\r\n"
+                                + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
+                        .appendDescription(":sunflower: Category : " + category.toString() + "\r\n \r\n" 
+                                + String.join(", ", textManager.getCmdNamesByCategory(textManager.getCmdByCategory(category))))
+                        .setThumbnail(hook.getJDA().getSelfUser().getEffectiveAvatarUrl())
+                        .setColor(0xffd1dc)
+                    );
+
                     continue;
                 }
-                
-                SlashCmdManager slashCmdManagerIns = Lemi.getInstance().getSlashCmdManager();
                 
                 items.add(new EmbedBuilder()
                     .setTitle("‧₊੭ :cherries: Lemi commands!")
                     .setDescription("- You can run `/help command_name` to see a guide for that specific command.\r\n"
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
                     .appendDescription(":sunflower: Category : " + category.toString() + "\r\n \r\n" 
-                        + String.join(", ", slashCmdManagerIns.getCmdNamesByCategory(slashCmdManagerIns.getCmdByCategory(category))))
+                        + String.join(", ", slashManager.getCmdNamesByCategory(slashManager.getCmdByCategory(category))))
                     .setThumbnail(hook.getJDA().getSelfUser().getEffectiveAvatarUrl())
                     .setColor(0xffd1dc)
                 );

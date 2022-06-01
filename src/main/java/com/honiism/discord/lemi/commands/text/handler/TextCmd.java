@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public abstract class TextCmd {
@@ -87,6 +88,10 @@ public abstract class TextCmd {
 
     public void setAliases(String[] aliases) {
         this.aliases = aliases;
+    }
+
+    public String getAliasesFormat() {
+        return (aliases.length == 0) ? "No aliases available" : String.join(", ", aliases);
     }
 
     public String[] getAliases() {
@@ -177,22 +182,45 @@ public abstract class TextCmd {
         }
     }
 
+    public MessageEmbed getHelp(SlashCommandInteractionEvent event) {
+        EmbedBuilder helpEmbed = new EmbedBuilder()
+            .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
+                    + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
+            .addField(":sunflower: **Name**" + " !! ", "`" + getName() + "`", false)
+            .addField(":crescent_moon: **Aliases**" + " !! ", "`" + getAliasesFormat() + "`", false)
+            .addField(":seedling: **Description**" + " !! ", "`" + getDesc() + "`", false)
+            .addField(":butterfly: **Usage**" + " !! ", "`" + getUsage() + "`\r\n"  
+                    + "\r\n`[] : Optional argument(s).`\r\n"
+                    + "`<> : Required argument(s).`\r\n"
+                    + "`((. . .)) : pick the options given.`", false)
+            .addField(":cherry_blossom: **Category**" + " !! ", "`" + getCategoryString() + "`", false)
+            .addField(":grapes: **User category**" + " !! ", "`" + getUserCategoryString() + "`", false)
+            .addField(":strawberry: **User permissions needed**" + " !! ",
+                    "`" + getUserPermsString() + "`", false)
+            .addField(":honey_pot: **Bot permissions needed**" + " !! ",
+                    "`" + getBotPermsString() + "`", false)
+            .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
+            .setColor(0xffd1dc);
+
+        return helpEmbed.build();
+    }
+
     public MessageEmbed getHelp(MessageReceivedEvent event) {
         EmbedBuilder helpEmbed = new EmbedBuilder()
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
                     + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
             .addField(":sunflower: **Name**" + " !! ", "`" + getName() + "`", false)
-            .addField(":crescent_moon: **Aliases**" + " !! ", "`" + String.join(", ", getAliases()) + "`", false)
-            .addField(":crescent_moon: **Description**" + " !! ", "`" + getDesc() + "`", false)
-            .addField(":seedling: **Usage**" + " !! ", "`" + getUsage() + "`\r\n"  
+            .addField(":crescent_moon: **Aliases**" + " !! ", "`" + getAliasesFormat() + "`", false)
+            .addField(":seedling: **Description**" + " !! ", "`" + getDesc() + "`", false)
+            .addField(":butterfly: **Usage**" + " !! ", "`" + getUsage() + "`\r\n"  
                     + "\r\n`[] : Optional argument(s).`\r\n"
                     + "`<> : Required argument(s).`\r\n"
                     + "`((. . .)) : pick the options given.`", false)
-            .addField(":butterfly: **Category**" + " !! ", "`" + getCategoryString() + "`", false)
-            .addField(":cherry_blossom: **User category**" + " !! ", "`" + getUserCategoryString() + "`", false)
-            .addField(":grapes: **User permissions needed**" + " !! ",
+            .addField(":cherry_blossom: **Category**" + " !! ", "`" + getCategoryString() + "`", false)
+            .addField(":grapes: **User category**" + " !! ", "`" + getUserCategoryString() + "`", false)
+            .addField(":strawberry: **User permissions needed**" + " !! ",
                     "`" + getUserPermsString() + "`", false)
-            .addField(":strawberry: **Bot permissions needed**" + " !! ",
+            .addField(":honey_pot: **Bot permissions needed**" + " !! ",
                     "`" + getBotPermsString() + "`", false)
             .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
             .setColor(0xffd1dc);
@@ -205,16 +233,17 @@ public abstract class TextCmd {
             .setDescription("‧₊੭ :cherries: **HELP GUIDE** ♡ ⋆｡˚\r\n"
                     + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
             .addField(":sunflower: **Name**" + " !! ", "`" + getName() + "`", false)
-            .addField(":crescent_moon: **Description**" + " !! ", "`" + getDesc() + "`", false)
-            .addField(":seedling: **Usage**" + " !! ", "`" + getUsage() + "`\r\n"  
+            .addField(":crescent_moon: **Aliases**" + " !! ", "`" + getAliasesFormat() + "`", false)
+            .addField(":seedling: **Description**" + " !! ", "`" + getDesc() + "`", false)
+            .addField(":butterfly: **Usage**" + " !! ", "`" + getUsage() + "`\r\n"  
                     + "\r\n`[] : Optional argument(s).`\r\n"
                     + "`<> : Required argument(s).`\r\n"
                     + "`((. . .)) : pick the options given.`", false)
-            .addField(":butterfly: **Category**" + " !! ", "`" + getCategoryString() + "`", false)
-            .addField(":cherry_blossom: **User category**" + " !! ", "`" + getUserCategoryString() + "`", false)
-            .addField(":grapes: **User permissions needed**" + " !! ",
+            .addField(":cherry_blossom: **Category**" + " !! ", "`" + getCategoryString() + "`", false)
+            .addField(":grapes: **User category**" + " !! ", "`" + getUserCategoryString() + "`", false)
+            .addField(":strawberry: **User permissions needed**" + " !! ",
                     "`" + getUserPermsString() + "`", false)
-            .addField(":strawberry: **Bot permissions needed**" + " !! ",
+            .addField(":honey_pot: **Bot permissions needed**" + " !! ",
                     "`" + getBotPermsString() + "`", false)
             .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
             .setColor(0xffd1dc);
