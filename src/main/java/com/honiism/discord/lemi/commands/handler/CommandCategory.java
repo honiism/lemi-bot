@@ -26,6 +26,7 @@ public enum CommandCategory {
     GAMES,
     IMAGES,
 
+    // text commands
     MODS,
     ADMINS,
     DEV

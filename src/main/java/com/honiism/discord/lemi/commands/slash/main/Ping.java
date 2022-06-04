@@ -25,7 +25,6 @@ import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
-import com.honiism.discord.lemi.utils.misc.CustomEmojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -75,16 +74,16 @@ public class Ping extends SlashCmd {
                     EmbedBuilder pingEmbed = new EmbedBuilder()
                         .setDescription("‧₊੭ :cherries: **PINGS!** ♡ ⋆｡˚"
                                 + "\r\n˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n")
-                        .addField("**Rest ping**" + CustomEmojis.PINK_DASH,  
+                        .addField(":sunflower: **Rest ping**",  
                                 "`" + ping + "`",
                                 false)
-                        .addField("**WS main thread ping**" + CustomEmojis.PINK_DASH,  
+                        .addField(":seedling: **WS main thread ping**",  
                                 "`" + event.getJDA().getGatewayPing() + "`",
                                 false)
-                        .addField("**Average shards ping**" + CustomEmojis.PINK_DASH,  
+                        .addField(":snowflake: **Average shards ping**",  
                                 "`" + Lemi.getInstance().getShardManager().getAverageGatewayPing() + "`",
                                 false)
-                        .addField("**Total shards**" + CustomEmojis.PINK_DASH,  
+                        .addField(":cherry_blossom: **Total shards**",  
                                 "`" + Lemi.getInstance().getShardManager().getShardsTotal() + "`",
                                 false)
                         .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())

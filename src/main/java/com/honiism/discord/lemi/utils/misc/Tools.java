@@ -34,18 +34,242 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.honiism.discord.lemi.Config;
+import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.currency.WeightedRandom;
+
+import org.slf4j.Logger;
 
 import me.duncte123.botcommons.StringUtils;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public class Tools {
+
+    public static boolean isLong(String s) {
+        if (s == null) {
+            return false;
+        }
+
+        try {
+            Long.parseLong(s);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean isInt(String s) {
+        if (s == null) {
+            return false;
+        }
+
+        try {
+            Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static void reportError(String content, String errorName, Logger log, Exception e) {
+        log.error("\r\nSomething went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n");
+
+        e.printStackTrace();
+            
+        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
+            .getTextChannelById(Config.get("logs_channel_id"))
+            .sendMessage("--------------------------\r\n" 
+                    + "Something went wrong while trying to "
+                    + content + "\r\n"
+                    + "Error: " + errorName + "\r\n"
+                    + "\r\n"
+                    + "--------------------------\r\n"
+                    + "```\r\n"
+                    + "Message : " + e.getMessage() + "\r\n"
+                    + "Cause : " + e.getCause() + "\r\n"
+                    + "```")
+            .queue();
+    }
+
+    public static void reportError(String content, String errorName, Logger log, TextChannel channel, Exception e) {
+        log.error("\r\nSomething went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n");
+
+        e.printStackTrace();
+
+        channel.sendMessage("--------------------------\r\n" 
+                + "Something went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n"
+                + "--------------------------\r\n"
+                + "```\r\n"
+                + "Message : " + e.getMessage() + "\r\n"
+                + "Cause : " + e.getCause() + "\r\n"
+                + "```")
+            .queue();
+            
+        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
+            .getTextChannelById(Config.get("logs_channel_id"))
+            .sendMessage("--------------------------\r\n" 
+                    + "Something went wrong while trying to "
+                    + content + "\r\n"
+                    + "Error: " + errorName + "\r\n"
+                    + "\r\n"
+                    + "--------------------------\r\n"
+                    + "```\r\n"
+                    + "Message : " + e.getMessage() + "\r\n"
+                    + "Cause : " + e.getCause() + "\r\n"
+                    + "```")
+            .queue();
+    }
+
+    public static void reportError(String content, String errorName, Logger log, InteractionHook hook, Exception e) {
+        log.error("\r\nSomething went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n");
+
+        e.printStackTrace();
+
+        hook.sendMessage("--------------------------\r\n" 
+                + "Something went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n"
+                + "--------------------------\r\n"
+                + "```\r\n"
+                + "Message : " + e.getMessage() + "\r\n"
+                + "Cause : " + e.getCause() + "\r\n"
+                + "```")
+            .queue();
+            
+        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
+            .getTextChannelById(Config.get("logs_channel_id"))
+            .sendMessage("--------------------------\r\n" 
+                    + "Something went wrong while trying to "
+                    + content + "\r\n"
+                    + "Error: " + errorName + "\r\n"
+                    + "\r\n"
+                    + "--------------------------\r\n"
+                    + "```\r\n"
+                    + "Message : " + e.getMessage() + "\r\n"
+                    + "Cause : " + e.getCause() + "\r\n"
+                    + "```")
+            .queue();
+    }
+
+    public static void reportError(String content, String errorName, Logger log, Message message, Exception e) {
+        log.error("\r\nSomething went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n");
+
+        e.printStackTrace();
+
+        message.reply("--------------------------\r\n" 
+                + "Something went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n"
+                + "--------------------------\r\n"
+                + "```\r\n"
+                + "Message : " + e.getMessage() + "\r\n"
+                + "Cause : " + e.getCause() + "\r\n"
+                + "```")
+            .queue();
+            
+        Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
+            .getTextChannelById(Config.get("logs_channel_id"))
+            .sendMessage("--------------------------\r\n" 
+                    + "Something went wrong while trying to "
+                    + content + "\r\n"
+                    + "Error: " + errorName + "\r\n"
+                    + "\r\n"
+                    + "--------------------------\r\n"
+                    + "```\r\n"
+                    + "Message : " + e.getMessage() + "\r\n"
+                    + "Cause : " + e.getCause() + "\r\n"
+                    + "```")
+            .queue();
+    }
+
+    public static void sendError(String content, String errorName, Logger log, InteractionHook hook, Exception e) {
+        log.error("\r\nSomething went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n");
+
+        e.printStackTrace();
+
+        hook.sendMessage("--------------------------\r\n" 
+                + "Something went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n"
+                + "--------------------------\r\n"
+                + "```\r\n"
+                + "Message : " + e.getMessage() + "\r\n"
+                + "Cause : " + e.getCause() + "\r\n"
+                + "```")
+            .queue();
+    }
+
+    public static void sendError(String content, String errorName, Logger log, Message message, Exception e) {
+        log.error("\r\nSomething went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n");
+
+        e.printStackTrace();
+
+        message.reply("--------------------------\r\n" 
+                + "Something went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n"
+                + "--------------------------\r\n"
+                + "```\r\n"
+                + "Message : " + e.getMessage() + "\r\n"
+                + "Cause : " + e.getCause() + "\r\n"
+                + "```")
+            .queue();
+    }
+
+    public static void sendEditError(String content, String errorName, Logger log, Message message, Exception e) {
+        log.error("\r\nSomething went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n");
+
+        e.printStackTrace();
+
+        message.editMessage("--------------------------\r\n" 
+                + "Something went wrong while trying to "
+                + content + "\r\n"
+                + "Error: " + errorName + "\r\n"
+                + "\r\n"
+                + "--------------------------\r\n"
+                + "```\r\n"
+                + "Message : " + e.getMessage() + "\r\n"
+                + "Cause : " + e.getCause() + "\r\n"
+                + "```")
+            .queue();
+    }
 
     public static String[] getNPCs() {
         String[] npcList = new String[] {
@@ -75,7 +299,7 @@ public class Tools {
     }
 
     public static String getBalName() {
-        return CustomEmojis.COIN;
+        return Emojis.COIN;
     }
 
     public static StringBuilder replaceAllSb(StringBuilder sb, String find, String replace){

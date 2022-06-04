@@ -27,28 +27,29 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public interface LemiDbManager {
     LemiDbManager INS = new LemiDbDs();
 
     // userban
-    List<String> getBannedReasons(SlashCommandInteractionEvent event);
-    List<Long> getBannerAuthorIds(SlashCommandInteractionEvent event);
-    List<Long> getBannedUserIds(SlashCommandInteractionEvent event);
-    void addBannedUserId(Member member, String reason, SlashCommandInteractionEvent event);
-    void removeBannedUserId(Member member, SlashCommandInteractionEvent event);
+    List<String> getBannedReasons(MessageReceivedEvent event);
+    List<Long> getBannerAuthorIds(MessageReceivedEvent event);
+    List<Long> getBannedUserIds(MessageReceivedEvent event);
+    void addBannedUserId(long targetId, String reason, MessageReceivedEvent event);
+    void removeBannedUserId(long targetId, MessageReceivedEvent event);
 
     // modifyadmins
     List<Long> getAdminIds();
     List<String> getAdminKeys();
-    void removeAdminId(Guild guild, Member member, SlashCommandInteractionEvent event);
-    void addAdminId(Guild guild, Member member, String key, SlashCommandInteractionEvent event);
+    void removeAdminId(Guild guild, Member member, MessageReceivedEvent event);
+    void addAdminId(Guild guild, Member member, String key, MessageReceivedEvent event);
 
     // modifymods
     List<Long> getModIds();
     List<String> getModKeys();
-    void removeModId(Guild guild, Member member, SlashCommandInteractionEvent event);
-    void addModId(Guild guild, Member member, String key, SlashCommandInteractionEvent event);
+    void removeModId(Guild guild, Member member, MessageReceivedEvent event);
+    void addModId(Guild guild, Member member, String key, MessageReceivedEvent event);
 
     // slashcmd
     void checkIfBanned(SlashCommandInteractionEvent event);

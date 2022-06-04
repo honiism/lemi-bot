@@ -43,7 +43,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @SuppressWarnings("unlikely-arg-type") // test
 public class LemiDbDs implements LemiDbManager {
@@ -129,8 +129,7 @@ public class LemiDbDs implements LemiDbManager {
     }
 
     @Override
-    public List<String> getBannedReasons(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    public List<String> getBannedReasons(MessageReceivedEvent event) {
         List<String> reasons = new ArrayList<>();
 
         try (Connection conn = getConnection();
@@ -143,46 +142,14 @@ public class LemiDbDs implements LemiDbManager {
             }
 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "fetch all the reasons.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "Something went wrong while trying to "
-                    + "fetch all the reasons.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "Something went wrong while trying to "
-                        + "fetch all the reasons.\r\n"
-                        + "Error : SQLException" + "\r\n"
-                        + "\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("fetch all the reasons.", "SQLException", log, event.getMessage(), e);
         }
 
         return reasons;
     }
 
     @Override
-    public List<Long> getBannerAuthorIds(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    public List<Long> getBannerAuthorIds(MessageReceivedEvent event) {
         List<Long> authorIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
@@ -195,46 +162,14 @@ public class LemiDbDs implements LemiDbManager {
             }
 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "fetch all the author (admin) ids.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "Something went wrong while trying to "
-                    + "fetch all the author (admin) ids.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "Something went wrong while trying to "
-                        + "fetch all the author (admin) ids.\r\n"
-                        + "Error : SQLException" + "\r\n"
-                        + "\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("fetch all the author (admin) ids.", "SQLException", log, event.getMessage(), e);
         }
 
         return authorIds;
     }
     
     @Override
-    public List<Long> getBannedUserIds(SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
+    public List<Long> getBannedUserIds(MessageReceivedEvent event) {
         List<Long> userIds = new ArrayList<>();
 
         try (Connection conn = getConnection();
@@ -247,56 +182,23 @@ public class LemiDbDs implements LemiDbManager {
             }
 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "fetch all the user ids.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "Something went wrong while trying to "
-                    + "fetch all the user ids.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "Something went wrong while trying to "
-                        + "fetch all the user ids.\r\n"
-                        + "Error : SQLException" + "\r\n"
-                        + "\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("fetch all the author user ids.", "SQLException", log, event.getMessage(), e);
         }
 
         return userIds;
     }
     
     @Override
-    public void addBannedUserId(Member member, String reason, SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-
+    public void addBannedUserId(long targetId, String reason, MessageReceivedEvent event) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT user_id FROM banned_users WHERE user_id = ?")) {
             
-            selectStatement.setLong(1, member.getIdLong());
+            selectStatement.setLong(1, targetId);
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (rs.next()) {
-                    hook.sendMessage(":sunflower: That user is already banned.").queue();
+                    event.getMessage().reply(":sunflower: That user is already banned.").queue();
                     return;
                 }
             }
@@ -305,129 +207,69 @@ public class LemiDbDs implements LemiDbManager {
     		    conn.prepareStatement("INSERT INTO banned_users(author_id, user_id, reason) VALUES(?, ?, ?)")) {
 
                 insertStatement.setLong(1, event.getMember().getIdLong());
-    	        insertStatement.setLong(2, member.getIdLong());
+    	        insertStatement.setLong(2, targetId);
                 insertStatement.setString(3, reason);
 
                 int result = insertStatement.executeUpdate();
 
                 if (result != 0) {
-                    hook.sendMessage(":herb: Successfully registered id, they're now banned.").queue();
+                    event.getMessage().reply(":herb: Successfully registered id, they're now banned.").queue();
 
-                    log.info(event.getUser().getAsMention() + " added an id to the banned_users database. (<@" + member.getIdLong() + ">)");
+                    log.info(event.getAuthor().getAsMention() + " added an id to the banned_users database. (<@" + targetId + ">)");
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	        .getTextChannelById(Config.get("logs_channel_id"))
-        	        .sendMessage(event.getUser().getAsMention() + " added an id to the banned_users database. (<@" + member.getIdLong() + ">)")
+        	        .sendMessage(event.getAuthor().getAsMention() + " added an id to the banned_users database. (<@" + targetId + ">)")
                         .queue();
 
                 } else {
-                    hook.sendMessage(":blueberries: Something went wrong while registering the id.").queue();
+                    event.getMessage().reply(":blueberries: Something went wrong while registering the id.").queue();
                 }
     	    }
                 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "register a user id to the database.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "register a user id to the database. :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "register a user id to the database. :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("register a user to the database", "SQLException", log, event.getMessage(), e);
         }
     }
     
     @Override
-    public void removeBannedUserId(Member member, SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-
+    public void removeBannedUserId(long targetId, MessageReceivedEvent event) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT user_id FROM banned_users WHERE user_id = ?")) {
             
-            selectStatement.setLong(1, member.getIdLong());
+            selectStatement.setLong(1, targetId);
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (!rs.next()) {
-                    hook.sendMessage(":butterfly: That user doesn't exist in the database.").queue();
+                    event.getMessage().reply(":butterfly: That user doesn't exist in the database.").queue();
                     return;
                 }
             }
 
             try (PreparedStatement deleteStatement =
     		    conn.prepareStatement("DELETE FROM banned_users WHERE user_id = ?")) {
-    		deleteStatement.setLong(1, member.getIdLong());
+    		deleteStatement.setLong(1, targetId);
 
         	long result = deleteStatement.executeUpdate();
 
                 if (result != 0) {
-                    hook.sendMessage(":cherry_blossom: Successfully removed id.").queue();
+                    event.getMessage().reply(":cherry_blossom: Successfully removed id.").queue();
                     
-                    log.info(event.getUser().getAsMention() + " removed a banned user id. (<@" + member.getIdLong() + ">)");
+                    log.info(event.getAuthor().getAsMention() + " removed a banned user id. (<@" + targetId + ">)");
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	        .getTextChannelById(Config.get("logs_channel_id"))
-        	        .sendMessage(event.getUser().getAsMention() + " removed a banned user id. (<@" + member.getIdLong() + ">)")
+        	        .sendMessage(event.getAuthor().getAsMention() + " removed a banned user id. (<@" + targetId + ">)")
                         .queue();
 
                 } else {
-                    hook.sendMessage(":grapes: Something went wrong while removing the id.").queue();
+                    event.getMessage().reply(":grapes: Something went wrong while removing the id.").queue();
                 }
     	    }
                 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "remove an id from the database.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "remove an id from the database. :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "remove an id from the database. :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("remove an id from the database.", "SQLException", log, event.getMessage(), e);
         } 
     }
     
@@ -448,25 +290,7 @@ public class LemiDbDs implements LemiDbManager {
             }
 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "fetch all the admin ids.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "fetch all the admin ids. :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("fetch all the admin ids.", "SQLException", log, e);
         }
 
         return adminIds;
@@ -489,34 +313,14 @@ public class LemiDbDs implements LemiDbManager {
             }
 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "fetch all the admin keys.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "fetch all the admin keys. :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("fetch all the admin keys.", "SQLException", log, e);
         }
 
         return adminKeys;
     }
     
     @Override
-    public void removeAdminId(Guild guild, Member member, SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-
+    public void removeAdminId(Guild guild, Member member, MessageReceivedEvent event) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT admin_ids FROM admin_mod_ids WHERE admin_ids = ?")) {
@@ -525,7 +329,7 @@ public class LemiDbDs implements LemiDbManager {
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (!rs.next()) {
-                    hook.sendMessage(":tulip: That user doesn't exist in the database.").queue();
+                    event.getMessage().reply(":tulip: That user doesn't exist in the database.").queue();
                     return;
                 }
             }
@@ -537,22 +341,22 @@ public class LemiDbDs implements LemiDbManager {
         	long result = deleteStatement.executeUpdate();
 
                 if (result != 0) {
-                    hook.sendMessage(":honey_pot: Successfully removed id.").queue();
+                    event.getMessage().reply(":honey_pot: Successfully removed id.").queue();
                     
-                    log.info(event.getUser().getAsMention() + " removed an admin id. (" + member.getIdLong() + ")");
+                    log.info(event.getAuthor().getAsMention() + " removed an admin id. (" + member.getIdLong() + ")");
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	        .getTextChannelById(Config.get("logs_channel_id"))
-        	        .sendMessage(event.getUser().getAsMention() + " removed an admin id. (" + member.getIdLong() + ")").queue();
+        	        .sendMessage(event.getAuthor().getAsMention() + " removed an admin id. (" + member.getIdLong() + ")").queue();
 
                     if (member.getRoles().contains(guild.getRoleById(Config.get("admin_role_id")))) {
                         guild.removeRoleFromMember(member, guild.getRoleById(Config.get("admin_role_id")))
                             .queue(
                                 (success) -> {
-                                    hook.editOriginal(":cherry_blossom: Successfully removed admin role from them.").queue();
+                                    event.getMessage().reply(":cherry_blossom: Successfully removed admin role from them.").queue();
                                 },
                                 (error) -> {
-                                    hook.editOriginal(":grapes: Something went wrong while removing the role from them.").queue();
+                                    event.getMessage().reply(":grapes: Something went wrong while removing the role from them.").queue();
                                 }
                             );
                     }
@@ -561,57 +365,26 @@ public class LemiDbDs implements LemiDbManager {
                         guild.removeRoleFromMember(member, guild.getRoleById(Config.get("staff_role_id")))
                             .queue(
                                 (success) -> {
-                                    hook.editOriginal(":cherry_blossom: Successfully removed staff role from them.").queue();
+                                    event.getMessage().reply(":cherry_blossom: Successfully removed staff role from them.").queue();
                                 },
                                 (error) -> {
-                                    hook.editOriginal(":grapes: Something went wrong while removing the role from them.").queue();
+                                    event.getMessage().reply(":grapes: Something went wrong while removing the role from them.").queue();
                                 }
                             );
                     }
 
                 } else {
-                    hook.sendMessage(":leaves: Something went wrong while removing the id.").queue();
+                    event.getMessage().reply(":leaves: Something went wrong while removing the id.").queue();
                 }
     	    }
                 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "remove an id from the database.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "remove an id from the database. :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "remove an id from the database. :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.sendError("remove an admin from the database", "SQLException", log, event.getMessage(), e);
         }
     }
     
     @Override
-    public void addAdminId(Guild guild, Member member, String key, SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-
+    public void addAdminId(Guild guild, Member member, String key, MessageReceivedEvent event) {
         try (Connection conn = getConnection();
                 PreparedStatement selectKeyStatement =
                     conn.prepareStatement("SELECT admin_ids FROM admin_mod_ids WHERE staff_key = ?")) {
@@ -620,7 +393,7 @@ public class LemiDbDs implements LemiDbManager {
 
             try (ResultSet rs = selectKeyStatement.executeQuery()) {
                 if (rs.next()) {
-                    hook.sendMessage(":umbrella: That key already exists.").queue();
+                    event.getMessage().reply(":umbrella: That key already exists.").queue();
                     return;
                 }
             }
@@ -631,7 +404,7 @@ public class LemiDbDs implements LemiDbManager {
 
                 try (ResultSet rs = selectKeyStatement.executeQuery()) {
                     if (rs.next()) {
-                        hook.sendMessage(":mushroom: That id already exists.").queue();
+                        event.getMessage().reply(":mushroom: That id already exists.").queue();
                         return;
                     }
                 }
@@ -645,22 +418,22 @@ public class LemiDbDs implements LemiDbManager {
         	int result = insertStatement.executeUpdate();
 
                 if (result != 0) {
-                    hook.sendMessage(":croissant: Successfully registered id, they're now an admin.").queue();
+                    event.getMessage().reply(":croissant: Successfully registered id, they're now an admin.").queue();
 
-                    log.info(event.getUser().getAsMention() + " added an admin id. (" + member.getIdLong() + ")");
+                    log.info(event.getAuthor().getAsMention() + " added an admin id. (" + member.getIdLong() + ")");
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	        .getTextChannelById(Config.get("logs_channel_id"))
-        	        .sendMessage(event.getUser().getAsMention() + " added an admin id. (" + member.getIdLong() + ")").queue();
+        	        .sendMessage(event.getAuthor().getAsMention() + " added an admin id. (" + member.getIdLong() + ")").queue();
 
                     if (!member.getRoles().contains(guild.getRoleById(Config.get("admin_role_id")))) {
                         guild.addRoleToMember(member, guild.getRoleById(Config.get("admin_role_id")))
                             .queue(
                                 (success) -> {
-                                    hook.editOriginal(":honey_pot: Successfully gave the admin role from them.").queue();
+                                    event.getMessage().reply(":honey_pot: Successfully gave the admin role from them.").queue();
                                 },
                                 (error) -> {
-                                    hook.editOriginal(":grapes: Something went wrong while giving the role from them.").queue();
+                                    event.getMessage().reply(":grapes: Something went wrong while giving the role from them.").queue();
                                 }
                             );
                     }
@@ -669,50 +442,21 @@ public class LemiDbDs implements LemiDbManager {
                         guild.addRoleToMember(member, guild.getRoleById(Config.get("staff_role_id")))
                             .queue(
                                 (success) -> {
-                                    hook.editOriginal(":honey_pot: Successfully gave the staff role from them.").queue();
+                                    event.getMessage().reply(":honey_pot: Successfully gave the staff role from them.").queue();
                                 },
                                 (error) -> {
-                                    hook.editOriginal(":grapes: Something went wrong while giving the role from them.").queue();
+                                    event.getMessage().reply(":grapes: Something went wrong while giving the role from them.").queue();
                                 }
                             );
                     }
 
                 } else {
-                    hook.sendMessage(":herb: Something went wrong while registering the id.").queue();
+                    event.getMessage().reply(":herb: Something went wrong while registering the id.").queue();
                 }
     	    }
                 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "register an admin id to the database.\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "register an admin id to the database. :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "register an admin id to the database. :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.sendError("register an admin to the database", "SQLException", log, event.getMessage(), e);
         }
     }
     
@@ -733,28 +477,7 @@ public class LemiDbDs implements LemiDbManager {
             }
 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "fetch all the mod ids.\r\n"
-                    + " : commands.staff.developer.ModifyMods\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "Something went wrong while trying to "
-                        + "fetch all the mod ids.\r\n"
-                        + " : commands.staff.developer.ModifyMods\r\n"
-                        + "Error : SQLException" + "\r\n"
-                        + "\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("fetch all the mods ids", "SQLException", log, e);
         }
 
         return modIds;
@@ -777,36 +500,14 @@ public class LemiDbDs implements LemiDbManager {
             }
 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "fetch all the mod keys.\r\n"
-                    + " : commands.staff.developer.ModifyMods\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "fetch all the mod keys. :no_entry:**\r\n"
-                        + " : commands.staff.developer.ModifyMods\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.reportError("fetch all the mods keys.", "SQLException", log, e);
         }
 
         return modKeys;
     }
     
     @Override
-    public void removeModId(Guild guild, Member member, SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-
+    public void removeModId(Guild guild, Member member, MessageReceivedEvent event) {
         try (Connection conn = getConnection();
                 PreparedStatement selectStatement =
                     conn.prepareStatement("SELECT mod_ids FROM admin_mod_ids WHERE mod_ids = ?")) {
@@ -815,7 +516,7 @@ public class LemiDbDs implements LemiDbManager {
 
             try (ResultSet rs = selectStatement.executeQuery()) {
                 if (!rs.next()) {
-                    hook.sendMessage(":butterfly: That user doesn't exist in the database.").queue();
+                    event.getMessage().reply(":butterfly: That user doesn't exist in the database.").queue();
                     return;
                 }
             }
@@ -827,22 +528,22 @@ public class LemiDbDs implements LemiDbManager {
                 long result = deleteStatement.executeUpdate();
 
                 if (result != 0) {
-                    hook.sendMessage(":cherry_blossom: Successfully removed id.").queue();
+                    event.getMessage().reply(":cherry_blossom: Successfully removed id.").queue();
                     
-                    log.info(event.getUser().getAsMention() + " removed a mod id. (" + member.getIdLong() + ")");
+                    log.info(event.getAuthor().getAsMention() + " removed a mod id. (" + member.getIdLong() + ")");
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
                         .getTextChannelById(Config.get("logs_channel_id"))
-                        .sendMessage(event.getUser().getAsMention() + " removed a mod id. (" + member.getIdLong() + ")").queue();
+                        .sendMessage(event.getAuthor().getAsMention() + " removed a mod id. (" + member.getIdLong() + ")").queue();
 
                     if (member.getRoles().contains(guild.getRoleById(Config.get("mod_role_id")))) {
                         guild.removeRoleFromMember(member, guild.getRoleById(Config.get("mod_role_id")))
                             .queue(
                                 (success) -> {
-                                    hook.editOriginal(":cherry_blossom: Successfully removed mod role from them.").queue();
+                                    event.getMessage().reply(":cherry_blossom: Successfully removed mod role from them.").queue();
                                 },
                                 (error) -> {
-                                    hook.editOriginal(":grapes: Something went wrong while removing the role from them.").queue();
+                                    event.getMessage().reply(":grapes: Something went wrong while removing the role from them.").queue();
                                 }
                             );
                     }
@@ -851,59 +552,25 @@ public class LemiDbDs implements LemiDbManager {
                         guild.removeRoleFromMember(member, guild.getRoleById(Config.get("staff_role_id")))
                             .queue(
                                 (success) -> {
-                                    hook.editOriginal(":cherry_blossom: Successfully removed staff role from them.").queue();
+                                    event.getMessage().reply(":cherry_blossom: Successfully removed staff role from them.").queue();
                                 },
                                 (error) -> {
-                                    hook.editOriginal(":grapes: Something went wrong while removing the role from them.").queue();
+                                    event.getMessage().reply(":grapes: Something went wrong while removing the role from them.").queue();
                                 }
                             );
                     }
                 } else {
-                    hook.sendMessage(":grapes: Something went wrong while removing the id.").queue();
+                    event.getMessage().reply(":grapes: Something went wrong while removing the id.").queue();
                 }
     	    }
                 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "remove an id from the database.\r\n"
-                    + " : commands.staff.developer.ModifyMods\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "remove an id from the database. :no_entry:**\r\n"
-                    + " : commands.staff.developer.ModifyMods\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "remove an id from the database. :no_entry:**\r\n"
-                        + " : commands.staff.developer.ModifyMods\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.sendError("remove an id from the database.", "SQLException", log, event.getMessage(), e);
         }
     }
     
     @Override
-    public void addModId(Guild guild, Member member, String key, SlashCommandInteractionEvent event) {
-        InteractionHook hook = event.getHook();
-
+    public void addModId(Guild guild, Member member, String key, MessageReceivedEvent event) {
         try (Connection conn = getConnection();
                 PreparedStatement selectKeyStatement =
                     conn.prepareStatement("SELECT mod_ids FROM admin_mod_ids WHERE staff_key = ?")) {
@@ -912,7 +579,7 @@ public class LemiDbDs implements LemiDbManager {
 
             try (ResultSet rs = selectKeyStatement.executeQuery()) {
                 if (rs.next()) {
-                    hook.sendMessage(":sunflower: That key already exists.").queue();
+                    event.getMessage().reply(":sunflower: That key already exists.").queue();
                     return;
                 }
             }
@@ -923,7 +590,7 @@ public class LemiDbDs implements LemiDbManager {
 
                 try (ResultSet rs = selectKeyStatement.executeQuery()) {
                     if (rs.next()) {
-                        hook.sendMessage(":cake: That id already exists.").queue();
+                        event.getMessage().reply(":cake: That id already exists.").queue();
                         return;
                     }
                 }
@@ -937,22 +604,22 @@ public class LemiDbDs implements LemiDbManager {
         	int result = insertStatement.executeUpdate();
 
                 if (result != 0) {
-                    hook.sendMessage(":herb: Successfully registered id, they're now a mod.").queue();
+                    event.getMessage().reply(":herb: Successfully registered id, they're now a mod.").queue();
 
-                    log.info(event.getUser().getAsMention() + " added a mod id. (" + member.getIdLong() + ")");
+                    log.info(event.getAuthor().getAsMention() + " added a mod id. (" + member.getIdLong() + ")");
 
-                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
+                    Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_hive"))
         	        .getTextChannelById(Config.get("logs_channel_id"))
-        	        .sendMessage(event.getUser().getAsMention() + " added a mod id. (" + member.getIdLong() + ")").queue();
+        	        .sendMessage(event.getAuthor().getAsMention() + " added a mod id. (" + member.getIdLong() + ")").queue();
 
                     if (!member.getRoles().contains(guild.getRoleById(Config.get("mod_role_id")))) {
                         guild.addRoleToMember(member, guild.getRoleById(Config.get("mod_role_id")))
                             .queue(
                                 (success) -> {
-                                    hook.editOriginal(":honey_pot: Successfully gave the mod role from them.").queue();
+                                    event.getMessage().reply(":honey_pot: Successfully gave the mod role from them.").queue();
                                 },
                                 (error) -> {
-                                    hook.editOriginal(":grapes: Something went wrong while giving the role from them.").queue();
+                                    event.getMessage().reply(":grapes: Something went wrong while giving the role from them.").queue();
                                 }
                             );
                     }
@@ -961,52 +628,20 @@ public class LemiDbDs implements LemiDbManager {
                         guild.addRoleToMember(member, guild.getRoleById(Config.get("staff_role_id")))
                             .queue(
                                 (success) -> {
-                                    hook.editOriginal(":honey_pot: Successfully gave the staff role from them.").queue();
+                                    event.getMessage().reply(":honey_pot: Successfully gave the staff role from them.").queue();
                                 },
                                 (error) -> {
-                                    hook.editOriginal(":grapes: Something went wrong while giving the role from them.").queue();
+                                    event.getMessage().reply(":grapes: Something went wrong while giving the role from them.").queue();
                                 }
                             );
                     }
                 } else {
-                    hook.sendMessage(":blueberries: Something went wrong while registering the id.").queue();
+                    event.getMessage().reply(":blueberries: Something went wrong while registering the id.").queue();
                 }
     	    }
                 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "register a mod id to the database.\r\n"
-                    + " : commands.staff.developer.ModifyMods\r\n"
-                    + "Error : SQLException" + "\r\n"
-                    + "\r\n");
-
-            e.printStackTrace();
-
-            hook.sendMessage("--------------------------\r\n" 
-                    + "**Something went wrong while trying to "
-                    + "register a mod id to the database. :no_entry:**\r\n"
-                    + " : commands.staff.developer.ModifyMods\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + "Message : " + e.getMessage() + "\r\n"
-                    + "Cause : " + e.getCause() + "\r\n"
-                    + "```")
-        	.queue();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-        	.getTextChannelById(Config.get("logs_channel_id"))
-        	.sendMessage("--------------------------\r\n" 
-                        + "**Something went wrong while trying to "
-                        + "register a mod id to the database. :no_entry:**\r\n"
-                        + " : commands.staff.developer.ModifyMods\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + "Message : " + e.getMessage() + "\r\n"
-                        + "Cause : " + e.getCause() + "\r\n"
-                        + "```")
-        	.queue();
+            Tools.sendError("register a mod id to the database.", "SQLException", log, event.getMessage(), e);
         } 
     }
     
@@ -1029,20 +664,11 @@ public class LemiDbDs implements LemiDbManager {
                 insertStatement.setLong(1, guild.getIdLong());
                         
                 int result = insertStatement.executeUpdate();
-                Guild honeysSweetsGuild = Lemi.getInstance().getShardManager().getGuildById(Config.getLong("honeys_sweets_id"));
 
                 if (result != 0) {
                     log.info("Successfully registered settings for " + guild.getName() + "(" + guild.getIdLong() + ").");
-                                
-                    honeysSweetsGuild.getTextChannelById(Config.get("logs_channel_id"))
-                        .sendMessage("Successfully registered settings for " + guild.getName() + "(" + guild.getIdLong() + ").")
-                        .queue();
                 } else {
                     log.info("Had problems while registering settings for " + guild.getName() + "(" + guild.getIdLong() + ").");
-                                
-                    honeysSweetsGuild.getTextChannelById(Config.get("logs_channel_id"))
-                        .sendMessage("Had problems while registering settings for " + guild.getName() + "(" + guild.getIdLong() + ").")
-                        .queue();
                 }
             }
                         
@@ -1074,25 +700,7 @@ public class LemiDbDs implements LemiDbManager {
             }
 
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "run the banned user check for slash commands\r\n"
-                    + "Error : SQLException\r\n"
-                    + "\r\n");
-                            
-            e.printStackTrace();
-            
-            Lemi.getInstance().getShardManager().getGuildById(Config.get("honeys_sweets_id"))
-                .getTextChannelById(Config.get("logs_channel_id"))
-                .sendMessage("--------------------------\r\n"
-                        + "**Something went wrong while trying to "
-                        + "run the banned user check for slash commands :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + e.getMessage() + "\r\n"
-                        + e.getCause() + "\r\n"
-                        + "```")
-                .queue();
+            Tools.reportError("Run the banned users check list.", "SQLException", log, e);
         }
     }
 
@@ -1111,26 +719,7 @@ public class LemiDbDs implements LemiDbManager {
             }
     
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "run isAuthorAdmin\r\n"
-                    + "Error : SQLException\r\n"
-                    + "\r\n");
-    
-            e.printStackTrace();
-            
-            Lemi.getInstance().getShardManager()
-                .getGuildById(Config.get("honeys_sweets_id"))
-                .getTextChannelById(Config.get("logs_channel_id"))
-                .sendMessage("--------------------------\r\n" 
-                    +"\r\n**Something went wrong while trying to "
-                    + "run isAuthorAdmin :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + e.getMessage() + "\r\n"
-                    + e.getCause() + "\r\n"
-                    + "```")
-	        .queue();  
+            Tools.reportError("run isAuthorAdmin", "SQLException", log, e);
         }
     
         return false;
@@ -1151,26 +740,7 @@ public class LemiDbDs implements LemiDbManager {
             }
     
             } catch (SQLException e) {
-                log.error("Something went wrong while trying to"
-                        + " run isAuthorMod\r\n"
-                        + "Error : SQLException\r\n"
-                        + "\r\n");
-    
-                e.printStackTrace();
-
-                Lemi.getInstance().getShardManager()
-                    .getGuildById(Config.get("honeys_sweets_id"))
-                    .getTextChannelById(Config.get("logs_channel_id"))
-                    .sendMessage("--------------------------\r\n" 
-                            +"\r\n**Something went wrong while trying to"
-                            + " run isAuthorMod :no_entry:**\r\n"
-                            + "Error : SQLException\r\n"
-                            + "--------------------------\r\n"
-                            + "```\r\n"
-                            + e.getMessage() + "\r\n"
-                            + e.getCause() + "\r\n"
-                            + "```")
-	            .queue();  
+                Tools.reportError("run isAuthorMod", "SQLException", log, e);
             }
     
         return false;
@@ -1191,23 +761,7 @@ public class LemiDbDs implements LemiDbManager {
             }
     
         } catch (SQLException e) {
-            log.error("\r\nSomething went wrong while trying to "
-                    + "run isAuthorAdmin\r\n"
-                    + "Error : SQLException\r\n"
-                    + "\r\n");
-    
-            e.printStackTrace();
-    
-            event.getHook().sendMessage("--------------------------\r\n" 
-                    +"\r\n**Something went wrong while trying to "
-                    + "run isAuthorAdmin :no_entry:**\r\n"
-                    + "Error : SQLException\r\n"
-                    + "--------------------------\r\n"
-                    + "```\r\n"
-                    + e.getMessage() + "\r\n"
-                    + e.getCause() + "\r\n"
-                    + "```")
-                .queue();
+            Tools.reportError("Run isAuthorAdmin", "SQLException", log, e);
         }
     
         return false;
@@ -1228,23 +782,7 @@ public class LemiDbDs implements LemiDbManager {
             }
     
             } catch (SQLException e) {
-                log.error("Something went wrong while trying to"
-                        + " run isAuthorMod\r\n"
-                        + "Error : SQLException\r\n"
-                        + "\r\n");
-    
-                e.printStackTrace();
-    
-                event.getHook().sendMessage("--------------------------\r\n" 
-                        +"\r\n**Something went wrong while trying to"
-                        + " run isAuthorMod :no_entry:**\r\n"
-                        + "Error : SQLException\r\n"
-                        + "--------------------------\r\n"
-                        + "```\r\n"
-                        + e.getMessage() + "\r\n"
-                        + e.getCause() + "\r\n"
-                        + "```")
-                    .queue();
+                Tools.reportError("Run isAuthorMod", "SQLException", log, e);
             }
     
         return false;
