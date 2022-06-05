@@ -48,9 +48,9 @@ public class Inventory extends SlashCmd {
     private long timeDelayed;
 
     public Inventory() {
-        setCommandData(Commands.slash("inventory", "Shows the inventory of a user.")
-                .addOption(OptionType.USER, "user", "The user you want to see the inventory of.", false)
-                .addOption(OptionType.INTEGER, "page", "Page of the help menu.", false)
+        setCommandData(Commands.slash("inventory", "Shows user inventory.")
+                .addOption(OptionType.USER, "user", "The user to show.", false)
+                .addOption(OptionType.INTEGER, "page", "Menu page.", false)
         );
         
         setUsage("/currency inventory <user>");
@@ -58,7 +58,6 @@ public class Inventory extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
     }
 
     @Override

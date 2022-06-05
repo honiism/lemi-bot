@@ -46,8 +46,8 @@ public class Balance extends SlashCmd {
     private long timeDelayed;
 
     public Balance() {
-        setCommandData(Commands.slash("balance", "Shows the balance of a user.")
-                .addOption(OptionType.USER, "user", "The user you want to see the balance of.", false)
+        setCommandData(Commands.slash("balance", "Shows user balance.")
+                .addOption(OptionType.USER, "user", "The user to show", false)
         );
         
         setUsage("/currency balance <user>");
@@ -55,7 +55,6 @@ public class Balance extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
     }
 
     @Override
