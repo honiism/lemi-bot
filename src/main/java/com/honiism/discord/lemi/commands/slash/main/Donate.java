@@ -39,7 +39,7 @@ public class Donate extends SlashCmd {
     private long timeDelayed;
 
     public Donate() {
-        setCommandData(Commands.slash("donate", "Gives you the link for honiism's paypal."));
+        setCommandData(Commands.slash("donate", "Support Honey <3"));
         setUsage("/donate");
         setCategory(CommandCategory.MAIN);
         setUserCategory(UserCategory.USERS);

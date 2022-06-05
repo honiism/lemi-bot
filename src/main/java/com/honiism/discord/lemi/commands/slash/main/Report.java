@@ -51,7 +51,7 @@ public class Report extends SlashCmd {
     private long timeDelayed;
 
     public Report() {
-        setCommandData(Commands.slash("report", "Report a bug by using the forms (ONLY FOR LEMI RELATED ISSUES)."));
+        setCommandData(Commands.slash("report", "Report a bug."));
         setUsage("/report");
         setCategory(CommandCategory.MAIN);
         setUserCategory(UserCategory.USERS);

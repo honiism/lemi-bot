@@ -40,7 +40,7 @@ public class Ping extends SlashCmd {
     private long timeDelayed;
 
     public Ping() {
-        setCommandData(Commands.slash("ping", "Shows the current pings for Lemi."));
+        setCommandData(Commands.slash("ping", "Current ping."));
         setUsage("/ping");
         setCategory(CommandCategory.MAIN);
         setUserCategory(UserCategory.USERS);

@@ -67,13 +67,12 @@ public class Cook extends SlashCmd {
     };
 
     public Cook() {
-        setCommandData(Commands.slash("cook", "Let's see if your cooking skills can handle this!"));
+        setCommandData(Commands.slash("cook", "Attempt to cook."));
         setUsage("/currency cook");
         setCategory(CommandCategory.CURRENCY);
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
-        
     }
 
     @Override

@@ -52,8 +52,8 @@ public class Help extends SlashCmd {
 
     public Help() {
         setCommandData(Commands.slash("help", "Shows information about Lemi.")
-                .addOption(OptionType.INTEGER, "page", "Page of the help menu.", false)
-                .addOption(OptionType.STRING, "command_name", "The name of command/category.", false)
+                .addOption(OptionType.INTEGER, "page", "Menu page.", false)
+                .addOption(OptionType.STRING, "command_name", "Command name.", false)
         );
         setUsage("/help [page number]");
         setCategory(CommandCategory.MAIN);
@@ -113,7 +113,9 @@ public class Help extends SlashCmd {
                             + Emojis.CHECK_MARK + " `balance`\r\n"
                             + Emojis.CROSS_MARK + " `currency balance`\r\n"
                             + Emojis.CROSS_MARK + " `/balance`\r\n"
-                            + Emojis.CROSS_MARK + " `/currency balance`")
+                            + Emojis.CROSS_MARK + " `/currency balance`\r\n"
+                            + Emojis.CHECK_MARK + " `resetcurrdata`\r\n"
+                            + Emojis.CROSS_MARK + " `l.resetcurrdata`\r\n")
                         .queue();
                 }
                 

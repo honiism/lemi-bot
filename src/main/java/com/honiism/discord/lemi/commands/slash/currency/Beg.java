@@ -45,7 +45,7 @@ public class Beg extends SlashCmd {
     private long timeDelayed;
 
     public Beg() {
-        setCommandData(Commands.slash("beg", "Try out your chances! You can get small, maybe rare items."));
+        setCommandData(Commands.slash("beg", "Attempt to beg."));
         setUsage("/currency beg");
         setCategory(CommandCategory.CURRENCY);
         setUserCategory(UserCategory.USERS);
