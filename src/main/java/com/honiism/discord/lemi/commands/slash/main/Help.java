@@ -52,8 +52,8 @@ public class Help extends SlashCmd {
 
     public Help() {
         setCommandData(Commands.slash("help", "Shows information about Lemi.")
-                .addOption(OptionType.INTEGER, "page", "Page of the help menu.", false)
-                .addOption(OptionType.STRING, "command_name", "The name of command/category.", false)
+                .addOption(OptionType.INTEGER, "page", "Menu page.", false)
+                .addOption(OptionType.STRING, "command_name", "Cmd/category name.", false)
         );
         setUsage("/help [page number]");
         setCategory(CommandCategory.MAIN);
