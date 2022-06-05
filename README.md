@@ -34,16 +34,15 @@
 ### A) Main: 🌊
 | Command | Description |
 | --- | --- |
-| /help `[page_number]` `[command_name]` | Shows information about Lemi/specific commands (includes private staff commands). |
-| /donate | Gives you the link for honiism's [paypal][paypal-link]. |
-| /ping | Shows the current pings for Lemi. |
+| /help `[page_number]` `[command_name]` | Shows information about Lemi. |
+| /donate | Support Honey <3 [paypal][paypal-link]. |
+| /ping | Current ping. |
 
 ### B) Currency: 🌸
 | Command | Description |
 | --- | --- |
-| /currency help | View the help guide for this command. |
-| /currency balance `<user>` | Shows the balance of a user. |
+| /currency balance `<user>` | Shows user balance. |
 | /currency bankrob | Attempt to bankrob. |
-| /currency beg | Try out your chances! You can get small, maybe rare items. |
-| /currency cook | Let's see if your cooking skills can handle this! |
-| /currency inventory `<user>` | Shows the inventory of a user. |
+| /currency beg | Attempt to beg. |
+| /currency cook | Attempt to cook. |
+| /currency inventory `<user>` | Shows user inventory. |
