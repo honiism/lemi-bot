@@ -22,6 +22,7 @@ package com.honiism.discord.lemi.commands.text.staff.admins;
 import java.util.HashMap;
 import java.util.List;
 
+import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.text.handler.CommandContext;
@@ -49,6 +50,8 @@ public class Embed extends TextCmd {
         setUserCategory(UserCategory.ADMINS);
         setUserPerms(new Permission[] {Permission.ADMINISTRATOR});
         setBotPerms(new Permission[] {Permission.ADMINISTRATOR});
+        setWhitelist(true);
+        addCustomWhitelist(Config.getLong("honeys_hive"));
     }
 
     @Override

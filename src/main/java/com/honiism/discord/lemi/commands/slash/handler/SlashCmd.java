@@ -19,6 +19,7 @@
 
 package com.honiism.discord.lemi.commands.slash.handler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,6 +33,7 @@ import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -49,9 +51,22 @@ public abstract class SlashCmd {
     private Permission[] userPermissions = new Permission[0];
     private Permission[] botPermissions = new Permission[0];
     private UserDataManager userDataManager;
+    private boolean whitelistOnly = false;
+    private List<Long> customWhitelist = new ArrayList<>();
 
     public void preAction(SlashCommandInteractionEvent event) {
         Member member = event.getMember();
+        Guild guild = event.getGuild();
+
+        if (isWhitelistOnly()) {
+            if (!getCustomWhitelist().isEmpty() && !getCustomWhitelist().contains(guild.getIdLong())) {
+                return;
+            }
+
+            if (getCustomWhitelist().isEmpty() && !Lemi.getInstance().getWhitelisted().contains(guild.getIdLong())) {
+                return;
+            }
+        }
 
         if (getUserPerms().length > 0 && !member.hasPermission(getUserPerms())) {
             EmbedBuilder needUserPermsMsg = new EmbedBuilder()
@@ -66,12 +81,12 @@ public abstract class SlashCmd {
         }
 
         if (getBotPerms().length > 0 
-                && !event.getGuild().getSelfMember().hasPermission(getBotPerms())) {
+                && !guild.getSelfMember().hasPermission(getBotPerms())) {
             EmbedBuilder needUserPermsMsg = new EmbedBuilder()
                 .setDescription(":cherries: **WAIT!**\r\n"
                         + "˚⊹ ˚︶︶꒷︶꒷꒦︶︶꒷꒦︶ ₊˚⊹.\r\n" + member.getAsMention() + "\r\n" 
                         + "> I don't have the " + getBotPermsString())
-                .setThumbnail(event.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
+                .setThumbnail(guild.getSelfMember().getUser().getEffectiveAvatarUrl())
                 .setColor(0xffd1dc);
 
             event.replyEmbeds(needUserPermsMsg.build()).queue();
@@ -86,6 +101,24 @@ public abstract class SlashCmd {
     }
 
     public abstract void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException;
+
+    public List<Long> getCustomWhitelist() {
+        return customWhitelist;
+    }
+
+    public void addCustomWhitelist(long... guildIds) {
+        for (long guildId : guildIds) {
+            getCustomWhitelist().add(guildId);
+        }
+    }
+
+    public boolean isWhitelistOnly() {
+        return whitelistOnly;
+    }
+
+    public void setWhitelist(boolean whitelistOnly) {
+        this.whitelistOnly = whitelistOnly;
+    }
 
     public UserDataManager getUserDataManager() {
         return userDataManager;

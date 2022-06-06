@@ -19,7 +19,11 @@
 
 package com.honiism.discord.lemi.commands.text.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.data.currency.UserDataManager;
@@ -28,6 +32,7 @@ import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -45,10 +50,23 @@ public abstract class TextCmd {
     private Permission[] userPermissions = new Permission[0];
     private Permission[] botPermissions = new Permission[0];
     private UserDataManager userDataManager;
+    private boolean whitelistOnly = false;
+    private List<Long> customWhitelist = new ArrayList<>();
 
     public void preAction(CommandContext ctx) {
         MessageReceivedEvent event = ctx.getEvent();
         Member member = event.getMember();
+        Guild guild = event.getGuild();
+
+        if (isWhitelistOnly()) {
+            if (!getCustomWhitelist().isEmpty() && !getCustomWhitelist().contains(guild.getIdLong())) {
+                return;
+            }
+
+            if (getCustomWhitelist().isEmpty() && !Lemi.getInstance().getWhitelisted().contains(guild.getIdLong())) {
+                return;
+            }
+        }
 
         if (getUserCategory().equals(UserCategory.DEV) 
                 && !Tools.isAuthorDev(member)) {
@@ -198,6 +216,24 @@ public abstract class TextCmd {
             this.userDataManager = new UserDataManager(userId, LemiDbBalManager.INS.getUserData(userId));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean isWhitelistOnly() {
+        return whitelistOnly;
+    }
+
+    public void setWhitelist(boolean whitelistOnly) {
+        this.whitelistOnly = whitelistOnly;
+    }
+
+    public List<Long> getCustomWhitelist() {
+        return customWhitelist;
+    }
+
+    public void addCustomWhitelist(long... guildIds) {
+        for (long guildId : guildIds) {
+            getCustomWhitelist().add(guildId);
         }
     }
 

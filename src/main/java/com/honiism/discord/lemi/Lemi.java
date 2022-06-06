@@ -19,6 +19,8 @@
 
 package com.honiism.discord.lemi;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -60,6 +62,7 @@ public class Lemi {
     private final SlashCmdManager slashCmdManager;
     private final TextCmdManager textCmdManager;
     private final ObjectMapper objectMapper;
+    private final List<Long> whitelistedGuilds = new ArrayList<>();
 
     private JDA jda;
     private boolean shuttingDown = false;
@@ -80,6 +83,10 @@ public class Lemi {
                                 + "Thread: " + t.getName()))
                         .build()
         );
+
+        whitelistedGuilds.add(Config.getLong("honeys_hive"));
+        whitelistedGuilds.add(Config.getLong("len_server"));
+        whitelistedGuilds.add(Config.getLong("test_server"));
 
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder
             .create(
@@ -135,6 +142,10 @@ public class Lemi {
 
     public static Lemi getInstance() {
         return instance;
+    }
+
+    public List<Long> getWhitelisted() {
+        return whitelistedGuilds;
     }
 
     public void shutdown() {
