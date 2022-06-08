@@ -34,6 +34,8 @@ import com.honiism.discord.lemi.commands.slash.currency.Beg;
 import com.honiism.discord.lemi.commands.slash.currency.Cook;
 import com.honiism.discord.lemi.commands.slash.currency.CurrencyTopLevel;
 import com.honiism.discord.lemi.commands.slash.currency.Inventory;
+import com.honiism.discord.lemi.commands.slash.fun.FunTopLevel;
+import com.honiism.discord.lemi.commands.slash.fun.TruthOrDare;
 import com.honiism.discord.lemi.commands.slash.main.Donate;
 import com.honiism.discord.lemi.commands.slash.main.Help;
 import com.honiism.discord.lemi.commands.slash.main.Ping;
@@ -45,8 +47,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
 public class SlashCmdManager {
 
@@ -144,11 +149,37 @@ public class SlashCmdManager {
     }
 
     public void handle(SlashCommandInteractionEvent event) {
-        String executedCmdName = event.getName();
-        SlashCmd slashCmd = commandsMap.get(executedCmdName);
+        SlashCmd slashCmd = commandsMap.get(event.getName());
 
         if (slashCmd != null) {
             slashCmd.preAction(event);
+        }
+    }
+
+    public void handleAutocomplete(CommandAutoCompleteInteractionEvent event) {
+        if (event.getGuild() == null) {
+            return;
+        }
+
+        String[] cmdPath = event.getCommandPath().split("/");
+        
+        SlashCmd cmd = commandsMap.get(event.getName());
+        SlashCmd autocompleteCmd = null;
+
+        if (cmdPath.length > 2) {
+            SubcommandGroupData cmdGroup = cmd.getSubCmdGroups().stream()
+                .filter((group) -> group.getName().equals(cmdPath[1]))
+                .findAny()
+                .orElse(null);
+
+            autocompleteCmd = allSubTopCmds.stream()
+                .filter((autoCmd) -> autoCmd.getName().equals(cmdGroup.getName()))
+                .findAny()
+                .orElse(null);
+        }
+
+        if (autocompleteCmd != null) {
+            autocompleteCmd.handleAutocomplete(event);
         }
     }
 
@@ -183,8 +214,10 @@ public class SlashCmdManager {
         Cook cookCmd = new Cook();
         Report reportCmd = new Report();
         Suggest suggestCmd = new Suggest();
+        TruthOrDare todCmd = new TruthOrDare();
 
         CurrencyTopLevel currencyTopLevelCmd = new CurrencyTopLevel(balanceCmd, inventoryCmd, bankrobCmd, begCmd, cookCmd);
+        FunTopLevel funTopLevelCmd = new FunTopLevel(todCmd);
 
         // main
         registerCmd(helpCmd);
@@ -207,6 +240,11 @@ public class SlashCmdManager {
         allSubTopCmds.add(bankrobCmd);
         allSubTopCmds.add(begCmd);
         allSubTopCmds.add(cookCmd);
+
+        // fun
+        registerCmd(funTopLevelCmd);
+
+        allSubTopCmds.add(todCmd);
 
         cmdsToAdd = commandsMap.values().stream().map(SlashCmd::getCommandData).collect(Collectors.toList());
     }

@@ -36,6 +36,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
@@ -101,6 +102,8 @@ public abstract class SlashCmd {
     }
 
     public abstract void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException;
+
+    public void handleAutocomplete(CommandAutoCompleteInteractionEvent event) {}
 
     public List<Long> getCustomWhitelist() {
         return customWhitelist;
