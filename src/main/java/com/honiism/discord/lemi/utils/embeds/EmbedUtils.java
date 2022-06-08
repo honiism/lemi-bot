@@ -71,6 +71,13 @@ public class EmbedUtils {
             .build();
     }
 
+    public static MessageEmbed defaultEmbed(String content, String footer) {
+        return new EmbedBuilder()
+            .setDescription(content)
+            .setColor(DEFAULT_COLOR)
+            .setFooter(footer)
+            .build();
+    }
 
     public static MessageEmbed defaultEmbed(String content) {
         return new EmbedBuilder()

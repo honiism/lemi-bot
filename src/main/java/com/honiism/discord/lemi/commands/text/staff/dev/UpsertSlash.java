@@ -41,7 +41,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class UpsertSlash extends TextCmd {
 
-    private static final Logger log = LoggerFactory.getLogger(Shutdown.class);
+    private static final Logger log = LoggerFactory.getLogger(UpsertSlash.class);
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;

@@ -40,7 +40,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ClearCmds extends TextCmd {
 
-    private static final Logger log = LoggerFactory.getLogger(Shutdown.class);
+    private static final Logger log = LoggerFactory.getLogger(ClearCmds.class);
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;

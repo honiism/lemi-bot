@@ -40,7 +40,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ReloadSlash extends TextCmd {
 
-    private static final Logger log = LoggerFactory.getLogger(Shutdown.class);
+    private static final Logger log = LoggerFactory.getLogger(ReloadSlash.class);
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;
@@ -99,7 +99,7 @@ public class ReloadSlash extends TextCmd {
                 Lemi.getInstance().getSlashCmdManager().reloadGuildCmds(guild);
 
                 event.getMessage().reply(":herb: Commands are now reloaded for this guild only!").queue();
-                log.info("Commands are now reloaded for a guild with the id of" + guild.getIdLong() + "only!");
+                log.info("Commands are now reloaded for a guild with the id of " + guild.getIdLong() + " only!");
             }
 
         } else {
