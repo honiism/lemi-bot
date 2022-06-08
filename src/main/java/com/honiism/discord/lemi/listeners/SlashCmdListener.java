@@ -24,6 +24,7 @@ import com.honiism.discord.lemi.data.database.managers.LemiDbBalManager;
 import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -51,5 +52,10 @@ public class SlashCmdListener extends ListenerAdapter {
         }
 
         Lemi.getInstance().getSlashCmdManager().handle(event);
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event) {
+        Lemi.getInstance().getSlashCmdManager().handleAutocomplete(event);
     }
 }
