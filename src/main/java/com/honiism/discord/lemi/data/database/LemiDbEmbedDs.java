@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.data.database.managers.LemiDbEmbedManager;
 import com.honiism.discord.lemi.data.embed.EmbedData;
@@ -81,7 +82,7 @@ public class LemiDbEmbedDs implements LemiDbEmbedManager {
 
         HikariConfig config = new HikariConfig();
 
-        config.setJdbcUrl("jdbc:sqlite:LemiEmbedDb.db");
+        config.setJdbcUrl(Config.get("lemi_embed_db_url"));
         config.setConnectionTestQuery("SELECT 1");
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");

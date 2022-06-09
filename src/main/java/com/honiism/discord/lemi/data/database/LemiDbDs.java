@@ -75,7 +75,7 @@ public class LemiDbDs implements LemiDbManager {
 
         HikariConfig config = new HikariConfig();
 
-        config.setJdbcUrl("jdbc:sqlite:LemiDb.db");
+        config.setJdbcUrl(Config.get("lemi_db_url"));
         config.setConnectionTestQuery("SELECT 1");
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
