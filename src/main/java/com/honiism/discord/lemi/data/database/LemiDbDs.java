@@ -44,6 +44,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 
 @SuppressWarnings("unlikely-arg-type") // test
 public class LemiDbDs implements LemiDbManager {
@@ -89,7 +90,10 @@ public class LemiDbDs implements LemiDbManager {
             statement.execute("CREATE TABLE IF NOT EXISTS guild_settings ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "guild_id VARCHAR(20) NOT NULL,"
-                    + "dj_role_id VARCHAR(20) NOT NULL DEFAULT '0'"
+                    + "dj_role_id VARCHAR(20) NOT NULL DEFAULT '0',"
+                    + "allow_nsfw_rating VARCHAR(20) NOT NULL DEFAULT '0',"
+                    + "paranoia_rate VARCHAR(20) NOT NULL DEFAULT '50',"
+                    + "custom_questions_json VARCHAR(20) NOT NULL DEFAULT '0'"
                     + ");"
             );
     
@@ -126,6 +130,94 @@ public class LemiDbDs implements LemiDbManager {
     
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean hasCustomQuestion(long guildId) {
+        return false;
+    }
+
+    @Override
+    public void updateCustomQuestion(long guildId, String jsonData) {
+        
+    }
+
+    @Override
+    public void setParanoiaRate(int shownRate, InteractionHook hook) {
+        String sql = "UPDATE guild_settings SET paranoia_rate = ? WHERE guild_id = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, shownRate);
+            ps.setLong(2, hook.getInteraction().getGuild().getIdLong());
+
+            int result = ps.executeUpdate();
+
+            if (result != 0) {
+                hook.sendMessage(":crescent_moon: Successfully set the paranoia shown rating to " + shownRate + "%.").queue();
+            } else {
+                hook.sendMessage(":tea: Failed to set the paranoia shown rating.").queue();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public int getParanoiaRate(InteractionHook hook) {
+        String sql = "SELECT paranoia_rate FROM guild_settings WHERE guild_id = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setLong(1, hook.getInteraction().getGuild().getIdLong());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("paranoia_rate");
+                }
+            }
+        } catch (SQLException e) {
+                Tools.reportError("Failed to get paranoia shown rate.", "SQLException", log, hook, e);
+        }
+
+        return 50;
+    }
+
+    @Override
+    public void setNSFWRating(boolean input, InteractionHook hook) {
+        String sql = "UPDATE guild_settings SET allow_nsfw_rating = ? WHERE guild_id = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, (input) ? "1" : "0");
+            ps.setLong(2, hook.getInteraction().getGuild().getIdLong());
+
+            int result = ps.executeUpdate();
+
+            if (result != 0) {
+                hook.sendMessage(":crescent_moon: Successfully set the NSFW rating to " + input + ".").queue();
+            } else {
+                hook.sendMessage(":tea: Failed to set the NSFW rating.").queue();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean isNSFWAllowed(InteractionHook hook) {
+        String sql = "SELECT allow_nsfw_rating FROM guild_settings WHERE guild_id = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setLong(1, hook.getInteraction().getGuild().getIdLong());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return (rs.getInt("allow_nsfw_rating") == 1) ? true : false;
+                }
+            }
+        } catch (SQLException e) {
+            Tools.reportError("Failed to check if NSFW is allowed.", "SQLException", log, hook, e);
+        }
+
+        return false;
     }
 
     @Override

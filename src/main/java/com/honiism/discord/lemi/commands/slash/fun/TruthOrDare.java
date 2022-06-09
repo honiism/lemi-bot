@@ -28,10 +28,13 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.client.utils.URIBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gwt.thirdparty.json.JSONException;
 import com.google.gwt.thirdparty.json.JSONObject;
@@ -41,10 +44,14 @@ import com.honiism.discord.lemi.commands.handler.CommandCategory;
 import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.AutocompleteChoices;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
+import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.utils.currency.WeightedRandom;
+import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -57,6 +64,8 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class TruthOrDare extends SlashCmd {
+
+    private static final Logger log = LoggerFactory.getLogger(TruthOrDare.class);
 
     private final String baseURL = "https://api.truthordarebot.xyz/v1/";
 
@@ -82,7 +91,11 @@ public class TruthOrDare extends SlashCmd {
                         new SubcommandData("paranoia", "Get a paranoia question (default: PG13).")
                                 .addOption(OptionType.USER, "user", "User to ask.", false)
                                 .addOption(OptionType.STRING, "rating", "The maturity rating.",
-                                        false, true)
+                                        false, true),
+
+                        new SubcommandData("settings", "Modify settings for this command.")
+                                .addOption(OptionType.STRING, "category", "The setting category.",
+                                        true, true)
                 )
         );
 
@@ -91,6 +104,7 @@ public class TruthOrDare extends SlashCmd {
         setUserCategory(UserCategory.USERS);
         setUserPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
         setBotPerms(new Permission[] {Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY});
+        setWhitelist(true);
     }
 
     @Override
@@ -105,49 +119,55 @@ public class TruthOrDare extends SlashCmd {
             return;
         }
 
-        JSONObject jsonRespose = handleRequest(rating, subCmdName, hook);
+        if (rating.equals("R") && !LemiDbManager.INS.isNSFWAllowed(hook)) {
+            hook.sendMessage(":butterfly: NSFW rating is not allowed (modify it with `/tod settings setNSFW`).").queue();
+            return;
+        }
+
+        JSONObject jsonResponse = handleRequest(rating, subCmdName, hook);
+        Guild guild = event.getGuild();
         
+        Member member = event.getMember();
+
         switch (subCmdName) {
             case "truth":
             case "dare":
             case "wyr":
             case "nhie":
                 try {
-                    String question = jsonRespose.getString("question");
-                    String id = jsonRespose.getString("id");
-
-                    Member member = hook.getInteraction().getMember();
+                    String question = jsonResponse.getString("question");
+                    String id = jsonResponse.getString("id");
 
                     EmbedBuilder questionEmbed = new EmbedBuilder()
                         .setTitle(":tulip: " + subCmdName.toUpperCase() + " question!")
                         .setDescription(question)
                         .setAuthor(member.getEffectiveName(), null, member.getEffectiveAvatarUrl())
                         .setFooter("ID: " + id + " | Rating: " + rating)
-                        .setThumbnail(hook.getInteraction().getGuild().getSelfMember().getEffectiveAvatarUrl())
+                        .setThumbnail(guild.getSelfMember().getEffectiveAvatarUrl())
                         .setColor(0xffd1dc);
 
                     hook.sendMessageEmbeds(questionEmbed.build()).queue();
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Tools.sendError("Get the question.", "JSONException", log, hook, e);
                 }
                 break;
 
             case "paranoia":
                 try {
-                    String question = jsonRespose.getString("question");
-                    String id = jsonRespose.getString("id");
+                    String question = jsonResponse.getString("question");
+                    String id = jsonResponse.getString("id");
 
-                    Member member = event.getOption("user", event.getMember(), OptionMapping::getAsMember);
+                    Member target = event.getOption("user", event.getMember(), OptionMapping::getAsMember);
 
                     EmbedBuilder questionEmbed = new EmbedBuilder()
                         .setTitle(":tulip: " + subCmdName.toUpperCase() + " question!")
                         .setDescription(question)
-                        .setAuthor(member.getEffectiveName(), null, member.getEffectiveAvatarUrl())
+                        .setAuthor(target.getEffectiveName(), null, target.getEffectiveAvatarUrl())
                         .setFooter("ID: " + id + " | Rating: " + rating + " | Type: " + subCmdName)
-                        .setThumbnail(hook.getInteraction().getGuild().getSelfMember().getEffectiveAvatarUrl())
+                        .setThumbnail(guild.getSelfMember().getEffectiveAvatarUrl())
                         .setColor(0xffd1dc);
 
-                    member.getUser().openPrivateChannel().queue(
+                    target.getUser().openPrivateChannel().queue(
                         (channel) -> {
                             hook.sendMessage(":strawberry: Sent them the question.").queue();
 
@@ -157,21 +177,28 @@ public class TruthOrDare extends SlashCmd {
                                     Lemi.getInstance().getEventWaiter().waitForEvent(
                                             MessageReceivedEvent.class,
                                             (e) -> e.isFromType(ChannelType.PRIVATE)
-                                                && e.getAuthor().getIdLong() == member.getIdLong()
+                                                && e.getAuthor().getIdLong() == target.getIdLong()
                                                 && !e.getAuthor().isBot(),
                                             (e) -> {
                                                 TextChannel textChannel = hook.getInteraction().getTextChannel();
+
+                                                WeightedRandom<Boolean> isShown = new WeightedRandom<>();
+                                                int shownRate = LemiDbManager.INS.getParanoiaRate(hook);
+
+                                                isShown.add(shownRate, true);
+                                                isShown.add(100 - shownRate, false);
                                                 
                                                 EmbedBuilder answerEmbed = new EmbedBuilder()
                                                     .setTitle(":strawberry: Answer Received!")
-                                                    .addField(":sunflower: Question", question, false)
-                                                    .addField(":seedling: Answer", e.getMessage().getContentDisplay(), false)
-                                                    .setAuthor(member.getEffectiveName(), null, member.getEffectiveAvatarUrl())
+                                                    .addField(":sunflower: Question",
+                                                            (isShown.next()) ? question : "Hidden!", false)
+                                                    .addField(":seedling: Answer", e.getMessage().getContentRaw(), false)
+                                                    .setAuthor(target.getEffectiveName(), null, target.getEffectiveAvatarUrl())
                                                     .setFooter("ID: " + id + " | Rating: " + rating + " | Type: " + subCmdName)
-                                                    .setThumbnail(hook.getInteraction().getGuild().getSelfMember().getEffectiveAvatarUrl())
+                                                    .setThumbnail(guild.getSelfMember().getEffectiveAvatarUrl())
                                                     .setColor(0xffd1dc);
 
-                                                textChannel.sendMessage(":cherry_blossom: " + member.getAsMention() + " has responded!")
+                                                textChannel.sendMessage(":cherry_blossom: " + target.getAsMention() + " has responded!")
                                                     .setEmbeds(answerEmbed.build())
                                                     .queue((message) -> {
                                                         channel.sendMessage("Answer sent.").queue();
@@ -179,7 +206,7 @@ public class TruthOrDare extends SlashCmd {
                                             },
                                             5,
                                             TimeUnit.MINUTES,
-                                            null
+                                            () -> channel.sendMessage("You ran out of time to answer").queue()
                                     );
                                 });
                         },
@@ -188,18 +215,93 @@ public class TruthOrDare extends SlashCmd {
                         }
                     );
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Tools.sendError("Get the question.", "JSONException", log, hook, e);
+                }
+                break;
+
+            case "settings":
+                if (!member.hasPermission(Permission.ADMINISTRATOR)) {
+                    hook.sendMessage(":grapes: Sorry only people with the ADMINISTRATOR permission can run this.")
+                        .queue();
+                    return;
+                }
+
+                String settingCategory = event.getOption("category", OptionMapping::getAsString);
+
+                if (!settingCategory.equals("NSFW_rating") && !settingCategory.equals("paranoia_rate")) {
+                    hook.sendMessage(":cherries: Invalid setting category.").queue();
+                    return;
+                }
+
+                if (settingCategory.equals("NSFW_rating")) {
+                    hook.sendMessage(":sunflower: Please respond with either `true` or `false` to `allow` or `not allow`.")
+                        .queue((msg) -> {
+                            Lemi.getInstance().getEventWaiter().waitForEvent(
+                                    MessageReceivedEvent.class,
+                                    (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getMember().getIdLong()
+                                        && e.isFromGuild()
+                                        && e.getGuild().getIdLong() == hook.getInteraction().getGuild().getIdLong()
+                                        && e.getTextChannel().getIdLong() == hook.getInteraction().getTextChannel().getIdLong()
+                                        && (e.getMessage().getContentRaw().equals("true") 
+                                        || e.getMessage().getContentRaw().equals("false")),
+                                    (e) -> {
+                                        String raw = e.getMessage().getContentRaw();
+                                        LemiDbManager.INS.setNSFWRating(Boolean.parseBoolean(raw), hook);
+                                    },
+                                    1,
+                                    TimeUnit.MINUTES,
+                                    () -> hook.sendMessage(":tea: You ran out of time.").queue()
+                            );
+                        });
+                        
+                } else if (settingCategory.equals("paranoia_rate")) {
+                    hook.sendMessage(":sunflower: Please respond with a number out of 1 - 100.")
+                        .queue((msg) -> {
+                            Lemi.getInstance().getEventWaiter().waitForEvent(
+                                    MessageReceivedEvent.class,
+                                    (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getMember().getIdLong()
+                                        && e.isFromGuild()
+                                        && e.getGuild().getIdLong() == hook.getInteraction().getGuild().getIdLong()
+                                        && e.getTextChannel().getIdLong() == hook.getInteraction().getTextChannel().getIdLong()
+                                        && Tools.isInt(e.getMessage().getContentRaw())
+                                        && Integer.parseInt(e.getMessage().getContentRaw()) <= 100,
+                                    (e) -> {
+                                        String raw = e.getMessage().getContentRaw();
+                                        LemiDbManager.INS.setParanoiaRate(Integer.parseInt(raw), hook);
+                                    },
+                                    1,
+                                    TimeUnit.MINUTES,
+                                    () -> hook.sendMessage(":tea: You ran out of time.").queue()
+                            );
+                        });
+
+                } else if (settingCategory.equals("custom_question")) {
+                    EmbedBuilder guideEmbedBuilder = new EmbedBuilder()
+                        .setTitle(":strawberry: Custom Question Menu!")
+                        .setDescription(":warning: **READ BEFORE CLICKING!**\r\n"
+                                + "> :sunflower: You can obtain question ids by clicking the view button!\r\n"
+                                + "> This id will be needed to delete any custom questions you've added before.")
+                        .setAuthor(member.getEffectiveName(), null, member.getEffectiveAvatarUrl())
+                        .setThumbnail(guild.getSelfMember().getEffectiveAvatarUrl())
+                        .setColor(0xffd1dc);
                 }
         }
     }
 
     @Override
     public void handleAutocomplete(CommandAutoCompleteInteractionEvent event) {
-        List<AutocompleteChoices> choices = List.of(
-                new AutocompleteChoices("PG", "PG"),
-                new AutocompleteChoices("PG13", "PG13"),
-                new AutocompleteChoices("R", "R")
-        );
+        List<AutocompleteChoices> choices = new ArrayList<>();
+
+        if (event.getFocusedOption().getName().equals("rating")) {
+            choices.add(new AutocompleteChoices("PG", "PG"));
+            choices.add(new AutocompleteChoices("PG13", "PG13"));
+            choices.add(new AutocompleteChoices("R", "R"));
+
+        } else if (event.getFocusedOption().getName().equals("category")) {
+            choices.add(new AutocompleteChoices("NSFW rating", "NSFW_rating"));
+            choices.add(new AutocompleteChoices("Paranoia rate", "paranoia_rate"));
+            choices.add(new AutocompleteChoices("Custom question", "custom_question"));
+        }
 
         event.replyChoices(
                 choices.stream().map(AutocompleteChoices::toCommandAutocompleteChoice).toList()
@@ -228,7 +330,7 @@ public class TruthOrDare extends SlashCmd {
             
             return new JSONObject(response.body());
         } catch (JSONException | IOException | InterruptedException | URISyntaxException e) {
-            e.printStackTrace();
+            Tools.reportError("Trying to send the request", "JSON/IO/Interrupted/URISyntax Exception", log, e);
         }
 
         return null;

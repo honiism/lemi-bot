@@ -30,6 +30,7 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.data.currency.InventoryData;
 import com.honiism.discord.lemi.data.currency.UserData;
@@ -72,7 +73,7 @@ public class LemiDbBalDs implements LemiDbBalManager {
 
         HikariConfig config = new HikariConfig();
 
-        config.setJdbcUrl("jdbc:sqlite:LemiBalDb.db");
+        config.setJdbcUrl(Config.get("lemi_bal_db_url"));
         config.setConnectionTestQuery("SELECT 1");
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");

@@ -28,9 +28,18 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public interface LemiDbManager {
     LemiDbManager INS = new LemiDbDs();
+
+    // guildsettings
+    void setNSFWRating(boolean input, InteractionHook hook);
+    boolean isNSFWAllowed(InteractionHook hook);
+    void setParanoiaRate(int shownRate, InteractionHook hook);
+    int getParanoiaRate(InteractionHook hook);
+    boolean hasCustomQuestion(long guildId);
+    void updateCustomQuestion(long guildId, String jsonData);
 
     // userban
     List<String> getBannedReasons(MessageReceivedEvent event);
