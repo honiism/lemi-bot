@@ -37,7 +37,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
 public class FunTopLevel extends SlashCmd {
 
-    private final TruthOrDare todCmd;
+    private TruthOrDare todCmd;
 
     private HashMap<Long, Long> delay = new HashMap<>();
     private long timeDelayed;

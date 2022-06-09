@@ -171,7 +171,7 @@ public class TruthOrDare extends SlashCmd {
                                                     .setThumbnail(hook.getInteraction().getGuild().getSelfMember().getEffectiveAvatarUrl())
                                                     .setColor(0xffd1dc);
 
-                                                textChannel.sendMessage(member.getAsMention() + "has responded!")
+                                                textChannel.sendMessage(":cherry_blossom: " + member.getAsMention() + " has responded!")
                                                     .setEmbeds(answerEmbed.build())
                                                     .queue((message) -> {
                                                         channel.sendMessage("Answer sent.").queue();

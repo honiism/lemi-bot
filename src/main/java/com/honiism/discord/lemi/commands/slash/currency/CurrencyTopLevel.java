@@ -32,11 +32,11 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class CurrencyTopLevel extends SlashCmd {
 
-    private Balance balanceCmd = new Balance();
-    private Inventory inventoryCmd = new Inventory();
-    private Bankrob bankrobCmd = new Bankrob();
-    private Beg begCmd = new Beg();
-    private Cook cookCmd = new Cook();
+    private Balance balanceCmd;
+    private Inventory inventoryCmd;
+    private Bankrob bankrobCmd;
+    private Beg begCmd;
+    private Cook cookCmd;
 
     public CurrencyTopLevel(Balance balanceCmd, Inventory inventoryCmd, Bankrob bankrobCmd, Beg begCmd,
                             Cook cookCmd) {
