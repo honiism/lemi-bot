@@ -45,12 +45,17 @@ import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.AutocompleteChoices;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.misc.QuestionData;
+import com.honiism.discord.lemi.utils.buttons.ButtonMenu;
+import com.honiism.discord.lemi.utils.buttons.Paginator;
 import com.honiism.discord.lemi.utils.currency.WeightedRandom;
+import com.honiism.discord.lemi.utils.misc.Emojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -62,6 +67,11 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Modal;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 
 public class TruthOrDare extends SlashCmd {
 
@@ -276,7 +286,7 @@ public class TruthOrDare extends SlashCmd {
                         });
 
                 } else if (settingCategory.equals("custom_question")) {
-                    EmbedBuilder guideEmbedBuilder = new EmbedBuilder()
+                    EmbedBuilder guideEmbed = new EmbedBuilder()
                         .setTitle(":strawberry: Custom Question Menu!")
                         .setDescription(":warning: **READ BEFORE CLICKING!**\r\n"
                                 + "> :sunflower: You can obtain question ids by clicking the view button!\r\n"
@@ -284,6 +294,81 @@ public class TruthOrDare extends SlashCmd {
                         .setAuthor(member.getEffectiveName(), null, member.getEffectiveAvatarUrl())
                         .setThumbnail(guild.getSelfMember().getEffectiveAvatarUrl())
                         .setColor(0xffd1dc);
+
+                    Modal.Builder addModal = Modal.create("add_custom_question", "Add a custom question!");
+                    Modal.Builder deleteModal = Modal.create("delete_custom_question", "Remove a custom question!");
+
+                    Runnable addRun = () -> {
+                        TextInput type = TextInput.create("add_question_type", "Question Type", TextInputStyle.SHORT)
+                            .setPlaceholder("The type of question it is (Truth, Dare, WYR, NHIE, Paranoia).")
+                            .setMaxLength(8)
+                            .setRequired(true)
+                            .build();
+
+                        TextInput questionRating = TextInput.create("add_question_rating", "Question Rating",
+                                TextInputStyle.SHORT)
+                            .setPlaceholder("The maturarity rate of question it is (PG, PG13, R).")
+                            .setMaxLength(4)
+                            .setRequired(true)
+                            .build();
+
+                        TextInput question = TextInput.create("add_question", "Question", TextInputStyle.SHORT)
+                            .setPlaceholder("Enter the custom question you'd like to add.")
+                            .setMaxLength(250)
+                            .setRequired(true)
+                            .build();
+
+                        addModal.addActionRows(ActionRow.of(type), ActionRow.of(questionRating), ActionRow.of(question));
+                    };
+
+                    Runnable deleteRun = () -> {
+                        TextInput questionId = TextInput.create("question_id", "Question ID", TextInputStyle.SHORT)
+                            .setPlaceholder("The id of the question you'd like to delete (can be seen through view).")
+                            .setMaxLength(8)
+                            .setRequired(true)
+                            .build();
+
+                        deleteModal.addActionRows(ActionRow.of(questionId));
+                    };
+
+                    Runnable viewRun = () -> {
+                        List<String> items = new ArrayList<>();
+
+                        Paginator.Builder builder = new Paginator.Builder(event.getJDA())
+                            .setEmbedDesc("‧₊੭ :bread: **CUSTOM QUESTIONS LIST!** ♡ ⋆｡˚")
+                            .setEventWaiter(Lemi.getInstance().getEventWaiter())
+                            .setItemsPerPage(10)
+                            .setItems()
+                            .useNumberedItems(true)
+                            .useTimestamp(true)
+                            .addAllowedUsers(event.getAuthor().getIdLong())
+                            .setColor(0xffd1dc)
+                            .setTimeout(1, TimeUnit.MINUTES);
+
+                        int page = 1;
+
+                        event.getMessage().replyEmbeds(EmbedUtils.getSimpleEmbed(":tea: Loading..."))
+                            .queue(message -> builder.build().paginate(message, page));
+                    };
+
+                    Button addButton = Button.success("question_add", "Add")
+                        .withEmoji(Emoji.fromMarkdown(Emojis.PLUS_SIGN));
+
+                    Button viewButton = Button.secondary("question_view", "View")
+                        .withEmoji(Emoji.fromMarkdown(Emojis.LIST));
+
+                    Button deleteButton = Button.danger("question_delete", "Delete")
+                        .withEmoji(Emoji.fromMarkdown(Emojis.TRASH_BIN));
+
+                    ButtonMenu.Builder menuBuilder = new ButtonMenu.Builder(hook.getJDA())
+                        .addAllowedUsers(member.getIdLong())
+                        .setTimeout(1, TimeUnit.MINUTES);
+
+                    hook.sendMessageEmbeds(guideEmbed.build()).queue(
+                        (msg) -> {
+                            
+                        }
+                    );
                 }
         }
     }

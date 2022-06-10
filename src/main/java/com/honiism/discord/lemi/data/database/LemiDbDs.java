@@ -32,6 +32,7 @@ import java.util.List;
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.misc.QuestionData;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -130,6 +131,11 @@ public class LemiDbDs implements LemiDbManager {
     
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public List<QuestionData> getQuestions(long guildId) {
+        return null;
     }
 
     @Override

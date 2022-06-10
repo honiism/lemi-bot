@@ -22,6 +22,7 @@ package com.honiism.discord.lemi.data.database.managers;
 import java.util.List;
 
 import com.honiism.discord.lemi.data.database.LemiDbDs;
+import com.honiism.discord.lemi.data.misc.QuestionData;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -40,6 +41,7 @@ public interface LemiDbManager {
     int getParanoiaRate(InteractionHook hook);
     boolean hasCustomQuestion(long guildId);
     void updateCustomQuestion(long guildId, String jsonData);
+    List<QuestionData> getQuestions(long guildId);
 
     // userban
     List<String> getBannedReasons(MessageReceivedEvent event);
