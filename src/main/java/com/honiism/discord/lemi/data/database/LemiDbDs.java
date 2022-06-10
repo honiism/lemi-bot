@@ -29,9 +29,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.honiism.discord.lemi.Config;
 import com.honiism.discord.lemi.Lemi;
 import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.misc.CusQuestionData;
 import com.honiism.discord.lemi.data.misc.QuestionData;
 import com.honiism.discord.lemi.utils.misc.Tools;
 import com.zaxxer.hikari.HikariConfig;
@@ -134,18 +136,75 @@ public class LemiDbDs implements LemiDbManager {
     }
 
     @Override
-    public List<QuestionData> getQuestions(long guildId) {
-        return null;
-    }
+    public boolean hasQuestionData(long guildId) {
+        String sql = "SELECT custom_questions_json FROM guild_settings WHERE guild_id = ?";
+        
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setLong(1, guildId);
 
-    @Override
-    public boolean hasCustomQuestion(long guildId) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
         return false;
     }
 
     @Override
-    public void updateCustomQuestion(long guildId, String jsonData) {
+    public void addQuestionData(long guildId) {
+        String sql = "UPDATE guild_settings SET custom_questions_json = ? WHERE guild_id = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+
+            CusQuestionData questionData = new CusQuestionData(guildId);
+
+            questionData.setQuestions(new ArrayList<QuestionData>());
+
+            String jsonData = Lemi.getInstance().getObjectMapper().writeValueAsString(questionData);
+            
+            ps.setString(1, jsonData);
+            ps.setLong(2, guildId);
+            ps.executeUpdate();
+        } catch (SQLException | JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateQuestionData(long guildId, String jsonData) {
+        String sql = "UPDATE guild_settings SET custom_questions_json = ? WHERE guild_id = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, jsonData);
+            ps.setLong(2, guildId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String getQuestionData(long guildId) {
+        String sql = "SELECT custom_questions_json FROM guild_settings WHERE guild_id = ?";
+
+        try (PreparedStatement selectStatement = getConnection().prepareStatement(sql)) {
+            selectStatement.setLong(1, guildId);
+
+            try (ResultSet rs = selectStatement.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("custom_questions_json");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         
+        addQuestionData(guildId);
+        return getQuestionData(guildId);
     }
 
     @Override

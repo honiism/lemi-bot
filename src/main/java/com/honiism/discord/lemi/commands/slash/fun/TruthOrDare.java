@@ -29,13 +29,17 @@ import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.gwt.thirdparty.json.JSONException;
 import com.google.gwt.thirdparty.json.JSONObject;
 import com.honiism.discord.lemi.Config;
@@ -45,13 +49,16 @@ import com.honiism.discord.lemi.commands.handler.UserCategory;
 import com.honiism.discord.lemi.commands.slash.handler.AutocompleteChoices;
 import com.honiism.discord.lemi.commands.slash.handler.SlashCmd;
 import com.honiism.discord.lemi.data.database.managers.LemiDbManager;
+import com.honiism.discord.lemi.data.misc.CusQuestionManager;
 import com.honiism.discord.lemi.data.misc.QuestionData;
 import com.honiism.discord.lemi.utils.buttons.ButtonMenu;
 import com.honiism.discord.lemi.utils.buttons.Paginator;
 import com.honiism.discord.lemi.utils.currency.WeightedRandom;
+import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
 import com.honiism.discord.lemi.utils.misc.Emojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
+import groovyjarjarantlr4.v4.parse.GrammarTreeVisitor.ebnfSuffix_return;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -59,6 +66,7 @@ import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -118,7 +126,7 @@ public class TruthOrDare extends SlashCmd {
     }
 
     @Override
-    public void action(SlashCommandInteractionEvent event) {
+    public void action(SlashCommandInteractionEvent event) throws JsonMappingException, JsonProcessingException {
         String subCmdName = event.getSubcommandName();
         InteractionHook hook = event.getHook();
 
@@ -186,9 +194,11 @@ public class TruthOrDare extends SlashCmd {
                                 .queue((msg) -> {
                                     Lemi.getInstance().getEventWaiter().waitForEvent(
                                             MessageReceivedEvent.class,
+
                                             (e) -> e.isFromType(ChannelType.PRIVATE)
                                                 && e.getAuthor().getIdLong() == target.getIdLong()
                                                 && !e.getAuthor().isBot(),
+                                                
                                             (e) -> {
                                                 TextChannel textChannel = hook.getInteraction().getTextChannel();
 
@@ -214,6 +224,7 @@ public class TruthOrDare extends SlashCmd {
                                                         channel.sendMessage("Answer sent.").queue();
                                                     });
                                             },
+
                                             5,
                                             TimeUnit.MINUTES,
                                             () -> channel.sendMessage("You ran out of time to answer").queue()
@@ -248,16 +259,19 @@ public class TruthOrDare extends SlashCmd {
                         .queue((msg) -> {
                             Lemi.getInstance().getEventWaiter().waitForEvent(
                                     MessageReceivedEvent.class,
+
                                     (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getMember().getIdLong()
                                         && e.isFromGuild()
                                         && e.getGuild().getIdLong() == hook.getInteraction().getGuild().getIdLong()
                                         && e.getTextChannel().getIdLong() == hook.getInteraction().getTextChannel().getIdLong()
                                         && (e.getMessage().getContentRaw().equals("true") 
                                         || e.getMessage().getContentRaw().equals("false")),
+
                                     (e) -> {
                                         String raw = e.getMessage().getContentRaw();
                                         LemiDbManager.INS.setNSFWRating(Boolean.parseBoolean(raw), hook);
                                     },
+
                                     1,
                                     TimeUnit.MINUTES,
                                     () -> hook.sendMessage(":tea: You ran out of time.").queue()
@@ -269,16 +283,19 @@ public class TruthOrDare extends SlashCmd {
                         .queue((msg) -> {
                             Lemi.getInstance().getEventWaiter().waitForEvent(
                                     MessageReceivedEvent.class,
+
                                     (e) -> e.getAuthor().getIdLong() == hook.getInteraction().getMember().getIdLong()
                                         && e.isFromGuild()
                                         && e.getGuild().getIdLong() == hook.getInteraction().getGuild().getIdLong()
                                         && e.getTextChannel().getIdLong() == hook.getInteraction().getTextChannel().getIdLong()
                                         && Tools.isInt(e.getMessage().getContentRaw())
                                         && Integer.parseInt(e.getMessage().getContentRaw()) <= 100,
+
                                     (e) -> {
                                         String raw = e.getMessage().getContentRaw();
                                         LemiDbManager.INS.setParanoiaRate(Integer.parseInt(raw), hook);
                                     },
+                                    
                                     1,
                                     TimeUnit.MINUTES,
                                     () -> hook.sendMessage(":tea: You ran out of time.").queue()
@@ -295,24 +312,24 @@ public class TruthOrDare extends SlashCmd {
                         .setThumbnail(guild.getSelfMember().getEffectiveAvatarUrl())
                         .setColor(0xffd1dc);
 
-                    Modal.Builder addModal = Modal.create("add_custom_question", "Add a custom question!");
+                    Modal.Builder addModal = Modal.create("add-modal", "Add a custom question!");
                     Modal.Builder deleteModal = Modal.create("delete_custom_question", "Remove a custom question!");
 
                     Runnable addRun = () -> {
-                        TextInput type = TextInput.create("add_question_type", "Question Type", TextInputStyle.SHORT)
+                        TextInput type = TextInput.create("add-modal_type", "Question Type", TextInputStyle.SHORT)
                             .setPlaceholder("The type of question it is (Truth, Dare, WYR, NHIE, Paranoia).")
                             .setMaxLength(8)
                             .setRequired(true)
                             .build();
 
-                        TextInput questionRating = TextInput.create("add_question_rating", "Question Rating",
+                        TextInput questionRating = TextInput.create("add-modal_rating", "Question Rating",
                                 TextInputStyle.SHORT)
                             .setPlaceholder("The maturarity rate of question it is (PG, PG13, R).")
                             .setMaxLength(4)
                             .setRequired(true)
                             .build();
 
-                        TextInput question = TextInput.create("add_question", "Question", TextInputStyle.SHORT)
+                        TextInput question = TextInput.create("add-modal_question", "Question", TextInputStyle.SHORT)
                             .setPlaceholder("Enter the custom question you'd like to add.")
                             .setMaxLength(250)
                             .setRequired(true)
@@ -333,36 +350,77 @@ public class TruthOrDare extends SlashCmd {
 
                     Runnable viewRun = () -> {
                         List<String> items = new ArrayList<>();
+                        
+                        questionManager.getQuestions().stream()
+                            .forEach(question -> items.add(question.getType() + " | Rating: " + question.getRating() 
+                                    + " | Question: ||" + question.getQuestion() + "||"));
 
                         Paginator.Builder builder = new Paginator.Builder(event.getJDA())
                             .setEmbedDesc("‧₊੭ :bread: **CUSTOM QUESTIONS LIST!** ♡ ⋆｡˚")
                             .setEventWaiter(Lemi.getInstance().getEventWaiter())
                             .setItemsPerPage(10)
-                            .setItems()
+                            .setItems(items)
                             .useNumberedItems(true)
                             .useTimestamp(true)
-                            .addAllowedUsers(event.getAuthor().getIdLong())
+                            .addAllowedUsers(member.getIdLong())
                             .setColor(0xffd1dc)
                             .setTimeout(1, TimeUnit.MINUTES);
 
                         int page = 1;
 
-                        event.getMessage().replyEmbeds(EmbedUtils.getSimpleEmbed(":tea: Loading..."))
+                        hook.sendMessageEmbeds(EmbedUtils.getSimpleEmbed(":tea: Loading..."))
                             .queue(message -> builder.build().paginate(message, page));
                     };
 
-                    Button addButton = Button.success("question_add", "Add")
+                    Button addButton = Button.success("question-add", "Add")
                         .withEmoji(Emoji.fromMarkdown(Emojis.PLUS_SIGN));
-
-                    Button viewButton = Button.secondary("question_view", "View")
+                    Button viewButton = Button.secondary("question-view", "View")
                         .withEmoji(Emoji.fromMarkdown(Emojis.LIST));
-
-                    Button deleteButton = Button.danger("question_delete", "Delete")
+                    Button deleteButton = Button.danger("question-delete", "Delete")
                         .withEmoji(Emoji.fromMarkdown(Emojis.TRASH_BIN));
+
+                    Map<Button, Runnable> actions = new HashMap<>();
+                    Map<Button, Modal> modals = new HashMap<>();
+
+                    actions.put(addButton, addRun);
+                    actions.put(viewButton, viewRun);
+                    actions.put(deleteButton, deleteRun);
+
+                    modals.put(addButton, addModal.build());
+                    modals.put(deleteButton, deleteModal.build());
+
+                    CusQuestionManager questionManager = new CusQuestionManager(guild.getIdLong(),
+                            LemiDbManager.INS.getQuestionData(guild.getIdLong()));
+
+                    Runnable finishAdd = () -> {
+                        Lemi.getInstance().getEventWaiter()
+                            .waitForEvent(
+                                    ModalInteractionEvent.class,
+                                    
+                                    (e) -> e.getMember().getIdLong() == member.getIdLong()
+                                            && e.isFromGuild()
+                                            && e.getModalId().equals("add-modal"),
+
+                                    (e) -> {
+                                        event.reply(":cherry_blossom: Your request is being processed").queue();
+
+                                        String typeInput = e.getValue("add-modal_type").getAsString();
+                                        String ratingInput = e.getValue("add-modal_rating").getAsString();
+                                        String questionInput = e.getValue("add-modal_question").getAsString();
+
+                                        String questionId = typeInput + "-" + ratingInput + "-" 
+                                                + guild.getId() + questionManager.getQuestions().size() + 1;
+
+                                        QuestionData questionData = new QuestionData(settingCategory, settingCategory, 0);
+                                    }
+                            );
+                    };
 
                     ButtonMenu.Builder menuBuilder = new ButtonMenu.Builder(hook.getJDA())
                         .addAllowedUsers(member.getIdLong())
-                        .setTimeout(1, TimeUnit.MINUTES);
+                        .setTimeout(1, TimeUnit.MINUTES)
+                        .setActions(actions)
+                        .setModals(modals);
 
                     hook.sendMessageEmbeds(guideEmbed.build()).queue(
                         (msg) -> {
