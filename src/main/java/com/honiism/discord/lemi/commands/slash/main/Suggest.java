@@ -133,7 +133,6 @@ public class Suggest extends SlashCmd {
 
                 (event) -> event.getMember().getIdLong() == member.getIdLong()
                         && event.isFromGuild()
-                        && event.getGuild().getIdLong() == Config.getLong("honeys_hive")
                         && event.getModalId().equals("suggest"),
 
                 (event) -> {

@@ -133,7 +133,6 @@ public class Report extends SlashCmd {
 
                 (event) -> event.getMember().getIdLong() == member.getIdLong()
                         && event.isFromGuild()
-                        && event.getGuild().getIdLong() == Config.getLong("honeys_hive")
                         && event.getModalId().equals("report"),
 
                 (event) -> {
