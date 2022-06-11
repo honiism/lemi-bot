@@ -55,14 +55,11 @@ import com.honiism.discord.lemi.utils.buttons.ButtonMenu;
 import com.honiism.discord.lemi.utils.buttons.Paginator;
 import com.honiism.discord.lemi.utils.currency.WeightedRandom;
 import com.honiism.discord.lemi.utils.embeds.EmbedUtils;
-import com.honiism.discord.lemi.utils.misc.Emojis;
 import com.honiism.discord.lemi.utils.misc.Tools;
 
-import groovyjarjarantlr4.v4.parse.GrammarTreeVisitor.ebnfSuffix_return;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -143,9 +140,12 @@ public class TruthOrDare extends SlashCmd {
         }
 
         JSONObject jsonResponse = handleRequest(rating, subCmdName, hook);
-        Guild guild = event.getGuild();
         
+        Guild guild = event.getGuild();
         Member member = event.getMember();
+
+        CusQuestionManager questionManager = new CusQuestionManager(guild.getIdLong(),
+                LemiDbManager.INS.getQuestionData(guild.getIdLong()));
 
         switch (subCmdName) {
             case "truth":
@@ -153,16 +153,41 @@ public class TruthOrDare extends SlashCmd {
             case "wyr":
             case "nhie":
                 try {
-                    String question = jsonResponse.getString("question");
-                    String id = jsonResponse.getString("id");
+                    WeightedRandom<Boolean> isCustom = new WeightedRandom<>();
 
-                    EmbedBuilder questionEmbed = new EmbedBuilder()
-                        .setTitle(":tulip: " + subCmdName.toUpperCase() + " question!")
-                        .setDescription(question)
-                        .setAuthor(member.getEffectiveName(), null, member.getEffectiveAvatarUrl())
-                        .setFooter("ID: " + id + " | Rating: " + rating)
-                        .setThumbnail(guild.getSelfMember().getEffectiveAvatarUrl())
-                        .setColor(0xffd1dc);
+                    isCustom.add(100, true);
+                    isCustom.add(0, false);
+
+                    EmbedBuilder questionEmbed = new EmbedBuilder();
+
+                    String question;
+                    String id;
+
+                    if (!questionManager.getQuestions().isEmpty() && isCustom.next()) {
+                        QuestionData pickedQuestion = questionManager.getRandomQuestion(subCmdName, rating);
+
+                        question = pickedQuestion.getQuestion();
+                        id = pickedQuestion.getQuestionId();
+
+                        questionEmbed
+                            .setTitle(":tulip: " + subCmdName.toUpperCase() + " question!")
+                            .setDescription(question)
+                            .setAuthor(member.getEffectiveName(), null, member.getEffectiveAvatarUrl())
+                            .setFooter("ID: " + id + " | Rating: " + rating)
+                            .setThumbnail(guild.getSelfMember().getEffectiveAvatarUrl())
+                            .setColor(0xffd1dc);
+                    } else {
+                        question = jsonResponse.getString("question");
+                        id = jsonResponse.getString("id");
+
+                        questionEmbed
+                            .setTitle(":tulip: " + subCmdName.toUpperCase() + " question!")
+                            .setDescription(question)
+                            .setAuthor(member.getEffectiveName(), null, member.getEffectiveAvatarUrl())
+                            .setFooter("ID: " + id + " | Rating: " + rating)
+                            .setThumbnail(guild.getSelfMember().getEffectiveAvatarUrl())
+                            .setColor(0xffd1dc);
+                    }
 
                     hook.sendMessageEmbeds(questionEmbed.build()).queue();
                 } catch (JSONException e) {
@@ -172,18 +197,44 @@ public class TruthOrDare extends SlashCmd {
 
             case "paranoia":
                 try {
-                    String question = jsonResponse.getString("question");
-                    String id = jsonResponse.getString("id");
+                    WeightedRandom<Boolean> isCustom = new WeightedRandom<>();
+
+                    isCustom.add(100, true);
+                    isCustom.add(0, false);
+
+                    EmbedBuilder questionEmbed = new EmbedBuilder();
+
+                    String question;
+                    String id;
 
                     Member target = event.getOption("user", event.getMember(), OptionMapping::getAsMember);
 
-                    EmbedBuilder questionEmbed = new EmbedBuilder()
-                        .setTitle(":tulip: " + subCmdName.toUpperCase() + " question!")
-                        .setDescription(question)
-                        .setAuthor(target.getEffectiveName(), null, target.getEffectiveAvatarUrl())
-                        .setFooter("ID: " + id + " | Rating: " + rating + " | Type: " + subCmdName)
-                        .setThumbnail(guild.getSelfMember().getEffectiveAvatarUrl())
-                        .setColor(0xffd1dc);
+                    if (!questionManager.getQuestions().isEmpty() && isCustom.next()) {
+                        QuestionData pickedQuestion = questionManager.getRandomQuestion(subCmdName, rating);
+
+                        question = pickedQuestion.getQuestion();
+                        id = pickedQuestion.getQuestionId();
+
+                        questionEmbed
+                            .setTitle(":tulip: " + subCmdName.toUpperCase() + " question!")
+                            .setDescription(question)
+                            .setAuthor(target.getEffectiveName(), null, target.getEffectiveAvatarUrl())
+                            .setFooter("ID: " + id + " | Rating: " + rating)
+                            .setThumbnail(guild.getSelfMember().getEffectiveAvatarUrl())
+                            .setColor(0xffd1dc);
+
+                    } else {
+                        question = jsonResponse.getString("question");
+                        id = jsonResponse.getString("id");
+
+                        questionEmbed
+                            .setTitle(":tulip: " + subCmdName.toUpperCase() + " question!")
+                            .setDescription(question)
+                            .setAuthor(target.getEffectiveName(), null, target.getEffectiveAvatarUrl())
+                            .setFooter("ID: " + id + " | Rating: " + rating)
+                            .setThumbnail(guild.getSelfMember().getEffectiveAvatarUrl())
+                            .setColor(0xffd1dc);
+                    }
 
                     target.getUser().openPrivateChannel().queue(
                         (channel) -> {
@@ -249,11 +300,6 @@ public class TruthOrDare extends SlashCmd {
 
                 String settingCategory = event.getOption("category", OptionMapping::getAsString);
 
-                if (!settingCategory.equals("NSFW_rating") && !settingCategory.equals("paranoia_rate")) {
-                    hook.sendMessage(":cherries: Invalid setting category.").queue();
-                    return;
-                }
-
                 if (settingCategory.equals("NSFW_rating")) {
                     hook.sendMessage(":sunflower: Please respond with either `true` or `false` to `allow` or `not allow`.")
                         .queue((msg) -> {
@@ -313,48 +359,50 @@ public class TruthOrDare extends SlashCmd {
                         .setColor(0xffd1dc);
 
                     Modal.Builder addModal = Modal.create("add-modal", "Add a custom question!");
-                    Modal.Builder deleteModal = Modal.create("delete_custom_question", "Remove a custom question!");
 
-                    Runnable addRun = () -> {
-                        TextInput type = TextInput.create("add-modal_type", "Question Type", TextInputStyle.SHORT)
-                            .setPlaceholder("The type of question it is (Truth, Dare, WYR, NHIE, Paranoia).")
-                            .setMaxLength(8)
-                            .setRequired(true)
-                            .build();
+                    TextInput addModalType = TextInput.create("add-modal_type", "Question Type", TextInputStyle.SHORT)
+                        .setPlaceholder("The type of question it is (Truth, Dare, WYR, NHIE, Paranoia).")
+                        .setMaxLength(8)
+                        .setRequired(true)
+                        .build();
 
-                        TextInput questionRating = TextInput.create("add-modal_rating", "Question Rating",
-                                TextInputStyle.SHORT)
-                            .setPlaceholder("The maturarity rate of question it is (PG, PG13, R).")
-                            .setMaxLength(4)
-                            .setRequired(true)
-                            .build();
+                    TextInput addModalRating = TextInput.create("add-modal_rating", "Question Rating",
+                            TextInputStyle.SHORT)
+                        .setPlaceholder("The maturarity rate of question it is (PG, PG13, R).")
+                        .setMaxLength(4)
+                        .setRequired(true)
+                        .build();
 
-                        TextInput question = TextInput.create("add-modal_question", "Question", TextInputStyle.SHORT)
-                            .setPlaceholder("Enter the custom question you'd like to add.")
-                            .setMaxLength(250)
-                            .setRequired(true)
-                            .build();
+                    TextInput addModalQuestion = TextInput.create("add-modal_question", "Question", TextInputStyle.SHORT)
+                        .setPlaceholder("Enter the custom question you'd like to add.")
+                        .setMaxLength(250)
+                        .setRequired(true)
+                        .build();
 
-                        addModal.addActionRows(ActionRow.of(type), ActionRow.of(questionRating), ActionRow.of(question));
-                    };
+                    addModal.addActionRows(ActionRow.of(addModalType), ActionRow.of(addModalRating), ActionRow.of(addModalQuestion));
+                    
+                    Modal.Builder deleteModal = Modal.create("delete-modal", "Remove a custom question!");
 
-                    Runnable deleteRun = () -> {
-                        TextInput questionId = TextInput.create("question_id", "Question ID", TextInputStyle.SHORT)
-                            .setPlaceholder("The id of the question you'd like to delete (can be seen through view).")
-                            .setMaxLength(8)
-                            .setRequired(true)
-                            .build();
+                    TextInput deleteModalId = TextInput.create("delete-modal_id", "Question ID", TextInputStyle.SHORT)
+                        .setPlaceholder("The id of the question you'd like to delete (can be seen through view).")
+                        .setMaxLength(8)
+                        .setRequired(true)
+                        .build();
 
-                        deleteModal.addActionRows(ActionRow.of(questionId));
-                    };
+                    deleteModal.addActionRows(ActionRow.of(deleteModalId));
 
                     Runnable viewRun = () -> {
                         List<String> items = new ArrayList<>();
-                        
-                        questionManager.getQuestions().stream()
-                            .forEach(question -> items.add(question.getType() + " | Rating: " + question.getRating() 
-                                    + " | Question: ||" + question.getQuestion() + "||"));
 
+                        if (!questionManager.getQuestions().isEmpty()) {
+                            questionManager.getQuestions().stream()
+                                .forEach(question -> items.add(question.getType() + " | Rating: " + question.getRating() 
+                                        + " | Question: ||" + question.getQuestion() + "||"));
+
+                        } else {
+                            items.add("No custom questions are available for this server.");
+                        }
+                        
                         Paginator.Builder builder = new Paginator.Builder(event.getJDA())
                             .setEmbedDesc("‧₊੭ :bread: **CUSTOM QUESTIONS LIST!** ♡ ⋆｡˚")
                             .setEventWaiter(Lemi.getInstance().getEventWaiter())
@@ -372,25 +420,17 @@ public class TruthOrDare extends SlashCmd {
                             .queue(message -> builder.build().paginate(message, page));
                     };
 
-                    Button addButton = Button.success("question-add", "Add")
-                        .withEmoji(Emoji.fromMarkdown(Emojis.PLUS_SIGN));
-                    Button viewButton = Button.secondary("question-view", "View")
-                        .withEmoji(Emoji.fromMarkdown(Emojis.LIST));
-                    Button deleteButton = Button.danger("question-delete", "Delete")
-                        .withEmoji(Emoji.fromMarkdown(Emojis.TRASH_BIN));
+                    Button addButton = Button.success("question-add", "Add");
+                    Button viewButton = Button.secondary("question-view", "View");
+                    Button deleteButton = Button.danger("question-delete", "Delete");
 
                     Map<Button, Runnable> actions = new HashMap<>();
                     Map<Button, Modal> modals = new HashMap<>();
 
-                    actions.put(addButton, addRun);
                     actions.put(viewButton, viewRun);
-                    actions.put(deleteButton, deleteRun);
 
                     modals.put(addButton, addModal.build());
                     modals.put(deleteButton, deleteModal.build());
-
-                    CusQuestionManager questionManager = new CusQuestionManager(guild.getIdLong(),
-                            LemiDbManager.INS.getQuestionData(guild.getIdLong()));
 
                     Runnable finishAdd = () -> {
                         Lemi.getInstance().getEventWaiter()
@@ -402,31 +442,90 @@ public class TruthOrDare extends SlashCmd {
                                             && e.getModalId().equals("add-modal"),
 
                                     (e) -> {
-                                        event.reply(":cherry_blossom: Your request is being processed").queue();
+                                        e.deferReply().queue();
 
                                         String typeInput = e.getValue("add-modal_type").getAsString();
                                         String ratingInput = e.getValue("add-modal_rating").getAsString();
                                         String questionInput = e.getValue("add-modal_question").getAsString();
 
                                         String questionId = typeInput + "-" + ratingInput + "-" 
-                                                + guild.getId() + questionManager.getQuestions().size() + 1;
+                                                + guild.getId() + "-" + questionManager.getQuestions().size() + 1;
 
-                                        QuestionData questionData = new QuestionData(settingCategory, settingCategory, 0);
+                                        QuestionData questionData = new QuestionData(questionId, typeInput, member.getIdLong());
+
+                                        questionData.setQuestion(questionInput);
+                                        questionData.setRating(ratingInput);
+
+                                        if (questionManager.getQuestions().contains(questionData)) {
+                                            e.getHook().sendMessage(":cherry_blossom: That question already exists.").queue();
+                                            return;
+                                        }
+
+                                        if (questionManager.getQuestions().size() == 50) {
+                                            e.getHook().sendMessage(":butterfly: Sorry, you can only have 50 custom questions.").queue();
+                                            return;
+                                        }
+
+                                        e.getHook().sendMessage(":coconut: Your request is being processed.").queue(
+                                            (s) -> questionManager.addQuestion(questionData)
+                                        );
                                     }
                             );
                     };
 
-                    ButtonMenu.Builder menuBuilder = new ButtonMenu.Builder(hook.getJDA())
+                    Runnable finishDelete = () -> {
+                        Lemi.getInstance().getEventWaiter()
+                            .waitForEvent(
+                                    ModalInteractionEvent.class,
+                                    
+                                    (e) -> e.getMember().getIdLong() == member.getIdLong()
+                                            && e.isFromGuild()
+                                            && e.getModalId().equals("delete-modal"),
+
+                                    (e) -> {
+                                        e.deferReply().queue();
+                                        e.getHook().sendMessage(":cherry_blossom: Your request is being processed").queue();
+
+                                        String idInput = e.getValue("delete-modal_id").getAsString();
+                                        QuestionData question = questionManager.getQuestionById(idInput);
+
+                                        if (question == null) {
+                                            e.getHook()
+                                                .sendMessage(":grapes: The id you put did not match any question ids.")
+                                                .queue();
+                                            return;
+                                        }
+
+                                        e.getHook().sendMessage(":seedling: Your question has been deleted.").queue();
+                                        questionManager.deleteQuestion(question);
+                                    }
+                            );
+                    };
+
+                    Map<Button, Runnable> finalActions = new HashMap<>();
+
+                    finalActions.put(addButton, finishAdd);
+                    finalActions.put(deleteButton, finishDelete);
+
+                    ButtonMenu buttonMenu = new ButtonMenu.Builder(hook.getJDA())
+                        .setWwaiter(Lemi.getInstance().getEventWaiter())
                         .addAllowedUsers(member.getIdLong())
                         .setTimeout(1, TimeUnit.MINUTES)
                         .setActions(actions)
-                        .setModals(modals);
+                        .setFinalActions(finalActions)
+                        .setModals(modals)
+                        .build();
 
-                    hook.sendMessageEmbeds(guideEmbed.build()).queue(
-                        (msg) -> {
-                            
-                        }
-                    );
+                    hook.sendMessageEmbeds(guideEmbed.build())
+                        .addActionRow(addButton, viewButton, deleteButton)
+                        .queue(
+                            (msg) -> {
+                                buttonMenu.waitAndModal(msg, hook.getInteraction().getTextChannel().getIdLong());
+                            }
+                        );
+                } else {
+                    hook.sendMessage(":cherries: Invalid setting category.").queue();
+                    return;
                 }
         }
     }

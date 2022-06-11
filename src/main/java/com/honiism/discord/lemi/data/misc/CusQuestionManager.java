@@ -20,6 +20,8 @@
 package com.honiism.discord.lemi.data.misc;
 
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -52,16 +54,48 @@ public class CusQuestionManager {
     }
 
     public void addQuestion(QuestionData question) {
-        if (LemiDbManager.INS.hasQuestionData(guildId)) {
-            LemiDbManager.INS.addQuestionData(guildId);
-        }
-
         getQuestions().add(question);
+
+        getQuestions().forEach(questionA -> System.out.println(questionA.getQuestion()));
 
         try {
             LemiDbManager.INS.updateQuestionData(guildId, Lemi.getInstance().getObjectMapper().writeValueAsString(getData()));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }
+
+    public void deleteQuestion(QuestionData question) {
+        getQuestions().remove(question);
+
+        try {
+            LemiDbManager.INS.updateQuestionData(guildId, Lemi.getInstance().getObjectMapper().writeValueAsString(getData()));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public QuestionData getQuestionById(String id) {
+        return getQuestions().stream()
+            .filter(questionData -> questionData.getQuestionId().equals(id))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public QuestionData getRandomQuestion() {
+        Random r = new Random();
+
+        return getQuestions().get(r.nextInt(getQuestions().size()));
+    }
+
+    public QuestionData getRandomQuestion(String type, String rating) {
+        Random r = new Random();
+
+        List<QuestionData> questions = getQuestions().stream()
+            .filter(question -> question.getType().equalsIgnoreCase(type) 
+                             && question.getRating().equalsIgnoreCase(rating))
+            .collect(Collectors.toList());
+
+        return questions.get(r.nextInt(questions.size()));
     }
 }

@@ -143,7 +143,7 @@ public class LemiDbDs implements LemiDbManager {
             ps.setLong(1, guildId);
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
+                if (!rs.getString("custom_questions_json").equals("0")) {
                     return true;
                 }
             }
@@ -178,6 +178,8 @@ public class LemiDbDs implements LemiDbManager {
     public void updateQuestionData(long guildId, String jsonData) {
         String sql = "UPDATE guild_settings SET custom_questions_json = ? WHERE guild_id = ?";
 
+        log.info("test");
+
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, jsonData);
             ps.setLong(2, guildId);
@@ -195,7 +197,7 @@ public class LemiDbDs implements LemiDbManager {
             selectStatement.setLong(1, guildId);
 
             try (ResultSet rs = selectStatement.executeQuery()) {
-                if (rs.next()) {
+                if (!rs.getString("custom_questions_json").equals("0")) {
                     return rs.getString("custom_questions_json");
                 }
             }

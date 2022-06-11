@@ -73,9 +73,13 @@ public class ButtonMenu {
                     return true;
                 },
                 (event) -> {
-                    actions.get(event.getButton()).run();
-
                     Button buttonClicked = event.getButton();
+
+                    event.getMessage().editMessageComponents(Collections.emptyList()).queue();
+
+                    if (actions.containsKey(buttonClicked)) {
+                        actions.get(buttonClicked).run();
+                    }
 
                     if (modals.containsKey(buttonClicked)) {
                         event.replyModal(modals.get(buttonClicked)).queue(
@@ -157,7 +161,12 @@ public class ButtonMenu {
             this.jda = jda;
         }
 
-        public Builder setFinalAction(Map<Button, Runnable> finalActions) {
+        public Builder setWwaiter (EventWaiter waiter) {
+            this.waiter = waiter;
+            return this;
+        }
+
+        public Builder setFinalActions(Map<Button, Runnable> finalActions) {
             this.finalActions = finalActions;
             return this;
         }
@@ -167,11 +176,10 @@ public class ButtonMenu {
             return this;
         }
 
-        public Builder setTimeout(long timeout, TimeUnit unit) {
+        public Builder setTimeout(long delay, TimeUnit unit) {
             Checks.notNull(unit, "TimeUnit");
-            Checks.check(timeout > 0, "Timeout must be greater than 0!");
-
-            timeout = unit.toSeconds(timeout);
+            Checks.check(delay > 0, "Timeout must be greater than 0!");
+            timeout = unit.toSeconds(delay);
             return this;
         }
 
